@@ -35,9 +35,7 @@ Convenience features:
 1. easily select subset of moments used in estimation
 
 ### Dev to-do list:
-1. inference function
-1. implement and test two-step estimation
-1. test GMM
+1. flags for (1) optimum from run that did not converge, (2) 1st stage optimum from run that did not converge
 1. test parallel
 1. test time limit hit
 1. output estimation results text
@@ -48,7 +46,7 @@ Convenience features:
 1. (lower priority) accept user-provided bootstrap sampling function
 
 
-Wish-list
+### Wish-list
 1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`
 1. automatic differentiation for gradient
 1. integrate with RegressionTables.jl
@@ -57,23 +55,25 @@ Wish-list
 1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
 
 # Install
-Note: as of January 2023, this packages requires `LsqFit.jl#master` (for the `maxTime` option)
-1. ]remove LsqFit
-1. ]add LsqFit#master
+?
+Note: as of January 2023, this packages requires `LsqFit.jl#master` (for the `maxTime` option).
+1. `]remove LsqFit`
+1. `]add LsqFit#master`
 
-Then, to install this package, run ]add https://github.com/Gkreindler/GMMTools.jl
+Then, to install this package:
+`]add https://github.com/Gkreindler/GMMTools.jl`
 
 
 # Basic Usage
-The user provides two objects:
-1. A function `moments(theta,data)` that returns an NxM matrix, where `theta` is the parameter vector, `N` is the number of observations, and `M` is the number of moments.
-1. An object `data`. (Can be anything. By default Dict{String, Any} with values tha are vectors or matrices with 1st dimension of size `N`. In this format, sampling for slow bootstrap is done automatically.)
+The user must provide two objects:
+1. A function `moments(theta,data)` that returns an NxM matrix, where `theta` is the parameter vector, `N` is the number of observations, and `M` is the number of moments. `N=1` for CMD.
+1. An object `data`. (Can be anything. By default `Dict{String, Any}` with values tha are vectors or matrices with 1st dimension of size `N`. In this format, sampling for slow bootstrap is done automatically.)
 
 # Examples
 See examples in 
 ```
 examples/example_cmd.jl
-examples/???
+examples/example_gmm2step.jl
 ```
 
 # Notes
@@ -95,16 +95,14 @@ All three issues can be handled in `GMMTools.jl`.
 
 Set the options `"main_overwrite_runs"` and `"boot_overwrite_runs"`  in `gmm_options` to one of the following
 ```
-0 = do not overwrite anything, but launch the runs that are missing
+0 = do not overwrite anything, but launch the runs that are missing # this will save the most time
 1 = overwrite runs that hit the time or iterations limit
 2 = overwrite runs that errored
 3 = overwrite both 1 and 2
 10 = overwrite all existing files
 ```
 
-## Understanding the file output from incomplete cycles
-We save the results from each initial condition run in a separate file (one-row dataframe) in `"step1/results_df_run_<iter_n>.csv"`. After all runs are finished, we combine all results into a single dataframe in `"estimation_results_df.csv"`. (Analogous for two-step GMM.) To avoid a large number of files (thousands in the case of bootstrap with multiple initial conditions), we clean up and delete the individual run output files after the combined dataframe is generated.
+It is the user's responsibility to ensure that the existing results and the new runs are compatible. TODO: decide if/what checks to do, such as whether the initial conditions are the same (or load them from existing files).
 
-Todo's
-* delete individual dataframes after the combined dataframe is generated
-* if combined dataframe exists, process it and only launch the runs that are not complete
+### Understanding the file output from incomplete cycles
+We save the results from each initial condition run in a separate file (one-row dataframe) in `"SUBFOLDER/results_df_run_<iter_n>.csv"` where `SUBFOLDER` is one of `"results", "step1", "step2"`. After all runs are finished, we combine all results into a single dataframe in `"estimation_SUBFOLDER_df.csv"`. To avoid a large number of files (thousands in the case of bootstrap with multiple initial conditions), we clean up and delete the individual run output files (the entire `"SUBFOLDER"` subfolder) after the combined dataframe is generated.
