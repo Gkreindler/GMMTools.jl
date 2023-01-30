@@ -76,9 +76,9 @@ function curve_fit_wrapper(
 				theta_initial_vec,
 				theta_lower,
 				theta_upper;
-				write_results_to_file=0,
+				write_results_to_file::Bool=true,
 				individual_run_results_path="",
-                overwrite_existing::String="all",
+                # overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
 				maxIter=1000,
 				maxTime=Inf,
                 throw_errors::Bool=false,
@@ -86,42 +86,43 @@ function curve_fit_wrapper(
                 show_progress::Bool=true
 			)
 
-    show_progress && println("starting iteration ", idx)
+    show_progress && println("starting run ", idx)
 
     outputfile = individual_run_results_path * "results_df_run_" * string(idx) * ".csv"
 
-    if overwrite_existing != "all" && isfile(outputfile)
-        results_df = CSV.read(outputfile, DataFrame)
+    # if overwrite_runs < 10 && isfile(outputfile)
+    #     results_df = CSV.read(outputfile, DataFrame)
 
-        has_error = results_df[1, "opt_error"]
-        hit_limit = ~results_df[1, "opt_converged"]
+    #     has_error = results_df[1, "opt_error"]
+    #     hit_limit = ~results_df[1, "opt_converged"] &&
 
-        if overwrite_existing == "none"
-            show_progress && println("... run exists -- skipping, error=", has_error, " limit=", hit_limit)    
-            return results_df
-        end
+    #     rerun_error = has_error && (overwrite_runs ∈ [2,3])
+    #     rerun_limit = hit_limit && (overwrite_runs ∈ [1,3])
 
-        if ~has_error && ~hit_limit
-            show_progress && println("... successful run -- skipping, error=", has_error, " limit=", hit_limit)
-            return results_df
-        end
+    #     if overwrite_runs == 0
+    #         show_progress && println("... skipping. Error=", has_error, " limit=", hit_limit, " overwrite_runs=", overwrite_runs) 
+    #         return results_df
+    #     end
 
-        if has_error && (overwrite_existing == "limit")
-            show_progress && println("... errored run -- skipping, error=", has_error, " limit=", hit_limit)
-            return results_df
-        end
+    #     if ~rerun_error && ~rerun_limit
+    #         show_progress && println("... skipping. Error=", has_error, " limit=", hit_limit, " overwrite_runs=", overwrite_runs)
+    #         return results_df
+    #     end
+    # end
 
-        if hit_limit && (overwrite_existing == "error")
-            show_progress && println("... run that hit limit -- skipping, error=", has_error, " limit=", hit_limit)
-            return results_df
-        end
-    end
+    # need to initialize because try-catch has local scope
+    results_df = nothing
 
     try
         # 	moments are already differenced out so we target zero:
         ymoms = zeros(n_moms)
 
-        # call curve_fit from LsqFit.jl
+        # call curve_fit from LsqFit.jl # ! remove this debug code
+        # display(Whalf)
+        # display(ymoms)
+        # display(theta_initial_vec)
+        
+
         timeittook = @elapsed result = curve_fit(
                     myobjfunction, # objective function, takes theta and Whalf as arguments
                     Whalf, # pass cholesky half as "data" to myobjfunction
@@ -130,49 +131,409 @@ function curve_fit_wrapper(
                     lower=theta_lower,
                     upper=theta_upper,
                     maxIter=maxIter,
-                    maxTime=maxTime, # this is added relative to official LsqFit.jl . Use https://github.com/Gkreindler/LsqFit.jl
+                    maxTime=maxTime, # As of Jan 2023, need to run ]add LsqFit#master for this option to be available
                     show_trace=show_trace
                 )
 
-        # TODO: remove this?
-        if show_progress
-            println(">>> iteration ", idx, " took: ", timeittook, " seconds. Converged: ", result.converged)
-            println(">>> optimum ", result.param)
-            println(">>> obj val ", norm(result.resid))
-        end
+        show_progress && println(">>> iteration ", idx, " took: ", timeittook, " seconds. Converged: ", result.converged, "obj val ", norm(result.resid), " optimum=", result.param)
 
         # results dictionary
         results_df = Dict{String, Any}(
+            "run_idx" => idx,
             "obj_vals" => norm(result.resid),
             "opt_converged" => result.converged,
             "opt_runtime" => timeittook,
-            "opt_error" => false
+            "opt_error" => false,
+            "opt_error_message" => ""
         )
         for i=1:length(result.param)
             results_df[string("param_", i)] = result.param[i]
         end
     catch myerror
         
+        println("ERROR -- ")
+        display(myerror)
+
         if throw_errors
             throw(myerror)
         end
 
         results_df = Dict{String, Any}(
-            "obj_vals" => norm(result.resid),
-            "opt_converged" => result.converged,
-            "opt_runtime" => timeittook,
-            "opt_error" => false,
+            "run_idx" => idx,
+            "obj_vals" => missing,
+            "opt_converged" => false,
+            "opt_runtime" => missing,
+            "opt_error" => true,
             "opt_error_message" => sprint(showerror, myerror)
         )
+        for i=1:length(theta_initial_vec)
+            results_df[string("param_", i)] = missing
+        end
     end
 
     # save to file
-    if write_results_to_file == 2
+    if write_results_to_file
         CSV.write(outputfile, DataFrame(results_df))
     end
 
     return results_df
 end
+
+
+
+"""
+    results flags
+        0 = no runs completed
+        1 = some runs not complete (missing runs results)
+        2 = all runs complete, all have errors or have hit the time limit
+        3 = all runs complete, some successful, but some have errors
+        4 = all runs complete, some successful, no errors, but some have hit the time limit
+
+        10 = all exist and successful 
+    
+    runs_to_launch = vector of indices of the runs that need re-launching
+    
+    optimal_theta = vector with 
+
+    optimal_theta_flag = 
+        0 = no warnings. lowest objective value attained among runs that converged
+        1 = lowest objective value attained among runs that DID NOT converge
+        2 = none of the runs converged
+        9 = no optimal theta provided
+"""
+function collect_estimation_results(;
+    nruns::Int64,
+    results_folder_path::String="",
+    results_subfolder_path::String="",
+    overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
+    # show_progress::Bool=true
+)
+    ### Step 1. Check if any individual run results exist in the subfolder
+
+    all_results_df = DataFrame()
+    if isdir(results_subfolder_path) # note, isdir("") = false
+        list_of_files = readdir(results_subfolder_path)
+
+        try
+            list_of_dfs = []
+
+            for myf_name in list_of_files
+                if myf_name[(end-2):end] == "csv"
+                    println("Attempting to read results file: ", myf_name, " in folder=", results_subfolder_path)
+                    push!(list_of_dfs, CSV.read(results_subfolder_path * myf_name, DataFrame))
+                end
+            end
+            
+            if length(list_of_dfs) > 0
+                all_results_df = vcat(list_of_dfs...)
+            end
+
+        catch myerror
+            println(myerror)
+            println("ERROR reading results from ", results_subfolder_path)
+            println("...compiling empty DF")
+            all_results_df = DataFrame()
+        end
+    end
+
+    ## If none of the individual results files exist (or if there are errors), try to read the full DF with results
+    results_df_path = results_folder_path * "estimation_results_df.csv"
+    if (nrow(all_results_df) == 0) && isfile(results_df_path)
+        all_results_df = CSV.read(results_df_path, DataFrame)
+    end
+
+    ## If no results exist
+    if nrow(all_results_df) == 0
+        results_flag = 0
+        runs_to_launch = 1:nruns
+        optimal_theta = nothing
+        optimal_theta_flag = 9
+
+        return results_flag, runs_to_launch, optimal_theta, optimal_theta_flag, all_results_df
+    end
+
+    ### Optimal estimated theta
+
+        if all(all_results_df.opt_error) # case 9: all errors, no theta hat
+            optimal_theta = nothing
+            optimal_theta_flag = 9
+            all_results_df.is_optimum = zeros(nrow(all_results_df)) # ? will this work elsewhere? there is no optimum
+
+        else
+
+            all_results_noerror_df = all_results_df[.~all_results_df.opt_error, :]
+
+            # find optimum
+            idx_optimum = argmin(all_results_df.obj_vals)
+            all_results_df.is_optimum = ((1:nrow(all_results_df)) .== idx_optimum)
+            optimal_theta = all_results_noerror_df[idx_optimum, r"param_"] |> collect
+
+            # case 2: none of the runs converged
+            if all(.~all_results_noerror_df.opt_converged)
+                
+                optimal_theta_flag = 2
+            else
+
+                # case 1 = lowest objective value attained among runs that DID NOT converge
+                if ~all_results_df[idx_optimum, :opt_converged]
+                    optimal_theta_flag = 1
+                else # case 0 = no warnings. lowest objective value attained among runs that converged
+                    optimal_theta_flag = 0
+                end
+            end
+
+        end
+
+    ### Which runs should be launched this time -- depends on existing results and "overwrite_runs"
+    ## missing runs
+    missing_idxs = [i for i=1:nruns if i ∉ all_results_df.run_idx]
+
+    ## error runs
+    error_idxs = all_results_df[all_results_df.opt_error, "run_idx"]
+
+    ## runs that did not converge (hit the time or iterations limit)
+    limit_idxs = all_results_df[.~all_results_df.opt_converged, "run_idx"]
+
+    ### Flag
+    if length(missing_idxs) > 0
+        results_flag = 1 # some missing
+    
+    elseif length(union(error_idxs,limit_idxs)) == nruns
+        results_flag = 2 # all runs complete, ALL have errors or have hit the time limit
+    
+    elseif length(error_idxs) > 0
+        results_flag = 3 # all runs complete, some successful, but some have errors
+    
+    elseif length(limit_idxs) > 0
+        results_flag = 4 # all runs complete, some successful, no errors, but some have hit the time limit
+
+    else
+        results_flag = 10 # all runs successful (none missing, no errors, no time limit hits)
+    end
+
+    ## completely missing runs (this may happen when estimation crashes before full DF is compiled)
+    @assert overwrite_runs ∈ [0,1,2,3,10]
+    if overwrite_runs == 0 # do not overwrite anything, only launch missing runs
+        return results_flag, missing_idxs, optimal_theta, optimal_theta_flag, all_results_df
+
+    elseif overwrite_runs == 1 # 1=overwrite runs that hit the time or iterations limit
+        return results_flag, sort(union(missing_idxs, limit_idxs)),  optimal_theta, optimal_theta_flag, all_results_df
+
+    elseif overwrite_runs == 2 # 2=overwrite runs that errored
+        # println("missing     ", missing_idxs)
+        # println("errors      ", error_idxs)
+        # println("runs to run ", sort(union(missing_idxs, error_idxs)))
+        return results_flag, sort(union(missing_idxs, error_idxs)), optimal_theta, optimal_theta_flag, all_results_df
+
+    elseif overwrite_runs == 3 # 3=overwrite both 1 and 2
+        return results_flag, sort(union(missing_idxs, limit_idxs, error_idxs)), optimal_theta, optimal_theta_flag, all_results_df
+
+    elseif overwrite_runs == 10 # 10=overwrite all existing files
+        return results_flag, 1:nruns, optimal_theta, optimal_theta_flag, all_results_df
+    end
+end
+
+# Wstep1::Union{Matrix{Float64}, Nothing}=nothing,
+function estimation_one_step(;
+    momfn_loaded::Function,
+    theta0::Matrix{Float64},
+    theta_lower::Vector{Float64},
+    theta_upper::Vector{Float64},
+    run_parallel::Bool=true,
+    n_moms::Union{Int64, Nothing}=nothing,
+    initialWhalf::Union{Matrix{Float64}, Nothing}=nothing,    
+    results_folder_path::String="",
+    results_subfolder::String="results",
+    write_results_to_file::Bool=true,
+    overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
+    maxIter::Int64=1000,
+    maxTime::Float64=Inf,
+    throw_errors::Bool=false,
+    show_trace::Bool=false,
+    show_theta::Bool=false,
+    show_progress::Bool=false)
+
+## Initial 
+    n_params = size(theta0, 2)
+    n_runs   = size(theta0, 1)
+    estimation_flags = Dict{String, Any}()
+
+##  
+    results_subfolder_path = results_folder_path * results_subfolder * "/"
+    # isdir(results_subfolder_path) || mkdir(results_subfolder_path)
+
+## Read existing results and compute which runs we need to launch again (default = 1:n_runs)
+    show_progress && println(" Searching for existing results in folder ", results_subfolder_path)
+    results_flag, runs_to_launch, optimal_theta, optimal_theta_flag, all_results_df = collect_estimation_results(
+        nruns=n_runs,
+        results_folder_path=results_folder_path,
+        results_subfolder_path=results_subfolder_path,
+        overwrite_runs=overwrite_runs
+    )
+    # ? save anything from here in estimation_flags?
+    show_progress && println(" result flag ", results_flag)
+    show_progress && println(" list to run ", runs_to_launch)
+
+    if length(runs_to_launch) == 0
+        show_progress && println("Not necessary to launch any runs. Option overwrite_runs=", overwrite_runs)
+        return all_results_df, estimation_flags
+    end
+
+## GMM first stage
+    show_progress && println("GMM => Launching estimation, number of initial conditions: ", n_runs)
+
+	# curve_fit in LsqFit requires to give data (x) to the objective function 
+	# we hack this to give the GMM weighting matrix (Cholesky half)
+
+	# optional: save results for each initial condition in a subdirectory
+	if write_results_to_file
+		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
+		isdir(results_subfolder_path) || mkdir(results_subfolder_path)
+	end
+
+	# define objective function with moment function "loaded"
+	gmm_obj_fn = (anyWhalf, any_theta) ->
+					gmm_obj(theta=any_theta,
+							Whalf=anyWhalf,
+							momfn=momfn_loaded, # <- loaded moment function
+							show_theta=show_theta)
+
+    # run in parallel
+	if run_parallel && n_runs > 1
+
+	    new_results_df = pmap(
+	        idx -> curve_fit_wrapper(
+							idx,
+							gmm_obj_fn,
+							initialWhalf,
+							n_moms,
+	                        theta0[idx,:], theta_lower, theta_upper,
+							write_results_to_file=write_results_to_file,
+							individual_run_results_path=results_subfolder_path,
+                            # overwrite_runs=overwrite_runs,
+							maxIter=maxIter,
+							maxTime=maxTime,
+                            throw_errors=throw_errors,
+                            show_trace=show_trace,
+                            show_progress=show_progress
+						), runs_to_launch)  # ! possible subset of runs. previously: # 1:n_runs)
+	else
+
+        # not in parallel
+		new_results_df = []
+		for idx=runs_to_launch  # ! possible subset of runs. previously: # 1:n_runs)
+	        push!(new_results_df, curve_fit_wrapper(
+							idx,
+							gmm_obj_fn,
+							initialWhalf,
+							n_moms,
+	                        theta0[idx,:], theta_lower, theta_upper,
+							write_results_to_file=write_results_to_file,
+							individual_run_results_path=results_subfolder_path,
+                            # overwrite_runs=overwrite_runs,
+							maxIter=maxIter,
+							maxTime=maxTime,
+                            throw_errors=throw_errors,
+							show_trace=show_trace,
+                            show_progress=show_progress))
+        end
+	end
+
+    ### Full results
+        new_results_df = vcat(DataFrame.(new_results_df)...)
+
+        # Combine with the old results
+        runs_to_reuse = setdiff(1:n_runs, runs_to_launch)
+        all_results_df = all_results_df[runs_to_reuse, :]
+        # (nrow(all_results_df) > 0) && select!(all_results_df, Not(:is_optimum))
+        all_results_df = vcat(all_results_df, new_results_df, cols=:union)
+        sort!(all_results_df, :run_idx)
+
+        # find optimum
+        idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
+        all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
+        
+        # FLAG: optimum (lowest obj value) corresponds to a run that has not converged
+        if ~all_results_df[idx_optimum, :opt_converged]
+            estimation_flags["optimum_not_converged"] = true
+        end
+
+        # FLAG: total errors, not converged, success
+        estimation_flags["n_errors"] = sum(all_results_df.opt_error)
+        estimation_flags["n_not_converged"] = sum(.~all_results_df.opt_converged)
+        estimation_flags["n_success"] = sum(all_results_df.opt_converged .& .~all_results_df.opt_error)
+
+    ### Save full results
+    if write_results_to_file
+        # dataframe with results
+        outputfile = results_folder_path * "estimation_" * results_subfolder * "_df.csv"
+	    CSV.write(outputfile, all_results_df)
+
+        # flags
+        open(results_folder_path * "estimation_flags.json" ,"w") do f
+            JSON.print(f, estimation_flags, 4)
+        end
+        
+    end
+
+    ### Clean up: delete files from individual runs
+    # TODO: better way to do this on Windows and/or with synced folders (Dropbox, Google Drive, etc.)
+    # see https://github.com/JuliaLang/julia/issues/34700
+
+    try
+        rm(results_subfolder_path, recursive=true)
+    catch mye
+        sleep(0.1)
+        rm(results_subfolder_path, recursive=true)
+    end
+
+    return all_results_df, estimation_flags
+end
+
+
+
+
+
+function optimal_weight_matrix(;
+                theta_hat::Vector{Float64},
+                momfn_loaded::Function,
+                vcov_fn::Function,
+                normalize_weight_matrix::Bool=false,
+                write_results_to_file::Bool=false,
+                results_folder_path::String="",
+                show_progress::Bool=false)
+    
+## Optimal Weighting Matrix
+    show_progress && println("GMM => Computing optimal weighting matrix")
+
+    # by default, call vcov_gmm_iid() which computes the variance covariance matrix assuming data is iid
+    # can also use user-provided function, useful when using classical minimum distance and non-iid data
+	Wstep2 = vcov_fn(theta_hat, momfn_loaded)
+
+	# invert (still Hermitian)
+	Wstep2 = inv(Wstep2)
+
+    # save to file
+    if write_results_to_file
+        outputfile = string(results_folder_path,"Wstep2.csv")
+        CSV.write(outputfile, Tables.table(Wstep2), header=false)
+    end
+
+	# cholesky half. satisfies Whalf * transpose(Whalf) = W
+	optimalWhalf = Matrix(cholesky(Wstep2).L)
+	@assert norm(optimalWhalf * transpose(optimalWhalf) - Wstep2) < 1e-10
+
+    ## normalize weight matrix such that the objective function is <= O(1) (very roughly speaking)
+    if normalize_weight_matrix
+        optimalWhalf = optimalWhalf .* det(optimalWhalf)^(-1/n_moms)
+
+        show_progress && println("GMM => Normalizing weight matrix.")
+    end
+
+    return Wstep2, optimalWhalf
+end
+
+
 
 """
 
@@ -186,7 +547,7 @@ momfn = the moment function
 theta0 = initial condition (vector)
 theta_lower, theta_upper = bounds (vectors, can include +/-Inf)
 vcov_fn = function to compute variance covariance matrix. By default, vcov_gmm_iid which assumes data is iid.
-n_theta0 = number of initial conditions
+n_runs = number of initial conditions
 n_moms = size of moment function (number of moments) TODO: get this auto
 results_dir_path = where to write results
 Wstep1 = weighting matrix (default = identity matrix).
@@ -194,16 +555,420 @@ Wstep1 = weighting matrix (default = identity matrix).
         Will be Cholesky decomposed
 normalize_weight_matrix = boolean, if true, aim for the initial objective function to be <= O(1)
 jacobian = provide jacobian function
-write_results_to_file = 
-    0 = nothing written to file
-    1 = write objects to file, including one csv with all runs (once for first stage, once for second stage)
-    2 = write objects to file, including one csv per each run
+write_results_to_file
 run_parallel  = individual runs in parallel vs in serial (default=parallel)
 show_trace = show trace of curve_fit from LsqFit?
 maxIter    = maximum iterations for curve_fit from LsqFit
 show_progress = pass on to objective function
 """
-function gmm_2step(;
+# function estimation_two_step(;
+# 			momfn_loaded,
+# 			theta0,
+# 			theta_lower,
+# 			theta_upper,
+#             vcov_fn=nothing,
+# 			run_parallel=true,
+#             two_step=false,
+# 			n_moms=nothing,
+# 			Wstep1=nothing,
+#             normalize_weight_matrix=false,
+# 			results_dir_path="",
+#             write_results_to_file=0,
+#             overwrite_existing::String="all",
+# 			maxIter=1000,
+# 			maxTime=Inf,
+#             throw_errors::Bool=false,
+#             show_trace::Bool=false,
+# 			show_theta::Bool=false,
+#             show_progress::Bool=false)
+
+# ## Basic checks
+#     if write_results_to_file ∉ [0, 1, 2]
+#         error("write_results_to_file should be 0, 1, or 2")
+#     end
+
+#     if isnothing(vcov_fn)
+#         vcov_fn = vcov_gmm_iid
+#     end
+
+# ## Store estimation results here
+#     gmm_results = Dict{String, Any}()
+
+# ## if theta0 is a vector (one set of initial conditions), turn to 1 x n_params matrix
+#     # ? ever needed?
+# 	if isa(theta0, Vector)
+# 		theta0 = Matrix(transpose(theta0))
+# 	end
+#     n_params = size(theta0, 2)
+#     n_theta0 = size(theta0, 1)
+
+# ## if not provided, compute number of moments by running moment function once
+# 	if isnothing(n_moms)
+# 		n_moms = size(momfn_loaded(theta0[1,:]), 2)
+# 	end
+
+# ## save initial conditions to file
+# 	theta0_df = DataFrame("iteration" => 1:n_theta0)
+# 	for i=1:n_params
+# 		theta0_df[!, string("param_", i, "_initial")] = vec(theta0[:, i])
+# 	end
+
+#     # gmm_results["theta0_df"] = theta0_df
+#     # if write_results_to_file > 0
+#     #     outputfile = string(results_dir_path,"theta_initial_df.csv")
+#     #     CSV.write(outputfile, theta0_df)
+#     # end
+
+# ## Initial weighting matrix W
+# 	if isnothing(Wstep1)
+#         show_progress && println("GMM => using identity W1")
+
+#         # if not provided, use identity weighting matrix
+#         @assert isnothing(Wstep1)
+# 		Wstep1 = diagm(ones(n_moms))
+# 	end
+
+# 	## save
+#     gmm_results["Wstep1"] = Wstep1
+#     if write_results_to_file > 0
+#         outputfile = string(results_dir_path,"Wstep1.csv")
+#         CSV.write(outputfile, Tables.table(Wstep1), header=false)
+#     end
+
+# 	# cholesky half. satisfies Whalf * transpose(Whalf) = W
+# 	initialWhalf = Matrix(cholesky(Hermitian(Wstep1)).L)
+# 	@assert norm(initialWhalf * transpose(initialWhalf) - Wstep1) < 1e-10
+
+# ## normalize weight matrix such that the objective function is <= O(1) (very roughly speaking)
+#     if normalize_weight_matrix
+#         # initial guess = median along all initial conditions
+# 		theta_initial = median(theta0, dims=1) |> vec
+
+# 		# evaluable moments
+# 		mom_matrix = momfn_loaded(theta_initial)
+
+#         # norm
+#         mom_norm = 1.0 + sqrt(norm(mean(mom_matrix, dims=1)))
+
+#         initialWhalf = initialWhalf .* det(initialWhalf)^(-1/n_moms) ./ mom_norm
+
+#         show_progress && println("GMM => Normalizing weight matrix.")
+#     end
+
+# ## GMM first stage
+#     show_progress && println("GMM => Launching stage 1, number of initial conditions: ", n_theta0)
+
+# 	# curve_fit in LsqFit requires to give data (x) to the objective function 
+# 	# we hack this to give the GMM weighting matrix (Cholesky half)
+
+# 	# optional: save results for each initial condition in a subdirectory
+#     results_subdir_path = string(results_dir_path, "step1/")
+# 	if write_results_to_file == 2
+# 		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
+# 		isdir(results_subdir_path) || mkdir(results_subdir_path)
+# 	end
+
+# 	# define objective function with moment function "loaded"
+# 	gmm_obj_fn = (anyWhalf, any_theta) ->
+# 					gmm_obj(theta=any_theta,
+# 							Whalf=anyWhalf,
+# 							momfn=momfn_loaded, # <- loaded moment function
+# 							show_theta=show_theta)
+
+#     # run in parallel
+# 	if run_parallel && n_theta0 > 1
+
+# 	    all_results_df = pmap(
+# 	        idx -> curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							initialWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+#                             overwrite_existing=overwrite_existing,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+#                             show_trace=show_trace,
+#                             show_progress=show_progress
+# 						), 1:n_theta0)
+# 	else
+
+#         # not in parallel
+# 		all_results_df = Vector{Any}(undef, n_theta0)
+# 		for idx=1:n_theta0
+# 	        all_results_df[idx] = curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							initialWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+#                             overwrite_existing=overwrite_existing,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+# 							show_trace=show_trace,
+#                             show_progress=show_progress)
+# 		end
+# 	end
+
+#     # DataFrame with all results
+#     all_results_df = vcat(DataFrame.(all_results_df)...)
+    
+# 	# pick smallest objective value (among those that have converged) 
+#     all_results_df.obj_vals_converged = copy(all_results_df.obj_vals)
+
+#     # TODO: allow iterations that have not converged (+ warning in docs)
+#     # if not converged, replace objective value with +Infinity
+#     all_results_df[.~all_results_df.opt_converged, :obj_vals_converged] .= Inf
+	
+#     if minimum(all_results_df.obj_vals_converged) == Inf
+#         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
+#         gmm_results["outcome_stage1_detail"] = ["none of the iterations converged"]
+
+#         empty_df = DataFrame()
+
+#         if write_results_to_file > 0
+#             open(results_dir_path * "est_results.json" ,"w") do f
+#                 JSON.print(f, gmm_results, 4)
+#             end
+#         end
+
+#         return gmm_results, empty_df
+
+#     elseif any(.~all_results_df.opt_converged)
+
+#         n_converged = sum(all_results_df.opt_converged)
+
+#         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "some_errors"
+#         gmm_results["outcome_stage1_detail"] = [string(n_converged) * "/" * string(n_theta0) * " iterations converged"]
+
+#         if minimum(all_results_df.obj_vals_converged) > minimum(all_results_df.obj_vals)
+#             push!(gmm_results["outcome_stage1_detail"], "minimum objective value occurs in iteration that did not converge")
+#         end
+
+#     else
+#         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "success"
+#         gmm_results["outcome_stage1_detail"] = ["all iterations converged"]
+#     end
+    
+#     # pick best
+#     idx_optimum = argmin(all_results_df.obj_vals_converged)
+# 	all_results_df.is_optimum = ((1:n_theta0) .== idx_optimum)
+	
+#     # select just the estimated parameters
+#     theta_hat_stage1 = gmm_results["theta_hat_stage1"] = all_results_df[idx_optimum, r"param_"] |> collect
+# 	obj_val_stage1 = all_results_df[idx_optimum, :obj_vals]
+
+# 	show_progress && println("GMM => Stage 1 optimal theta   ", theta_hat_stage1)
+# 	show_progress && println("GMM => Stage 1 optimal obj val ", obj_val_stage1)
+
+#     # save
+#     # gmm_results["results_stage1"] = copy(all_results_df)
+#     if write_results_to_file > 0
+#         outputfile = string(results_dir_path,"results_step1_df.csv")
+# 	    CSV.write(outputfile, all_results_df)
+#     end 
+
+# 	## if one-step -> stop here
+#     if ~two_step
+#         full_df = hcat(theta0_df, all_results_df)
+
+#         gmm_results["theta_hat"] = gmm_results["theta_hat_stage1"]
+
+#         if write_results_to_file > 0
+#             open(results_dir_path * "estimation_results.json" ,"w") do f
+#                 JSON.print(f, gmm_results, 4)
+#             end
+    
+#             CSV.write(results_dir_path * "estimation_results_df.csv", full_df)
+#         end
+
+#         return gmm_results, full_df
+#     end
+
+# ## Optimal Weighting Matrix
+#     show_progress && println("GMM => Computing optimal weighting matrix")
+
+#     # by default, call vcov_gmm_iid() which computes the variance covariance matrix assuming data is iid
+#     # can also use user-provided function, useful when using classical minimum distance and non-iid data
+# 	Wstep2 = vcov_fn(theta_hat_stage1, momfn_loaded)
+
+#     # ! sketchy
+# 	# if super small determinant:
+# 	# if det(Wstep2) < 1e-100
+# 	# 	show_progress && println(" Matrix determinant very low: 1e-100. Adding 0.001 * I.")
+# 	# 	Wstep2 = Wstep2 + 0.0001 * I
+# 	# end
+
+# 	# invert (still Hermitian)
+# 	Wstep2 = inv(Wstep2)
+
+#     # save
+#     gmm_results["Wstep2"] = Wstep2
+#     if write_results_to_file > 0
+#         outputfile = string(results_dir_path,"Wstep2.csv")
+#         CSV.write(outputfile, Tables.table(Wstep2), header=false)
+#     end
+
+# 	# cholesky half. satisfies Whalf * transpose(Whalf) = W
+# 	optimalWhalf = Matrix(cholesky(Wstep2).L)
+# 	@assert norm(optimalWhalf * transpose(optimalWhalf) - Wstep2) < 1e-10
+
+#     ## normalize weight matrix such that the objective function is <= O(1) (very roughly speaking)
+#     if normalize_weight_matrix
+#         optimalWhalf = optimalWhalf .* det(optimalWhalf)^(-1/n_moms)
+
+#         show_progress && println("GMM => Normalizing weight matrix.")
+#     end
+
+# ## GMM second stage
+#     show_progress && println("GMM => Launching stage 2, number of initial conditions: ", n_theta0)
+
+# 	# optional: save results for each initial condition in a subdirectory
+#     results_subdir_path = string(results_dir_path, "step2/")
+# 	if write_results_to_file == 2
+# 		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
+# 		isdir(results_subdir_path) || mkdir(results_subdir_path)
+# 	end
+
+# 	# run in parallel
+# 	if run_parallel && n_theta0 > 1
+
+# 	    all_results2_df = pmap(
+# 	        idx -> curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							optimalWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+# 							show_trace=show_trace,
+#                             show_progress=show_progress), 1:n_theta0)
+# 	else
+
+#         # not in parallel
+# 		all_results2_df = Vector{Any}(undef, n_theta0)
+# 		for idx=1:n_theta0
+# 			all_results2_df[idx]=curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							optimalWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+# 							show_trace=show_trace,
+#                             show_progress=show_progress)
+# 		end
+# 	end
+
+#     # one df with all results
+#     all_results2_df = vcat(DataFrame.(all_results2_df)...)
+
+#     # rename!(all_results2_df,
+#     #     :obj_vals => :obj_vals_step2,
+#     #     :opt_converged => :opt_converged_step2,
+#     #     :opt_runtime => :opt_runtime_step2)
+    
+#     # for i=1:n_params
+#     #     rename!(all_results2_df, "param_" * string(i) => "param_" * string(i) * "_step2")
+#     # end
+
+#     # pick smallest objective value (among those that have converged) 
+#     all_results2_df.obj_vals_converged = copy(all_results2_df.obj_vals)
+
+#     # TODO: allow iterations that have not converged (+ warning in docs)
+#     # if not converged, replace objective value with +Infinity
+#     all_results2_df[.~all_results2_df.opt_converged, :obj_vals_converged] .= Inf
+
+#     if minimum(all_results2_df.obj_vals_converged) == Inf
+#         gmm_results["outcome_stage2"] = gmm_results["outcome"] = "fail"
+#         gmm_results["outcome_stage2_detail"] = ["none of the iterations converged"]
+
+#         empty_df = DataFrame()
+
+#         if write_results_to_file > 0
+#             open(results_dir_path * "estimation_results.json" ,"w") do f
+#                 JSON.print(f, gmm_results, 4)
+#             end
+#         end
+
+#         return gmm_results, empty_df
+
+#     elseif any(.~all_results2_df.opt_converged)
+
+#         n_converged = sum(all_results2_df.opt_converged)
+
+#         gmm_results["outcome_stage2"] = "some_errors"
+#         gmm_results["outcome_stage2_detail"] =[string(n_converged) * "/" * string(n_theta0) * " iterations converged"]
+
+#         if minimum(all_results2_df.obj_vals_converged) > minimum(all_results2_df.obj_vals)
+#             push!(gmm_results["outcome_stage2_detail"], "minimum objective value occurs in iteration that did not converge")
+#         end
+
+#     else
+#         gmm_results["outcome_stage2"] = "success"
+#         gmm_results["outcome_stage2_detail"] = ["all iterations converged"]
+#     end
+
+# 	# pick best
+# 	idx_optimum = argmin(all_results2_df.obj_vals_converged)
+# 	all_results2_df.is_optimum = ((1:n_theta0) .== idx_optimum)
+	
+#     # select just the estimated parameters
+#     theta_hat_stage2 = gmm_results["theta_hat_stage2"] = all_results2_df[idx_optimum, r"param_[0-9]*"] |> collect
+# 	obj_val_stage2 = all_results2_df[idx_optimum, :obj_vals]
+
+#     gmm_results["theta_hat"] = gmm_results["theta_hat_stage2"]
+
+# 	show_progress && println("GMM => stage 2 optimal theta   ", theta_hat_stage2)
+# 	show_progress && println("GMM => stage 2 optimal obj val ", obj_val_stage2)
+
+#     # save
+#     # gmm_results["results_stage2"] = copy(all_results2_df)
+#     if write_results_to_file > 0
+#         outputfile = string(results_dir_path,"results_step2_df.csv")
+# 	    CSV.write(outputfile, all_results2_df)
+#     end 
+
+#     # overall outcome of the GMM
+#     if (gmm_results["outcome_stage1"] == "some_errors") || (gmm_results["outcome_stage2"] == "some_errors")
+#         gmm_results["outcome"] = "some_errors"
+#     end
+
+#     full1_df = hcat(theta0_df, all_results_df)
+#     full2_df = hcat(theta0_df, all_results2_df)
+#     full1_df[!,:stage] .= 1
+#     full2_df[!,:stage] .= 2
+#     full_df = vcat(full1_df, full2_df)
+
+#     if write_results_to_file > 0
+#         open(results_dir_path * "estimation_results.json" ,"w") do f
+#             JSON.print(f, gmm_results, 4)
+#         end
+
+#         CSV.write(results_dir_path * "estimation_results_df.csv", full_df)
+#     end
+
+# 	show_progress && println("GMM => complete")
+
+#     return gmm_results, full_df
+# end
+
+
+function estimation_main(;
 			momfn_loaded,
 			theta0,
 			theta_lower,
@@ -214,9 +979,9 @@ function gmm_2step(;
 			n_moms=nothing,
 			Wstep1=nothing,
             normalize_weight_matrix=false,
-			results_dir_path="",
-            write_results_to_file=0,
-            overwrite_existing::String="all",
+			results_folder_path="",
+            write_results_to_file::Bool=true,
+            overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
 			maxIter=1000,
 			maxTime=Inf,
             throw_errors::Bool=false,
@@ -225,24 +990,19 @@ function gmm_2step(;
             show_progress::Bool=false)
 
 ## Basic checks
-    if write_results_to_file ∉ [0, 1, 2]
-        error("write_results_to_file should be 0, 1, or 2")
-    end
-
     if isnothing(vcov_fn)
         vcov_fn = vcov_gmm_iid
     end
 
-## Store estimation results here
-    gmm_results = Dict{String, Any}()
+# ## Store estimation results here
+#     gmm_results = Dict{String, Any}()
 
 ## if theta0 is a vector (one set of initial conditions), turn to 1 x n_params matrix
-    # ? ever needed?
 	if isa(theta0, Vector)
 		theta0 = Matrix(transpose(theta0))
 	end
     n_params = size(theta0, 2)
-    n_theta0 = size(theta0, 1)
+    n_runs   = size(theta0, 1)
 
 ## if not provided, compute number of moments by running moment function once
 	if isnothing(n_moms)
@@ -250,7 +1010,7 @@ function gmm_2step(;
 	end
 
 ## save initial conditions to file
-	theta0_df = DataFrame("iteration" => 1:n_theta0)
+	theta0_df = DataFrame("iteration" => 1:n_runs)
 	for i=1:n_params
 		theta0_df[!, string("param_", i, "_initial")] = vec(theta0[:, i])
 	end
@@ -271,12 +1031,13 @@ function gmm_2step(;
 	end
 
 	## save
-    gmm_results["Wstep1"] = Wstep1
-    if write_results_to_file > 0
-        outputfile = string(results_dir_path,"Wstep1.csv")
+    # gmm_results["Wstep1"] = Wstep1
+    if write_results_to_file
+        outputfile = string(results_folder_path,"Wstep1.csv")
         CSV.write(outputfile, Tables.table(Wstep1), header=false)
     end
 
+## Cholesky decomposition (this is specific to the urve_fit in LsqFit optimization framework, we should move it when adding other backends)
 	# cholesky half. satisfies Whalf * transpose(Whalf) = W
 	initialWhalf = Matrix(cholesky(Hermitian(Wstep1)).L)
 	@assert norm(initialWhalf * transpose(initialWhalf) - Wstep1) < 1e-10
@@ -297,323 +1058,376 @@ function gmm_2step(;
         show_progress && println("GMM => Normalizing weight matrix.")
     end
 
-## GMM first stage
-    show_progress && println("GMM => Launching stage 1, number of initial conditions: ", n_theta0)
+## 
+    if ~two_step ## * ONE-STEP ESTIMATION
+        all_results_df, estimation_flags = estimation_one_step(;
+            momfn_loaded=momfn_loaded,
+            theta0=theta0,
+            theta_lower=theta_lower,
+            theta_upper=theta_upper,
+            run_parallel=run_parallel,
+            n_moms=n_moms,
+            
+            initialWhalf=initialWhalf,
+            
+            results_folder_path=results_folder_path,
+            results_subfolder="results",
+            write_results_to_file=write_results_to_file,
 
-	# curve_fit in LsqFit requires to give data (x) to the objective function 
-	# we hack this to give the GMM weighting matrix (Cholesky half)
+            overwrite_runs=overwrite_runs, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
+            
+            maxIter=maxIter,
+            maxTime=maxTime,
 
-	# optional: save results for each initial condition in a subdirectory
-    results_subdir_path = string(results_dir_path, "step1/")
-	if write_results_to_file == 2
-		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
-		isdir(results_subdir_path) || mkdir(results_subdir_path)
-	end
+            throw_errors=throw_errors,
+            show_trace=show_trace,
+            show_theta=show_theta,
+            show_progress=show_progress)
 
-	# define objective function with moment function "loaded"
-	gmm_obj_fn = (anyWhalf, any_theta) ->
-					gmm_obj(theta=any_theta,
-							Whalf=anyWhalf,
-							momfn=momfn_loaded, # <- loaded moment function
-							show_theta=show_theta)
+        # results_flag, runs_to_launch, optimal_theta, optimal_theta_flag, all_results_df = collect_estimation_results(
+        #     nruns=n_runs,
+        #     results_folder_path=results_folder_path,
+        #     results_subfolder_path=results_folder_path * results_subfolder_path,
+        #     overwrite_runs=overwrite_runs
+        # )
 
-    # run in parallel
-	if run_parallel && n_theta0 > 1
+    else ## * TWO STEP ESTIMATION WITH OPTIMAL WEIGHT MATRIX
 
-	    all_results_df = pmap(
-	        idx -> curve_fit_wrapper(
-							idx,
-							gmm_obj_fn,
-							initialWhalf,
-							n_moms,
-	                        theta0[idx,:], theta_lower, theta_upper,
-							write_results_to_file=write_results_to_file,
-							individual_run_results_path=results_subdir_path,
-                            overwrite_existing=overwrite_existing,
-							maxIter=maxIter,
-							maxTime=maxTime,
-                            throw_errors=throw_errors,
-                            show_trace=show_trace,
-                            show_progress=show_progress
-						), 1:n_theta0)
-	else
+        # estimation_flags
+        estimation_one_step()
+        collect_estimation_results()
+        
+        theta_hat_stage1, errors_flag = find_optimum()
 
-        # not in parallel
-		all_results_df = Vector{Any}(undef, n_theta0)
-		for idx=1:n_theta0
-	        all_results_df[idx] = curve_fit_wrapper(
-							idx,
-							gmm_obj_fn,
-							initialWhalf,
-							n_moms,
-	                        theta0[idx,:], theta_lower, theta_upper,
-							write_results_to_file=write_results_to_file,
-							individual_run_results_path=results_subdir_path,
-                            overwrite_existing=overwrite_existing,
-							maxIter=maxIter,
-							maxTime=maxTime,
-                            throw_errors=throw_errors,
-							show_trace=show_trace,
-                            show_progress=show_progress)
-		end
-	end
+        if errors_flag
+            # gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
+            # gmm_results["outcome_stage1_detail"] = ["none of the iterations converged"]
 
-    # DataFrame with all results
-    all_results_df = vcat(DataFrame.(all_results_df)...)
-    
-	# pick smallest objective value (among those that have converged) 
-    all_results_df.obj_vals_converged = copy(all_results_df.obj_vals)
+            empty_df = DataFrame()
 
-    # TODO: allow iterations that have not converged (+ warning in docs)
-    # if not converged, replace objective value with +Infinity
-    all_results_df[.~all_results_df.opt_converged, :obj_vals_converged] .= Inf
-	
-    if minimum(all_results_df.obj_vals_converged) == Inf
-        gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
-        gmm_results["outcome_stage1_detail"] = ["none of the iterations converged"]
-
-        empty_df = DataFrame()
-
-        if write_results_to_file > 0
-            open(results_dir_path * "est_results.json" ,"w") do f
-                JSON.print(f, gmm_results, 4)
+            if write_results_to_file
+                open(results_folder_path * "estimation_results.json" ,"w") do f
+                    JSON.print(f, gmm_results, 4) # ! this doesn't exist
+                end
             end
+
+            return gmm_results, empty_df # ! gmm_results
         end
 
-        return gmm_results, empty_df
+        ### Compute optimal weighting matrix using the first-stage results
+        Wstep2, optimalWhalf = optimal_weight_matrix(
+                theta_hat=theta_hat_stage1,
+                momfn_loaded=momfn_loaded,
+                vcov_fn=vcov_fn,
+                normalize_weight_matrix=normalize_weight_matrix,
+                write_results_to_file=write_results_to_file,
+                results_folder_path=results_folder_path,
+                show_progress=show_progress)
 
-    elseif any(.~all_results_df.opt_converged)
+        gmm_results["Wstep2"] = Wstep2 # ! gmm_results
 
-        n_converged = sum(all_results_df.opt_converged)
-
-        gmm_results["outcome_stage1"] = gmm_results["outcome"] = "some_errors"
-        gmm_results["outcome_stage1_detail"] = [string(n_converged) * "/" * string(n_theta0) * " iterations converged"]
-
-        if minimum(all_results_df.obj_vals_converged) > minimum(all_results_df.obj_vals)
-            push!(gmm_results["outcome_stage1_detail"], "minimum objective value occurs in iteration that did not converge")
-        end
-
-    else
-        gmm_results["outcome_stage1"] = gmm_results["outcome"] = "success"
-        gmm_results["outcome_stage1_detail"] = ["all iterations converged"]
-    end
-    
-    # pick best
-    idx_optimum = argmin(all_results_df.obj_vals_converged)
-	all_results_df.is_optimum = ((1:n_theta0) .== idx_optimum)
-	
-    # select just the estimated parameters
-    theta_hat_stage1 = gmm_results["theta_hat_stage1"] = all_results_df[idx_optimum, r"param_"] |> collect
-	obj_val_stage1 = all_results_df[idx_optimum, :obj_vals]
-
-	show_progress && println("GMM => Stage 1 optimal theta   ", theta_hat_stage1)
-	show_progress && println("GMM => Stage 1 optimal obj val ", obj_val_stage1)
-
-    # save
-    # gmm_results["results_stage1"] = copy(all_results_df)
-    if write_results_to_file > 0
-        outputfile = string(results_dir_path,"results_step1_df.csv")
-	    CSV.write(outputfile, all_results_df)
-    end 
-
-	## if one-step -> stop here
-    if ~two_step
-        full_df = hcat(theta0_df, all_results_df)
-
-        gmm_results["theta_hat"] = gmm_results["theta_hat_stage1"]
-
-        if write_results_to_file > 0
-            open(results_dir_path * "estimation_results.json" ,"w") do f
-                JSON.print(f, gmm_results, 4)
-            end
-    
-            CSV.write(results_dir_path * "estimation_results_df.csv", full_df)
-        end
-
-        return gmm_results, full_df
+        estimation_one_step()
+        collect_estimation_results()
     end
 
-## Optimal Weighting Matrix
-    show_progress && println("GMM => Computing optimal weighting matrix")
-
-    # by default, call vcov_gmm_iid() which computes the variance covariance matrix assuming data is iid
-    # can also use user-provided function, useful when using classical minimum distance and non-iid data
-	Wstep2 = vcov_fn(theta_hat_stage1, momfn_loaded)
-
-    # ! sketchy
-	# if super small determinant:
-	# if det(Wstep2) < 1e-100
-	# 	show_progress && println(" Matrix determinant very low: 1e-100. Adding 0.001 * I.")
-	# 	Wstep2 = Wstep2 + 0.0001 * I
-	# end
-
-	# invert (still Hermitian)
-	Wstep2 = inv(Wstep2)
-
-    # save
-    gmm_results["Wstep2"] = Wstep2
-    if write_results_to_file > 0
-        outputfile = string(results_dir_path,"Wstep2.csv")
-        CSV.write(outputfile, Tables.table(Wstep2), header=false)
-    end
-
-	# cholesky half. satisfies Whalf * transpose(Whalf) = W
-	optimalWhalf = Matrix(cholesky(Wstep2).L)
-	@assert norm(optimalWhalf * transpose(optimalWhalf) - Wstep2) < 1e-10
-
-    ## normalize weight matrix such that the objective function is <= O(1) (very roughly speaking)
-    if normalize_weight_matrix
-        optimalWhalf = optimalWhalf .* det(optimalWhalf)^(-1/n_moms)
-
-        show_progress && println("GMM => Normalizing weight matrix.")
-    end
-
-## GMM second stage
-    show_progress && println("GMM => Launching stage 2, number of initial conditions: ", n_theta0)
-
-	# optional: save results for each initial condition in a subdirectory
-    results_subdir_path = string(results_dir_path, "step2/")
-	if write_results_to_file == 2
-		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
-		isdir(results_subdir_path) || mkdir(results_subdir_path)
-	end
-
-	# run in parallel
-	if run_parallel && n_theta0 > 1
-
-	    all_results2_df = pmap(
-	        idx -> curve_fit_wrapper(
-							idx,
-							gmm_obj_fn,
-							optimalWhalf,
-							n_moms,
-	                        theta0[idx,:], theta_lower, theta_upper,
-							write_results_to_file=write_results_to_file,
-							individual_run_results_path=results_subdir_path,
-							maxIter=maxIter,
-							maxTime=maxTime,
-                            throw_errors=throw_errors,
-							show_trace=show_trace,
-                            show_progress=show_progress), 1:n_theta0)
-	else
-
-        # not in parallel
-		all_results2_df = Vector{Any}(undef, n_theta0)
-		for idx=1:n_theta0
-			all_results2_df[idx]=curve_fit_wrapper(
-							idx,
-							gmm_obj_fn,
-							optimalWhalf,
-							n_moms,
-	                        theta0[idx,:], theta_lower, theta_upper,
-							write_results_to_file=write_results_to_file,
-							individual_run_results_path=results_subdir_path,
-							maxIter=maxIter,
-							maxTime=maxTime,
-                            throw_errors=throw_errors,
-							show_trace=show_trace,
-                            show_progress=show_progress)
-		end
-	end
-
-    # one df with all results
-    all_results2_df = vcat(DataFrame.(all_results2_df)...)
-
-    # rename!(all_results2_df,
-    #     :obj_vals => :obj_vals_step2,
-    #     :opt_converged => :opt_converged_step2,
-    #     :opt_runtime => :opt_runtime_step2)
-    
-    # for i=1:n_params
-    #     rename!(all_results2_df, "param_" * string(i) => "param_" * string(i) * "_step2")
-    # end
-
-    # pick smallest objective value (among those that have converged) 
-    all_results2_df.obj_vals_converged = copy(all_results2_df.obj_vals)
-
-    # TODO: allow iterations that have not converged (+ warning in docs)
-    # if not converged, replace objective value with +Infinity
-    all_results2_df[.~all_results2_df.opt_converged, :obj_vals_converged] .= Inf
-
-    if minimum(all_results2_df.obj_vals_converged) == Inf
-        gmm_results["outcome_stage2"] = gmm_results["outcome"] = "fail"
-        gmm_results["outcome_stage2_detail"] = ["none of the iterations converged"]
-
-        empty_df = DataFrame()
-
-        if write_results_to_file > 0
-            open(results_dir_path * "estimation_results.json" ,"w") do f
-                JSON.print(f, gmm_results, 4)
-            end
-        end
-
-        return gmm_results, empty_df
-
-    elseif any(.~all_results2_df.opt_converged)
-
-        n_converged = sum(all_results2_df.opt_converged)
-
-        gmm_results["outcome_stage2"] = "some_errors"
-        gmm_results["outcome_stage2_detail"] =[string(n_converged) * "/" * string(n_theta0) * " iterations converged"]
-
-        if minimum(all_results2_df.obj_vals_converged) > minimum(all_results2_df.obj_vals)
-            push!(gmm_results["outcome_stage2_detail"], "minimum objective value occurs in iteration that did not converge")
-        end
-
-    else
-        gmm_results["outcome_stage2"] = "success"
-        gmm_results["outcome_stage2_detail"] = ["all iterations converged"]
-    end
-
-	# pick best
-	idx_optimum = argmin(all_results2_df.obj_vals_converged)
-	all_results2_df.is_optimum = ((1:n_theta0) .== idx_optimum)
-	
-    # select just the estimated parameters
-    theta_hat_stage2 = gmm_results["theta_hat_stage2"] = all_results2_df[idx_optimum, r"param_[0-9]*"] |> collect
-	obj_val_stage2 = all_results2_df[idx_optimum, :obj_vals]
-
-    gmm_results["theta_hat"] = gmm_results["theta_hat_stage2"]
-
-	show_progress && println("GMM => stage 2 optimal theta   ", theta_hat_stage2)
-	show_progress && println("GMM => stage 2 optimal obj val ", obj_val_stage2)
-
-    # save
-    # gmm_results["results_stage2"] = copy(all_results2_df)
-    if write_results_to_file > 0
-        outputfile = string(results_dir_path,"results_step2_df.csv")
-	    CSV.write(outputfile, all_results2_df)
-    end 
-
-    # overall outcome of the GMM
-    if (gmm_results["outcome_stage1"] == "some_errors") || (gmm_results["outcome_stage2"] == "some_errors")
-        gmm_results["outcome"] = "some_errors"
-    end
-
-    full1_df = hcat(theta0_df, all_results_df)
-    full2_df = hcat(theta0_df, all_results2_df)
-    full1_df[!,:stage] .= 1
-    full2_df[!,:stage] .= 2
-    full_df = vcat(full1_df, full2_df)
-
-    if write_results_to_file > 0
-        open(results_dir_path * "estimation_results.json" ,"w") do f
-            JSON.print(f, gmm_results, 4)
-        end
-
-        CSV.write(results_dir_path * "estimation_results_df.csv", full_df)
-    end
-
-	show_progress && println("GMM => complete")
-
-    return gmm_results, full_df
+    return all_results_df, estimation_flags
 end
 
 
 
+
+
+
+# ## GMM first stage
+#     show_progress && println("GMM => Launching stage 1, number of initial conditions: ", n_runs)
+
+# 	# curve_fit in LsqFit requires to give data (x) to the objective function 
+# 	# we hack this to give the GMM weighting matrix (Cholesky half)
+
+# 	# optional: save results for each initial condition in a subdirectory
+#     results_subdir_path = string(results_dir_path, "step1/")
+# 	if write_results_to_file == 2
+# 		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
+# 		isdir(results_subdir_path) || mkdir(results_subdir_path)
+# 	end
+
+# 	# define objective function with moment function "loaded"
+# 	gmm_obj_fn = (anyWhalf, any_theta) ->
+# 					gmm_obj(theta=any_theta,
+# 							Whalf=anyWhalf,
+# 							momfn=momfn_loaded, # <- loaded moment function
+# 							show_theta=show_theta)
+
+#     # run in parallel
+# 	if run_parallel && n_theta0 > 1
+
+# 	    all_results_df = pmap(
+# 	        idx -> curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							initialWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+#                             overwrite_runs=overwrite_runs,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+#                             show_trace=show_trace,
+#                             show_progress=show_progress
+# 						), 1:n_theta0)
+# 	else
+
+#         # not in parallel
+# 		all_results_df = Vector{Any}(undef, n_theta0)
+# 		for idx=1:n_theta0
+# 	        all_results_df[idx] = curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							initialWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+#                             overwrite_runs=overwrite_runs,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+# 							show_trace=show_trace,
+#                             show_progress=show_progress)
+# 		end
+# 	end
+
+#     # DataFrame with all results
+#     all_results_df = vcat(DataFrame.(all_results_df)...)
+    
+# 	# pick smallest objective value (among those that have converged) 
+#     all_results_df.obj_vals_converged = copy(all_results_df.obj_vals)
+
+#     # TODO: allow iterations that have not converged (+ warning in docs)
+#     # if not converged, replace objective value with +Infinity
+#     all_results_df[.~all_results_df.opt_converged, :obj_vals_converged] .= Inf
+	
+#     if minimum(all_results_df.obj_vals_converged) == Inf
+#         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
+#         gmm_results["outcome_stage1_detail"] = ["none of the iterations converged"]
+
+#         empty_df = DataFrame()
+
+#         if write_results_to_file > 0
+#             open(results_dir_path * "est_results.json" ,"w") do f
+#                 JSON.print(f, gmm_results, 4)
+#             end
+#         end
+
+#         return gmm_results, empty_df
+
+#     elseif any(.~all_results_df.opt_converged)
+
+#         n_converged = sum(all_results_df.opt_converged)
+
+#         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "some_errors"
+#         gmm_results["outcome_stage1_detail"] = [string(n_converged) * "/" * string(n_theta0) * " iterations converged"]
+
+#         if minimum(all_results_df.obj_vals_converged) > minimum(all_results_df.obj_vals)
+#             push!(gmm_results["outcome_stage1_detail"], "minimum objective value occurs in iteration that did not converge")
+#         end
+
+#     else
+#         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "success"
+#         gmm_results["outcome_stage1_detail"] = ["all iterations converged"]
+#     end
+    
+#     # pick best
+#     idx_optimum = argmin(all_results_df.obj_vals_converged)
+# 	all_results_df.is_optimum = ((1:n_theta0) .== idx_optimum)
+	
+#     # select just the estimated parameters
+#     theta_hat_stage1 = gmm_results["theta_hat_stage1"] = all_results_df[idx_optimum, r"param_"] |> collect
+# 	obj_val_stage1 = all_results_df[idx_optimum, :obj_vals]
+
+# 	show_progress && println("GMM => Stage 1 optimal theta   ", theta_hat_stage1)
+# 	show_progress && println("GMM => Stage 1 optimal obj val ", obj_val_stage1)
+
+#     # save
+#     # gmm_results["results_stage1"] = copy(all_results_df)
+#     if write_results_to_file > 0
+#         outputfile = string(results_dir_path,"results_step1_df.csv")
+# 	    CSV.write(outputfile, all_results_df)
+#     end 
+
+# 	## if one-step -> stop here
+#     if ~two_step
+#         full_df = hcat(theta0_df, all_results_df)
+
+#         gmm_results["theta_hat"] = gmm_results["theta_hat_stage1"]
+
+#         if write_results_to_file > 0
+#             open(results_dir_path * "estimation_results.json" ,"w") do f
+#                 JSON.print(f, gmm_results, 4)
+#             end
+    
+#             CSV.write(results_dir_path * "estimation_results_df.csv", full_df)
+#         end
+
+#         return gmm_results, full_df
+#     end
+
+
+
+
+
+
+
+
+    
+
+# ## GMM second stage
+#     show_progress && println("GMM => Launching stage 2, number of initial conditions: ", n_theta0)
+
+# 	# optional: save results for each initial condition in a subdirectory
+#     results_subdir_path = string(results_dir_path, "step2/")
+# 	if write_results_to_file == 2
+# 		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
+# 		isdir(results_subdir_path) || mkdir(results_subdir_path)
+# 	end
+
+# 	# run in parallel
+# 	if run_parallel && n_theta0 > 1
+
+# 	    all_results2_df = pmap(
+# 	        idx -> curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							optimalWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+# 							show_trace=show_trace,
+#                             show_progress=show_progress), 1:n_theta0)
+# 	else
+
+#         # not in parallel
+# 		all_results2_df = Vector{Any}(undef, n_theta0)
+# 		for idx=1:n_theta0
+# 			all_results2_df[idx]=curve_fit_wrapper(
+# 							idx,
+# 							gmm_obj_fn,
+# 							optimalWhalf,
+# 							n_moms,
+# 	                        theta0[idx,:], theta_lower, theta_upper,
+# 							write_results_to_file=write_results_to_file,
+# 							individual_run_results_path=results_subdir_path,
+# 							maxIter=maxIter,
+# 							maxTime=maxTime,
+#                             throw_errors=throw_errors,
+# 							show_trace=show_trace,
+#                             show_progress=show_progress)
+# 		end
+# 	end
+
+#     # one df with all results
+#     all_results2_df = vcat(DataFrame.(all_results2_df)...)
+
+#     # rename!(all_results2_df,
+#     #     :obj_vals => :obj_vals_step2,
+#     #     :opt_converged => :opt_converged_step2,
+#     #     :opt_runtime => :opt_runtime_step2)
+    
+#     # for i=1:n_params
+#     #     rename!(all_results2_df, "param_" * string(i) => "param_" * string(i) * "_step2")
+#     # end
+
+#     # pick smallest objective value (among those that have converged) 
+#     all_results2_df.obj_vals_converged = copy(all_results2_df.obj_vals)
+
+#     # TODO: allow iterations that have not converged (+ warning in docs)
+#     # if not converged, replace objective value with +Infinity
+#     all_results2_df[.~all_results2_df.opt_converged, :obj_vals_converged] .= Inf
+
+#     if minimum(all_results2_df.obj_vals_converged) == Inf
+#         gmm_results["outcome_stage2"] = gmm_results["outcome"] = "fail"
+#         gmm_results["outcome_stage2_detail"] = ["none of the iterations converged"]
+
+#         empty_df = DataFrame()
+
+#         if write_results_to_file > 0
+#             open(results_dir_path * "estimation_results.json" ,"w") do f
+#                 JSON.print(f, gmm_results, 4)
+#             end
+#         end
+
+#         return gmm_results, empty_df
+
+#     elseif any(.~all_results2_df.opt_converged)
+
+#         n_converged = sum(all_results2_df.opt_converged)
+
+#         gmm_results["outcome_stage2"] = "some_errors"
+#         gmm_results["outcome_stage2_detail"] =[string(n_converged) * "/" * string(n_theta0) * " iterations converged"]
+
+#         if minimum(all_results2_df.obj_vals_converged) > minimum(all_results2_df.obj_vals)
+#             push!(gmm_results["outcome_stage2_detail"], "minimum objective value occurs in iteration that did not converge")
+#         end
+
+#     else
+#         gmm_results["outcome_stage2"] = "success"
+#         gmm_results["outcome_stage2_detail"] = ["all iterations converged"]
+#     end
+
+# 	# pick best
+# 	idx_optimum = argmin(all_results2_df.obj_vals_converged)
+# 	all_results2_df.is_optimum = ((1:n_theta0) .== idx_optimum)
+	
+#     # select just the estimated parameters
+#     theta_hat_stage2 = gmm_results["theta_hat_stage2"] = all_results2_df[idx_optimum, r"param_[0-9]*"] |> collect
+# 	obj_val_stage2 = all_results2_df[idx_optimum, :obj_vals]
+
+#     gmm_results["theta_hat"] = gmm_results["theta_hat_stage2"]
+
+# 	show_progress && println("GMM => stage 2 optimal theta   ", theta_hat_stage2)
+# 	show_progress && println("GMM => stage 2 optimal obj val ", obj_val_stage2)
+
+#     # save
+#     # gmm_results["results_stage2"] = copy(all_results2_df)
+#     if write_results_to_file > 0
+#         outputfile = string(results_dir_path,"results_step2_df.csv")
+# 	    CSV.write(outputfile, all_results2_df)
+#     end 
+
+#     # overall outcome of the GMM
+#     if (gmm_results["outcome_stage1"] == "some_errors") || (gmm_results["outcome_stage2"] == "some_errors")
+#         gmm_results["outcome"] = "some_errors"
+#     end
+
+#     full1_df = hcat(theta0_df, all_results_df)
+#     full2_df = hcat(theta0_df, all_results2_df)
+#     full1_df[!,:stage] .= 1
+#     full2_df[!,:stage] .= 2
+#     full_df = vcat(full1_df, full2_df)
+
+#     if write_results_to_file > 0
+#         open(results_dir_path * "estimation_results.json" ,"w") do f
+#             JSON.print(f, gmm_results, 4)
+#         end
+
+#         CSV.write(results_dir_path * "estimation_results_df.csv", full_df)
+#     end
+
+# 	show_progress && println("GMM => complete")
+
+#     return gmm_results, full_df
+# end
+
+
 ## Serial (not parallel) bootstrap with multiple initial conditions
 
-function bootstrap_2step(;
+function slow_bootstrap_main(;
                     boot_run_idx,
 					momfn,
 					data,
@@ -623,11 +1437,11 @@ function bootstrap_2step(;
                     theta_hat, # so that we can evaluate the new moment at old parameters
                     sample_data_fn=nothing,
 					boot_rng=nothing,
-					# run_parallel=false,          # currently, always should be false
+					# run_parallel=false,          # currently, always false (can run parallel over different bootstrap runs)
 
-                    overwrite_existing::String="all",
+                    overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
 					rootpath_boot_output,
-					write_results_to_file=0,
+					write_results_to_file::Bool=true,
 
 					maxIter=100,
 					maxTime=Inf,
@@ -638,7 +1452,8 @@ function bootstrap_2step(;
                     show_progress=false
 					)
 
-	show_progress && print(".")
+	# show_progress && print(".")
+    show_progress && println("Bootstrap iteration ", boot_run_idx)
 
     # if result files already exist, do not run again:
     # boot_results_path = rootpath_boot_output * "estimation_results.json"
@@ -665,6 +1480,7 @@ function bootstrap_2step(;
     # TODO: should also be able to use a boostrapping function
     # TODO: sample_data_fn(DATA::Any, boot_rng::RandomNumberSeed)
 
+    boot_sample = nothing
     if isnothing(sample_data_fn)
         data_dict_boot = copy(data)
         firstdatakey = first(sort(collect(keys(data_dict_boot))))
@@ -689,46 +1505,37 @@ function bootstrap_2step(;
 	momfn_loaded = theta -> momfn(theta, data_dict_boot)
 
 ## run 2-step GMM and save results
-	boot_result, boot_result_df = gmm_2step(
+    boot_result_df, estimation_flags = 
+    estimation_main(
 			momfn_loaded=momfn_loaded,
 			theta0=theta0_boot,
 			theta_lower=theta_lower,
 			theta_upper=theta_upper,
 			run_parallel=false,
-			results_dir_path=rootpath_boot_output,
-			write_results_to_file=write_results_to_file, ## TODO: do what here?
-            overwrite_existing=overwrite_existing,
+			results_folder_path=rootpath_boot_output,
+			write_results_to_file=write_results_to_file,
+            overwrite_runs=overwrite_runs,
 			maxIter=maxIter,
 			maxTime=maxTime,
             throw_errors=throw_errors,
             show_trace=show_trace,
             show_theta=show_theta,
-			show_progress=false)
+			show_progress=show_progress)
 
     # evaluate new boot moment function at the old parameter values
-    boot_result["mom_at_theta_hat"] = momfn_loaded(theta_hat)
+    estimation_flags["mom_at_theta_hat"] = momfn_loaded(theta_hat)
 
     # housekeeping
-    boot_result["boot_run_idx"] = boot_run_idx
+    estimation_flags["boot_run_idx"] = boot_run_idx
+    estimation_flags["boot_sample"] = boot_sample
     boot_result_df[!, "boot_run_idx"] .= boot_run_idx
 
-    # overwrite results and DF
-    if write_results_to_file > 0
-        open(rootpath_boot_output * "est_results.json" ,"w") do f
-            JSON.print(f, boot_result, 4)
-        end
-
-        CSV.write(rootpath_boot_output * "est_results_df.csv", boot_result_df)
-    end
-
-    return boot_result, boot_result_df
+    return boot_result_df, estimation_flags
 # catch e
 # 	println("BOOTSTRAP_EXCEPTION for ", rootpath_boot_output)
-
 # 	bt = catch_backtrace()
 # 	msg = sprint(showerror, e, bt)
 # 	println(msg)
-
 # 	if throw_exceptions
 # 		throw(e)
 #     else
@@ -736,10 +1543,7 @@ function bootstrap_2step(;
 #             "boot_run_idx" => boot_run_idx,
 #             "outcome" => "fail",
 #             "outcome_detail" => ["bootstrap error " * string(boot_run_idx)]
-#         )
-
-#         # TODO: add DF with all "failed"
-        
+#         )        
 # 	end
 # end
 
@@ -893,13 +1697,14 @@ function run_checks(;
         # main gmm estimation
         "normalize_weight_matrix" => false,
 
-        "main_overwrite_existing" => "all", 
-            # all=overwrite everything
-            # "error"=overwrite only runs that errored 
-            # "limit"=overwrite only runs that have hit the time or iterations limit
-            # "error,limit"=overwrite both of the above
-            # "none"=do not overwrite anything
-		"main_write_results_to_file" => 0, # 0, 1 or 2, see definition in gmm_2step()
+        "main_overwrite_runs" => 10, 
+            # 10=overwrite all existing files
+            # 3=overwrite both 1 and 2
+            # 2=overwrite runs that errored
+            # 1=overwrite runs that hit the time or iterations limit
+            # 0=do not overwrite anything, but launch the runs that are missing
+
+		"main_write_results_to_file" => true, # ! I don't think "false" works
 
         "main_run_parallel" => false, # different starting conditions run in parallel
 		"main_maxIter" 		=> 1000, # maximum number of iterations for curve_fit() from LsqFit.jl
@@ -916,13 +1721,13 @@ function run_checks(;
         "boot_run_parallel" => false, # each bootstrap run in parallel.
 		"boot_n_runs" 		=> 100, # number of bootstrap runs 
 		
-        "boot_overwrite_existing" => "all", 
-            # all=overwrite everything
-            # "error"=overwrite only runs that errored 
-            # "limit"=overwrite only runs that have hit the time or iterations limit
-            # "error,limit"=overwrite both of the above
-            # "none"=do not overwrite anything
-        "boot_write_results_to_file" => 0, # similar to "main_write_results_to_file"
+        "boot_overwrite_runs" => 10, 
+            # 10=overwrite all existing files
+            # 3=overwrite both 1 and 2
+            # 2=overwrite runs that errored
+            # 1=overwrite runs that hit the time or iterations limit
+            # 0=do not overwrite anything, but launch the runs that are missing
+        "boot_write_results_to_file" => true, # ! I don't think "false" works
 
 
 		"boot_maxIter" 		=> 1000, 
@@ -937,6 +1742,7 @@ function run_checks(;
 
         # misc
         "show_progress" => true, # print overall progress/steps
+        "boot_show_progress" => false,
 
         # use estimated parameters when the optimizer did not converge (due to iteration limit or time limit). 
         # Attention! Results may be wrong/misleading! Only use for testing or if this is OK for use case.
@@ -1018,14 +1824,14 @@ function run_checks(;
     end
 
 ## Number of initial conditions
-    main_n_initial_cond = size(theta0, 1)
+    gmm_options["main_n_initial_cond"] = size(theta0, 1)
 
 ## Writing to file: if write main results, also write boot
-    if gmm_options["main_write_results_to_file"] > 0
-         gmm_options["boot_write_results_to_file"] = max(1, gmm_options["boot_write_results_to_file"])
-    end    
+    if gmm_options["main_write_results_to_file"] 
+        gmm_options["boot_write_results_to_file"] = true
+    end
 
-    return gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W, main_n_initial_cond
+    return gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W
 end
 
 
@@ -1064,7 +1870,7 @@ function run_estimation(;
 
 
 ## Run basic checks, fix parameters and subset moments (if applicable)
-    gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W, main_n_initial_cond = run_checks(
+    gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = run_checks(
             momfn=momfn,
             data=data,
             theta0=theta0,
@@ -1091,13 +1897,13 @@ function run_estimation(;
         "n_moms"                => gmm_options["n_moms"],
         "n_moms_full"           => gmm_options["n_moms_full"],
         "n_params"              => gmm_options["n_params"],
-        "main_n_initial_cond"   => main_n_initial_cond,
+        "main_n_initial_cond"   => gmm_options["main_n_initial_cond"]
     )
 
     estimation_parameters_file = gmm_options["rootpath_output"] * "estimation_parameters.json"
 
     # if file already exists, check using same estimation options
-    if (gmm_options["main_overwrite_existing"] != "all") && isfile(estimation_parameters_file)
+    if (gmm_options["main_overwrite_runs"] != 10) && isfile(estimation_parameters_file)
         temp = JSON.parsefile(estimation_parameters_file)
 
         ## Debug if params files are not identical
@@ -1121,7 +1927,7 @@ function run_estimation(;
         # if temp == estimation_parameters_json
         #     println("estimation_parameters.json file exists and identical to current parameters.")
         # else
-        #     error("estimation_parameters.json file exists and differs from current parameters. Either select main_overwrite_existing=true or run with same parameters.")
+        #     error("estimation_parameters.json file exists and differs from current parameters. Either select main_overwrite_runs=10 to overwrite everything or run with same parameters.")
         # end
     else
 
@@ -1138,8 +1944,7 @@ function run_estimation(;
 
     gmm_options["show_progress"] && println("Starting main estimation")
 
-    # TODO: add "use_unconverged_results" option
-    est_results, est_results_df  = gmm_2step(
+    estimation_main(
         momfn_loaded    =momfn_loaded,
 
         theta0          =theta0,
@@ -1151,9 +1956,9 @@ function run_estimation(;
         normalize_weight_matrix=gmm_options["normalize_weight_matrix"],
         vcov_fn         =omega,
         
-        results_dir_path=gmm_options["rootpath_output"],
+        results_folder_path=gmm_options["rootpath_output"],
         write_results_to_file=gmm_options["main_write_results_to_file"],
-        overwrite_existing=gmm_options["main_overwrite_existing"],
+        overwrite_runs=gmm_options["main_overwrite_runs"],
         
         run_parallel    =gmm_options["main_run_parallel"],
         maxIter         =gmm_options["main_maxIter"],
@@ -1165,7 +1970,6 @@ function run_estimation(;
         show_theta      =gmm_options["main_show_theta"],
         show_progress   =gmm_options["show_progress"])
 
-### Collect results, clean up
 
     # return est_options, est_results, est_results_df
 end
@@ -1188,18 +1992,13 @@ function run_inference(;
         sample_data_fn=nothing, # function for slow bootstrapping
 		gmm_options=nothing,
         
-        est_results=nothing,     # dictionary with estimation results
+        # est_results=nothing,     # dictionary with estimation results
         # est_results_path=nothing, # path to JSON with estimation results
         mt_seed=123
         )
 
-## Get estimation results as a dictionary from JSON file
-    if isnothing(est_results)
-        est_results = JSON.parsefile(gmm_options["rootpath_output"] * "estimation_results.json")         
-    end
-
 ## Run basic checks, fix parameters and subset moments (if applicable)
-gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = run_checks(
+    gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = run_checks(
         momfn=momfn,
         data=data,
         theta0=theta0_boot,
@@ -1212,7 +2011,24 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
         moms_subset=moms_subset,
         gmm_options=gmm_options)
 
+## Get estimation results as a dictionary from JSON file
+    # if isnothing(est_results)
+    #     est_results = JSON.parsefile(gmm_options["rootpath_output"] * "estimation_results.json")         
+    # end
+
+    results_flag, runs_to_launch, theta_hat, theta_hat_flag, all_results_df = 
+    collect_estimation_results(
+            nruns=gmm_options["main_n_initial_cond"],
+            results_folder_path=gmm_options["rootpath_output"],
+            results_subfolder_path="", # we do not scan the subfolder, even if it exists. If "estimation_results_df.csv" does not exist, the user should launch "run_estimation" again to generate it.
+            )
+
+    if isnothing(theta_hat)
+        error("No optimal theta found. Stopping.")
+    end
+
 ## Store estimation results here
+    est_results = Dict{String, Any}()
     # store parameters and options
     # est_results = Dict{String, Any}(
     #     "gmm_options" => gmm_options,
@@ -1233,7 +2049,6 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
 
     
 ## Misc
-    
     boot_result_json = nothing
     boot_result_dfs  = nothing
 
@@ -1242,12 +2057,12 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
 
 
     ## Asymptotic Variance
-    if (gmm_options["var_asy"] || gmm_options["var_boot"] == "quick") && est_results["outcome"] != "fail"
+    if (gmm_options["var_asy"] || gmm_options["var_boot"] == "quick") && (results_flag > 0)
 
         gmm_options["show_progress"] && println("Computing asymptotic variance")
 
         # Get estimated parameter vector
-        theta_hat = Float64.(est_results["theta_hat"])
+        # theta_hat = Float64.(est_results["theta_hat"])
         
         # function that computes averaged moments
         mymomfunction_main_avg = theta -> mean(momfn_loaded(theta), dims=1)
@@ -1257,6 +2072,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
         # higher factor = larger changes in parameters
         myfactor = 1.0
 
+        # TODO: better?
         # max range -- in order to avoid sampling outside boundaries
         my_max_range = 0.9 * min(minimum(abs.(theta_hat .- theta_lower)), minimum(abs.(theta_hat .- theta_upper)))
 
@@ -1325,6 +2141,8 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
         # https://ocw.mit.edu/courses/14-382-econometrics-spring-2017/resources/mit14_382s17_lec3/
         # https://ocw.mit.edu/courses/14-382-econometrics-spring-2017/resources/mit14_382s17_lec5/
         if gmm_options["var_boot"] == "quick"
+
+            @assert gmm_options["estimator"] ∈ ["gmm1step", "gmm2step"]
             
             # √n(θ̂ -θ₀) ∼ (G'AG)⁻¹G'Aϵ where G is Jacobian and A is the weighting matrix
             M = (transpose(G) * W * G) \ (transpose(G) * W)
@@ -1350,7 +2168,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
         end
 
         # write to file?
-        if gmm_options["main_write_results_to_file"] > 0
+        if gmm_options["main_write_results_to_file"]
             outputfile = string(gmm_options["rootpath_output"], "asy_vcov.csv")
             CSV.write(outputfile, Tables.table(est_results["asy_vcov"]), header=false)
 
@@ -1365,13 +2183,14 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
     if gmm_options["var_boot"] == "slow"
         gmm_options["show_progress"] && println("Starting boostrap")
 
+        # prep folder
         if gmm_options["boot_write_results_to_file"] > 0
             rootpath_boot_output = gmm_options["rootpath_output"] * "boot/"
             isdir(rootpath_boot_output) || mkdir(rootpath_boot_output)
         end
 
         # Get estimated parameter vector
-        theta_hat = Float64.(est_results["theta_hat"])
+        # theta_hat = Float64.(est_results["theta_hat"])
 
         # Define moment function for bootstrap -- target moment value at estimated theta
         mom_at_theta_hat = mean(momfn_loaded(theta_hat), dims=1)
@@ -1411,7 +2230,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
 
         if gmm_options["boot_run_parallel"]
             boot_results = pmap(
-            idx -> bootstrap_2step(
+            idx -> slow_bootstrap_main(
                         boot_run_idx=idx,
                         momfn=momfn_boot,
                         data=data,
@@ -1422,7 +2241,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
                         sample_data_fn=sample_data_fn,
                         boot_rng=boot_rngs[idx],
                         
-                        overwrite_existing=gmm_options["boot_overwrite_existing"],
+                        overwrite_runs=gmm_options["boot_overwrite_runs"],
                         write_results_to_file=gmm_options["boot_write_results_to_file"],
                         rootpath_boot_output=boot_folders[idx],
                         
@@ -1438,7 +2257,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
 
             boot_results = Vector{Any}(undef, boot_n_runs)
             for boot_run_idx=1:boot_n_runs
-                boot_results[boot_run_idx] = bootstrap_2step(
+                boot_results[boot_run_idx] = slow_bootstrap_main(
                         boot_run_idx=boot_run_idx,
                         momfn=momfn_boot,
                         data=data,
@@ -1449,7 +2268,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
                         sample_data_fn=sample_data_fn,
                         boot_rng=boot_rngs[boot_run_idx],
 
-                        overwrite_existing=gmm_options["boot_overwrite_existing"],
+                        overwrite_runs=gmm_options["boot_overwrite_runs"],
                         write_results_to_file=gmm_options["boot_write_results_to_file"],
                         rootpath_boot_output=boot_folders[boot_run_idx],
 
@@ -1457,7 +2276,7 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
                         maxTime=float(gmm_options["boot_maxTime"]),
                         throw_errors=gmm_options["boot_throw_errors"],
                         show_trace=false,
-                        show_progress=gmm_options["show_progress"],
+                        show_progress=gmm_options["boot_show_progress"],
                         show_theta=gmm_options["boot_show_theta"]
                     )
             end
@@ -1468,24 +2287,25 @@ gmm_options, theta0, theta_lower, theta_upper, theta0_boot, momfn3, omega1, W = 
         boot_result_json = []
         boot_result_dfs = []
         for boot_result=boot_results
-            mydict, mydf = boot_result
-            mydict["boot_n_initial_cond"] = size(theta0_boot, 1)
+            
+            results_df, estimation_flags = boot_result
+            estimation_flags["boot_n_initial_cond"] = size(theta0_boot, 1)
 
-            push!(boot_result_json, mydict)
-            push!(boot_result_dfs, mydf)
+            push!(boot_result_json, estimation_flags)
+            push!(boot_result_dfs, results_df)
         end
 
         boot_result_dfs = vcat(boot_result_dfs..., cols = :union)
 
-        if gmm_options["boot_write_results_to_file"] > 0
-            open(rootpath_boot_output * "results_boot.json" ,"w") do f
+        if gmm_options["boot_write_results_to_file"]
+            open(gmm_options["rootpath_output"] * "estimation_flags_bootstrap.json" ,"w") do f
                 JSON.print(f, boot_result_json, 4)
             end
     
-            CSV.write(rootpath_boot_output * "results_boot_df.csv", boot_result_dfs)
+            CSV.write(gmm_options["rootpath_output"] * "estimation_results_df_bootstrap.csv", boot_result_dfs)
         end
 
     end # end
 
-    return boot_result_json, boot_result_dfs, gmm_options
+    # return boot_result_json, boot_result_dfs, gmm_options
 end

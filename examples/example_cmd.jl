@@ -2,18 +2,6 @@ using Pkg, Revise
 Pkg.activate(".")
 using GMMTools
 
-# using Future
-    # using Statistics
-    # using StatsBase
-    # using Distributions
-# using DataFrames
-# using CSV
-# using Random
-    # using PrettyPrint
-    # using Printf
-# using FiniteDifferences
-
-
 # ! for later: we added these packages to the GMMTools environment, but they are not technicall necessary
 using FixedEffectModels
 using GLM
@@ -24,7 +12,6 @@ using Statistics
 
 Random.seed!(1234)
 
-# include("gmm_wrappers.jl")
 # include("gmm_display.jl") # ! need this
 
 ## Generate data for testing. 
@@ -47,10 +34,23 @@ Random.seed!(1234)
     M, V = moms_data_cmd(data_dict)
 
     # model moments minus data moments
-    moments_gmm_loaded = (mytheta, mydata_dict) -> (moms_model_cmd(
-        mytheta=mytheta, 
-        mydata_dict=mydata_dict, 
-        model_params=model_params) .- M)
+    # moments_gmm_loaded = (mytheta, mydata_dict) -> (moms_model_cmd(
+    #     mytheta=mytheta, 
+    #     mydata_dict=mydata_dict, 
+    #     model_params=model_params) .- M)
+
+    function moments_gmm_loaded(mytheta, mydata_dict)
+        # sleep(0.001)
+
+        if rand() < 0.001
+            error("cracra")
+        end
+
+        return moms_model_cmd(
+            mytheta=mytheta, 
+            mydata_dict=mydata_dict, 
+            model_params=model_params) .- M
+    end
 
     # Test
     theta0 = [1.5, 10.0]
@@ -60,14 +60,26 @@ Random.seed!(1234)
 ## GMM options
     gmm_options = Dict{String, Any}(
         "main_run_parallel" => false,
-        "main_overwrite_existing" => "error", 
+        
         "estimator" => "cmd",
         "cmd_omega" => V,  # variance-coveriance matrix
-        "main_write_results_to_file" => 2,
-        "rootpath_output" => "G:/My Drive/optnets/analysis/temp/",
-        "show_progress" => true,
 
-        "var_boot" => "slow"
+        "var_boot" => "slow",
+        "boot_n_runs" => 5,
+
+        "rootpath_output" => "G:/My Drive/optnets/analysis/temp/",
+
+        "main_write_results_to_file" => true,
+        "boot_write_results_to_file" => true,
+
+        "show_progress" => true,
+        "boot_show_progress" => true,
+
+        "main_overwrite_runs" => 2, ## 10=overwrite everything
+        "boot_overwrite_runs" => 2, ## 10=overwrite everything
+
+        "main_throw_errors" => true,
+        "boot_throw_errors" => false
     )
 
 ## Initial conditions (matrix for multiple initial runs) and parameter box constraints
