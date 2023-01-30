@@ -204,14 +204,16 @@ end
 function collect_estimation_results(;
     nruns::Int64,
     results_folder_path::String="",
-    results_subfolder_path::String="",
+    results_subfolder::String="",
     overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
-    # show_progress::Bool=true
+    scan_subfolder::Bool=true
 )
-    ### Step 1. Check if any individual run results exist in the subfolder
+    # 
+    results_subfolder_path = results_folder_path * results_subfolder * "/"
 
+    ### Step 1. Check if any individual run results exist in the subfolder    
     all_results_df = DataFrame()
-    if isdir(results_subfolder_path) # note, isdir("") = false
+    if scan_subfolder && isdir(results_subfolder_path) # note, isdir("") = false
         list_of_files = readdir(results_subfolder_path)
 
         try
@@ -236,8 +238,8 @@ function collect_estimation_results(;
         end
     end
 
-    ## If none of the individual results files exist (or if there are errors), try to read the full DF with results
-    results_df_path = results_folder_path * "estimation_results_df.csv"
+    ## If (A) did not scan subfolder, (B) folder does not exist, or (C) none of the individual results files exist => try to read the full DF with results
+    results_df_path = results_folder_path * "estimation_" * results_subfolder * "_df.csv"
     if (nrow(all_results_df) == 0) && isfile(results_df_path)
         all_results_df = CSV.read(results_df_path, DataFrame)
     end
@@ -367,7 +369,7 @@ function estimation_one_step(;
     results_flag, runs_to_launch, optimal_theta, optimal_theta_flag, all_results_df = collect_estimation_results(
         nruns=n_runs,
         results_folder_path=results_folder_path,
-        results_subfolder_path=results_subfolder_path,
+        results_subfolder=results_subfolder,
         overwrite_runs=overwrite_runs
     )
     # ? save anything from here in estimation_flags?
@@ -515,7 +517,7 @@ function optimal_weight_matrix(;
 
     # save to file
     if write_results_to_file
-        outputfile = string(results_folder_path,"Wstep2.csv")
+        outputfile = string(results_folder_path, "Wstep2.csv")
         CSV.write(outputfile, Tables.table(Wstep2), header=false)
     end
 
@@ -1084,34 +1086,43 @@ function estimation_main(;
             show_theta=show_theta,
             show_progress=show_progress)
 
-        # results_flag, runs_to_launch, optimal_theta, optimal_theta_flag, all_results_df = collect_estimation_results(
-        #     nruns=n_runs,
-        #     results_folder_path=results_folder_path,
-        #     results_subfolder_path=results_folder_path * results_subfolder_path,
-        #     overwrite_runs=overwrite_runs
-        # )
 
     else ## * TWO STEP ESTIMATION WITH OPTIMAL WEIGHT MATRIX
 
-        # estimation_flags
-        estimation_one_step()
-        collect_estimation_results()
+        all_results_df, estimation_flags = estimation_one_step(;
+            momfn_loaded=momfn_loaded,
+            theta0=theta0,
+            theta_lower=theta_lower,
+            theta_upper=theta_upper,
+            run_parallel=run_parallel,
+            n_moms=n_moms,
+            
+            initialWhalf=initialWhalf,
+            
+            results_folder_path=results_folder_path,
+            results_subfolder="step1",
+            write_results_to_file=write_results_to_file,
+
+            overwrite_runs=overwrite_runs, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
+            
+            maxIter=maxIter,
+            maxTime=maxTime,
+
+            throw_errors=throw_errors,
+            show_trace=show_trace,
+            show_theta=show_theta,
+            show_progress=show_progress)
+            
+        results_flag, runs_to_launch, theta_hat_stage1, theta_hat_flag, all_results_df = 
+            collect_estimation_results(
+                    nruns=n_runs,
+                    results_folder_path=results_folder_path,
+                    results_subfolder="step1")
         
-        theta_hat_stage1, errors_flag = find_optimum()
-
-        if errors_flag
-            # gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
-            # gmm_results["outcome_stage1_detail"] = ["none of the iterations converged"]
-
-            empty_df = DataFrame()
-
-            if write_results_to_file
-                open(results_folder_path * "estimation_results.json" ,"w") do f
-                    JSON.print(f, gmm_results, 4) # ! this doesn't exist
-                end
-            end
-
-            return gmm_results, empty_df # ! gmm_results
+        if isnothing(theta_hat_stage1) || (results_flag == 0)
+            error("No optimal theta found. Stopping.")
+            estimation_flags["overall result"] = "fail"
+            return all_results_df, estimation_flags
         end
 
         ### Compute optimal weighting matrix using the first-stage results
@@ -1124,10 +1135,31 @@ function estimation_main(;
                 results_folder_path=results_folder_path,
                 show_progress=show_progress)
 
-        gmm_results["Wstep2"] = Wstep2 # ! gmm_results
+        # gmm_results["Wstep2"] = Wstep2 # ! gmm_results
 
-        estimation_one_step()
-        collect_estimation_results()
+        all_results_df, estimation_flags = estimation_one_step(;
+            momfn_loaded=momfn_loaded,
+            theta0=theta0,
+            theta_lower=theta_lower,
+            theta_upper=theta_upper,
+            run_parallel=run_parallel,
+            n_moms=n_moms,
+            
+            initialWhalf=optimalWhalf, # * 2nd step so using (half of) the optimal weighting matrix
+            
+            results_folder_path=results_folder_path,
+            results_subfolder="step2", # * 2nd step
+            write_results_to_file=write_results_to_file,
+
+            overwrite_runs=overwrite_runs, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
+            
+            maxIter=maxIter,
+            maxTime=maxTime,
+
+            throw_errors=throw_errors,
+            show_trace=show_trace,
+            show_theta=show_theta,
+            show_progress=show_progress)
     end
 
     return all_results_df, estimation_flags
@@ -1437,7 +1469,8 @@ function slow_bootstrap_main(;
                     theta_hat, # so that we can evaluate the new moment at old parameters
                     sample_data_fn=nothing,
 					boot_rng=nothing,
-					# run_parallel=false,          # currently, always false (can run parallel over different bootstrap runs)
+					
+                    two_step=false,
 
                     overwrite_runs::Int64=10, # 10 means overwrite all, 0=nothing, 1=time limit, 2=errors 3=both 1&2
 					rootpath_boot_output,
@@ -1454,26 +1487,6 @@ function slow_bootstrap_main(;
 
 	# show_progress && print(".")
     show_progress && println("Bootstrap iteration ", boot_run_idx)
-
-    # if result files already exist, do not run again:
-    # boot_results_path = rootpath_boot_output * "estimation_results.json"
-    # if ~overwrite_existing && isfile(boot_results_path)
-
-    #     show_progress && println("\nSkipping boot iteration ", boot_run_idx) 
-
-    #     # read results
-    #     boot_result = JSON.parsefile(boot_results_path) 
-        
-    #     # df -- if it exists
-    #     boot_results_df_path = rootpath_boot_output * "est_results_df.csv"
-    #     if isfile(boot_results_df_path)
-    #         boot_result_df = CSV.read(boot_results_df_path, DataFrame)
-    #     else
-    #         boot_result_df = DataFrame()
-    #     end
-
-    #     return boot_result, boot_result_df
-    # end
 
     ## load data and prepare
     # TODO: do and document this better -- default = assume data is a dictionary of vectors/matrices
@@ -1512,6 +1525,7 @@ function slow_bootstrap_main(;
 			theta_lower=theta_lower,
 			theta_upper=theta_upper,
 			run_parallel=false,
+            two_step=two_step,
 			results_folder_path=rootpath_boot_output,
 			write_results_to_file=write_results_to_file,
             overwrite_runs=overwrite_runs,
@@ -1531,22 +1545,6 @@ function slow_bootstrap_main(;
     boot_result_df[!, "boot_run_idx"] .= boot_run_idx
 
     return boot_result_df, estimation_flags
-# catch e
-# 	println("BOOTSTRAP_EXCEPTION for ", rootpath_boot_output)
-# 	bt = catch_backtrace()
-# 	msg = sprint(showerror, e, bt)
-# 	println(msg)
-# 	if throw_exceptions
-# 		throw(e)
-#     else
-#         boot_result = Dict{String, Any}(
-#             "boot_run_idx" => boot_run_idx,
-#             "outcome" => "fail",
-#             "outcome_detail" => ["bootstrap error " * string(boot_run_idx)]
-#         )        
-# 	end
-# end
-
 end
 
 function vector_theta_fix(mytheta, theta_fix)
@@ -2016,11 +2014,18 @@ function run_inference(;
     #     est_results = JSON.parsefile(gmm_options["rootpath_output"] * "estimation_results.json")         
     # end
 
+    if gmm_options["estimator"] == "gmm2step"
+        results_subfolder = "step2"
+    else
+        results_subfolder = "results"
+    end
+
     results_flag, runs_to_launch, theta_hat, theta_hat_flag, all_results_df = 
     collect_estimation_results(
             nruns=gmm_options["main_n_initial_cond"],
             results_folder_path=gmm_options["rootpath_output"],
-            results_subfolder_path="", # we do not scan the subfolder, even if it exists. If "estimation_results_df.csv" does not exist, the user should launch "run_estimation" again to generate it.
+            results_subfolder=results_subfolder,
+            scan_subfolder=false # do not scan the subfolder, even if it exists. If "estimation_XYZ_df.csv" does not exist, the user should launch "run_estimation" again to generate it.
             )
 
     if isnothing(theta_hat)
@@ -2113,8 +2118,8 @@ function run_inference(;
             else
                 vcov_fn = omega1
             end
-            theta_hat_stage1 = est_results["theta_hat_stage1"]
-            Ω = vcov_fn(theta_hat_stage1, momfn_loaded)
+            # theta_hat_stage1 = est_results["theta_hat_stage1"]
+            Ω = vcov_fn(theta_hat, momfn_loaded)
 
             W = Symmetric(W)
 
@@ -2124,7 +2129,13 @@ function run_inference(;
 
         if gmm_options["estimator"] == "gmm2step"
             # W = Ω⁻¹ so the above simplifies to (G'WG)⁻¹
-            W = Symmetric(est_results["Wstep2"])
+
+            # read W
+            Wstep2_path = gmm_options["rootpath_output"] * "Wstep2.csv"
+            # W = CSV.File(Wstep2_path) |> Tables.matrix
+            W = CSV.read(Wstep2_path, Tables.matrix, header=false)
+
+            W = Symmetric(W)
             V = inv(transpose(G) * W * G) 
         end
 
@@ -2240,6 +2251,8 @@ function run_inference(;
                         theta_hat=theta_hat,
                         sample_data_fn=sample_data_fn,
                         boot_rng=boot_rngs[idx],
+
+                        two_step=gmm_options["2step"],
                         
                         overwrite_runs=gmm_options["boot_overwrite_runs"],
                         write_results_to_file=gmm_options["boot_write_results_to_file"],
@@ -2267,6 +2280,8 @@ function run_inference(;
                         theta_hat=theta_hat,
                         sample_data_fn=sample_data_fn,
                         boot_rng=boot_rngs[boot_run_idx],
+
+                        two_step=gmm_options["2step"],
 
                         overwrite_runs=gmm_options["boot_overwrite_runs"],
                         write_results_to_file=gmm_options["boot_write_results_to_file"],
