@@ -7,7 +7,7 @@
 *Preliminary/In progress.*
 A toolbox for generalized method of moments (GMM) and classical minimum distance (CMD) estimation, with functionality aimed at streamlining estimating models that have long runtime and estimation launched on a computer cluster.
 
-For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl). (TODO: add GMM packages.)
+For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl]{https://github.com/schrimpf/GMMInference.jl}. [SMM.jl]{https://github.com/floswald/SMM.jl}
 
 # Features and philosophy
 ## Who is this package useful for?
@@ -47,8 +47,9 @@ Convenience features:
 
 
 ### Wish-list
-1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`
-1. automatic differentiation for gradient
+1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`, e.g. `Optim.jl`, [`GalacticOptim.jl`]{`https://github.com/SciML/GalacticOptim.jl`}, etc.
+1. automatic differentiation 
+1. more general estimation of the covariance of the moments, e.g. Newey-West, etc.
 1. integrate with RegressionTables.jl
 1. compute sensitivity measure (Andrews et al 2017)
 1. (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
@@ -107,3 +108,6 @@ It is the user's responsibility to ensure that the existing results and the new 
 
 ### Understanding the file output from incomplete cycles
 We save the results from each initial condition run in a separate file (one-row dataframe) in `"SUBFOLDER/results_df_run_<iter_n>.csv"` where `SUBFOLDER` is one of `"results", "step1", "step2"`. After all runs are finished, we combine all results into a single dataframe in `"estimation_SUBFOLDER_df.csv"`. To avoid a large number of files (thousands in the case of bootstrap with multiple initial conditions), we clean up and delete the individual run output files (the entire `"SUBFOLDER"` subfolder) after the combined dataframe is generated.
+
+## Acknowledgements
+For useful suggestions: Peter Deffebach, Michael Creel.
