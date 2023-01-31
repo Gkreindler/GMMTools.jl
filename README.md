@@ -5,13 +5,14 @@
 
 # Summary 
 *Preliminary/In progress.*
+
 A toolbox for generalized method of moments (GMM) and classical minimum distance (CMD) estimation, with functionality aimed at streamlining estimating models that have long runtime and estimation launched on a computer cluster.
 
 For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl). [SMM.jl](https://github.com/floswald/SMM.jl)
 
 # Features and use-cases
 ## Who could this package be useful for?
-The idea behind this package is that rapid iteration is a necessary condition for quality science. When working with large or complicated economic models and estimating them using GMM-type methods, valuable research time can be wasted collecting results, re-running partial estimation cycles, or bootstrap runs, after a bug causes an error in one run, etc. This package aims to automate and speed up some common steps in such workflows.
+The idea behind this package is that rapid iteration is useful when doing science. When working with large or complicated economic models and estimating them using GMM-type methods, valuable research time can be wasted collecting results, re-running partial estimation cycles, or bootstrap runs, after a bug causes an error in one run, etc. This package aims to automate and speed up some common steps in such workflows.
 
 What does this package add above and beyond just coding `g'Wg` directly? The ultimate aim is to offer a similar set of features that a typical OLS package adds above and beyond coding directly `(X'X)-1X'Y`.
 
@@ -36,14 +37,14 @@ Convenience features:
 
 ### Dev to-do list:
 1. flags for (1) optimum from run that did not converge, (2) 1st stage optimum from run that did not converge
-1. test parallel
+1. double-check how bootstrap works for CMD_optimal
+1. accept user-provided bootstrap sampling function
 1. test time limit hit
 1. output estimation results text
 1. test package install on new computer
-1. “quick” bootstrap
-1. Decide whether to reuse existing initial conditions, bootstrap samples, when resuming estimation with incomplete results
+1. test the existing “quick” bootstrap option
+1. Decide whether to check or reuse existing initial conditions, bootstrap samples, when resuming estimation with incomplete results
 1. (lower priority) implement "proper" package tests
-1. (lower priority) accept user-provided bootstrap sampling function
 
 
 ### Wish-list
@@ -56,7 +57,6 @@ Convenience features:
 1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
 
 # Install
-?
 Note: as of January 2023, this packages requires `LsqFit.jl#master` (for the `maxTime` option).
 1. `]remove LsqFit`
 1. `]add LsqFit#master`
@@ -79,7 +79,7 @@ examples/example_parallel.jl # parallel computation for (i) multiple initial con
 ```
 
 # Notes
-- the optimizer is a slightly modified version of LsqFit.jl, because the GMM/CMD objective is a sum of squares (using the Cholesky decomposition of the weighting matrix). In principle, other optimizers can be used. The Cholesky decomposition `Whalf` of a positive definite matrix `W` is a matrix that satisfies `Whalf' * Whalf = W`. This means that we can re-write the objective `g'Wg` as `(Whalf*g)'*(Whalf*g)`, which is a sum of squares.
+- the optimizer is LsqFit.jl, because the GMM/CMD objective is a sum of squares (using the Cholesky decomposition of the weighting matrix). In principle, other optimizers can be used. The Cholesky decomposition `Whalf` of a positive definite matrix `W` is a matrix that satisfies `Whalf' * Whalf = W`. This means that we can re-write the objective `g'Wg` as `(Whalf*g)'*(Whalf*g)`, which is a sum of squares.
 - in optimization, the gradient is currently computed using finite differences
 - rules for combining estimation results with multiple initial conditions: 
     - runs that produce errors are ignored
