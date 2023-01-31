@@ -152,7 +152,8 @@ function curve_fit_wrapper(
     catch myerror
         
         println("ERROR -- ")
-        display(myerror)
+        # display(myerror)
+        # TODO: better display errors, "display" sometimes writes a huge message (e.g. a large DF is part of the error)
 
         if throw_errors
             throw(myerror)
