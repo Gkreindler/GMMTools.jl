@@ -57,13 +57,13 @@ Convenience features:
 1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
 
 # Install
-Note: as of January 2023, this packages requires `LsqFit.jl#master` (for the `maxTime` option).
-1. `]remove LsqFit`
-1. `]add LsqFit#master`
+To install this package:
+`] add https://github.com/Gkreindler/GMMTools.jl`
 
-Then, to install this package:
-`]add https://github.com/Gkreindler/GMMTools.jl`
-
+Note: as of January 2023, this packages requires `LsqFit.jl#master` (for the `maxTime` option). After the step above, run:
+1. `] remove LsqFit`
+1. `] add LsqFit#master  # or ] https://github.com/JuliaNLSolvers/LsqFit.jl#master`
+1. `] update # this should be optional`
 
 # Basic Usage
 The user must provide two objects:
@@ -71,7 +71,7 @@ The user must provide two objects:
 1. An object `data`. (Can be anything. By default `Dict{String, Any}` with values tha are vectors or matrices with 1st dimension of size `N`. In this format, sampling for slow bootstrap is done automatically.)
 
 # Examples
-See examples in 
+See examples with toy models in 
 ```
 examples/example_cmd.jl
 examples/example_gmm2step.jl
