@@ -1,7 +1,8 @@
 module GMMTools
 
 # Write your package code here.
-using Future
+using Distributed
+using Future: randjump
 
 using DataFrames
 using LinearAlgebra

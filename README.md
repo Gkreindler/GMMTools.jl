@@ -74,6 +74,7 @@ See examples in
 ```
 examples/example_cmd.jl
 examples/example_gmm2step.jl
+examples/example_parallel.jl # parallel computation for (i) multiple initial conditons, and (ii) boostrap
 ```
 
 # Notes

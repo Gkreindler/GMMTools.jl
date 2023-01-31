@@ -378,92 +378,99 @@ function estimation_one_step(;
 
     if length(runs_to_launch) == 0
         show_progress && println("Not necessary to launch any runs. Option overwrite_runs=", overwrite_runs)
-        return all_results_df, estimation_flags
-    end
-
-## GMM first stage
-    show_progress && println("GMM => Launching estimation, number of initial conditions: ", n_runs)
-
-	# curve_fit in LsqFit requires to give data (x) to the objective function 
-	# we hack this to give the GMM weighting matrix (Cholesky half)
-
-	# optional: save results for each initial condition in a subdirectory
-	if write_results_to_file
-		show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
-		isdir(results_subfolder_path) || mkdir(results_subfolder_path)
-	end
-
-	# define objective function with moment function "loaded"
-	gmm_obj_fn = (anyWhalf, any_theta) ->
-					gmm_obj(theta=any_theta,
-							Whalf=anyWhalf,
-							momfn=momfn_loaded, # <- loaded moment function
-							show_theta=show_theta)
-
-    # run in parallel
-	if run_parallel && n_runs > 1
-
-	    new_results_df = pmap(
-	        idx -> curve_fit_wrapper(
-							idx,
-							gmm_obj_fn,
-							initialWhalf,
-							n_moms,
-	                        theta0[idx,:], theta_lower, theta_upper,
-							write_results_to_file=write_results_to_file,
-							individual_run_results_path=results_subfolder_path,
-                            # overwrite_runs=overwrite_runs,
-							maxIter=maxIter,
-							maxTime=maxTime,
-                            throw_errors=throw_errors,
-                            show_trace=show_trace,
-                            show_progress=show_progress
-						), runs_to_launch)  # ! possible subset of runs. previously: # 1:n_runs)
-	else
-
-        # not in parallel
-		new_results_df = []
-		for idx=runs_to_launch  # ! possible subset of runs. previously: # 1:n_runs)
-	        push!(new_results_df, curve_fit_wrapper(
-							idx,
-							gmm_obj_fn,
-							initialWhalf,
-							n_moms,
-	                        theta0[idx,:], theta_lower, theta_upper,
-							write_results_to_file=write_results_to_file,
-							individual_run_results_path=results_subfolder_path,
-                            # overwrite_runs=overwrite_runs,
-							maxIter=maxIter,
-							maxTime=maxTime,
-                            throw_errors=throw_errors,
-							show_trace=show_trace,
-                            show_progress=show_progress))
-        end
-	end
-
-    ### Full results
-        new_results_df = vcat(DataFrame.(new_results_df)...)
-
-        # Combine with the old results
-        runs_to_reuse = setdiff(1:n_runs, runs_to_launch)
-        all_results_df = all_results_df[runs_to_reuse, :]
-        # (nrow(all_results_df) > 0) && select!(all_results_df, Not(:is_optimum))
-        all_results_df = vcat(all_results_df, new_results_df, cols=:union)
-        sort!(all_results_df, :run_idx)
-
+        
         # find optimum
         idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
         all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
-        
-        # FLAG: optimum (lowest obj value) corresponds to a run that has not converged
-        if ~all_results_df[idx_optimum, :opt_converged]
-            estimation_flags["optimum_not_converged"] = true
+
+        # return all_results_df, estimation_flags    
+    else
+
+        ## GMM first stage
+            show_progress && println("GMM => Launching estimation, number of initial conditions: ", n_runs)
+
+        # save results for each initial condition in a subdirectory
+            if write_results_to_file
+                show_progress && print("GMM => Creating subdirectory to save one file per initial condition vector...")
+                isdir(results_subfolder_path) || mkdir(results_subfolder_path)
+            end
+
+        # curve_fit in LsqFit requires to give data (x) to the objective function 
+        # we hack this to give the GMM weighting matrix (Cholesky half)
+
+        # define objective function with moment function "loaded"
+        gmm_obj_fn = (anyWhalf, any_theta) ->
+                        gmm_obj(theta=any_theta,
+                                Whalf=anyWhalf,
+                                momfn=momfn_loaded, # <- loaded moment function
+                                show_theta=show_theta)
+
+        # run in parallel
+        if run_parallel && n_runs > 1
+
+            new_results_df = pmap(
+                idx -> curve_fit_wrapper(
+                                idx,
+                                gmm_obj_fn,
+                                initialWhalf,
+                                n_moms,
+                                theta0[idx,:], theta_lower, theta_upper,
+                                write_results_to_file=write_results_to_file,
+                                individual_run_results_path=results_subfolder_path,
+                                # overwrite_runs=overwrite_runs,
+                                maxIter=maxIter,
+                                maxTime=maxTime,
+                                throw_errors=throw_errors,
+                                show_trace=show_trace,
+                                show_progress=show_progress), 
+                            runs_to_launch)  # ! possible subset of runs. previously: # 1:n_runs)
+        else
+
+            # not in parallel
+            new_results_df = []
+            for idx=runs_to_launch  # ! possible subset of runs. previously: # 1:n_runs)
+                push!(new_results_df, curve_fit_wrapper(
+                                idx,
+                                gmm_obj_fn,
+                                initialWhalf,
+                                n_moms,
+                                theta0[idx,:], theta_lower, theta_upper,
+                                write_results_to_file=write_results_to_file,
+                                individual_run_results_path=results_subfolder_path,
+                                # overwrite_runs=overwrite_runs,
+                                maxIter=maxIter,
+                                maxTime=maxTime,
+                                throw_errors=throw_errors,
+                                show_trace=show_trace,
+                                show_progress=show_progress))
+            end
         end
 
-        # FLAG: total errors, not converged, success
-        estimation_flags["n_errors"] = sum(all_results_df.opt_error)
-        estimation_flags["n_not_converged"] = sum(.~all_results_df.opt_converged)
-        estimation_flags["n_success"] = sum(all_results_df.opt_converged .& .~all_results_df.opt_error)
+        ### Full results
+            new_results_df = vcat(DataFrame.(new_results_df)...)
+
+            # Combine with the old results
+            runs_to_reuse = setdiff(1:nrow(all_results_df), runs_to_launch)
+            all_results_df = all_results_df[runs_to_reuse, :]
+            # (nrow(all_results_df) > 0) && select!(all_results_df, Not(:is_optimum))
+            all_results_df = vcat(all_results_df, new_results_df, cols=:union)
+            sort!(all_results_df, :run_idx)
+
+            # find optimum
+            idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
+            all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
+            
+            # FLAG: optimum (lowest obj value) corresponds to a run that has not converged
+            if ~all_results_df[idx_optimum, :opt_converged]
+                estimation_flags["optimum_not_converged"] = true
+            end
+
+            # FLAG: total errors, not converged, success
+            estimation_flags["n_errors"] = sum(all_results_df.opt_error)
+            estimation_flags["n_not_converged"] = sum(.~all_results_df.opt_converged)
+            estimation_flags["n_success"] = sum(all_results_df.opt_converged .& .~all_results_df.opt_error)
+
+    end
 
     ### Save full results
     if write_results_to_file
@@ -482,11 +489,13 @@ function estimation_one_step(;
     # TODO: better way to do this on Windows and/or with synced folders (Dropbox, Google Drive, etc.)
     # see https://github.com/JuliaLang/julia/issues/34700
 
-    try
-        rm(results_subfolder_path, recursive=true)
-    catch mye
-        sleep(0.1)
-        rm(results_subfolder_path, recursive=true)
+    if isdir(results_subfolder_path)
+        try
+            rm(results_subfolder_path, recursive=true)
+        catch mye
+            sleep(0.1)
+            rm(results_subfolder_path, recursive=true)
+        end
     end
 
     return all_results_df, estimation_flags
@@ -2029,7 +2038,7 @@ function run_inference(;
             )
 
     if isnothing(theta_hat)
-        error("No optimal theta found. Stopping.")
+            error("No optimal theta found. Stopping.")
     end
 
 ## Store estimation results here
@@ -2218,7 +2227,8 @@ function run_inference(;
             gmm_options["show_progress"] && print(".")
             
             # increment and update "current" random number generator
-            boot_rngs[i] = Future.randjump(current_rng, big(10)^20)
+            # boot_rngs[i] = Future.randjump(current_rng, big(10)^20)
+            boot_rngs[i] = randjump(current_rng, big(10)^20)
             current_rng = boot_rngs[i]
 
             # can check that all these are different
