@@ -7,13 +7,13 @@
 *Preliminary/In progress.*
 A toolbox for generalized method of moments (GMM) and classical minimum distance (CMD) estimation, with functionality aimed at streamlining estimating models that have long runtime and estimation launched on a computer cluster.
 
-For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl]{https://github.com/schrimpf/GMMInference.jl}. [SMM.jl]{https://github.com/floswald/SMM.jl}
+For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl). [SMM.jl](https://github.com/floswald/SMM.jl)
 
-# Features and philosophy
-## Who is this package useful for?
-The idea behind this package is that rapid iteration in data analysis is a necessary condition for quality science. When working with large or complicated models, valuable research time can be wasted collecting results, re-running partial estimation cycles, or bootstrap runs, after a bug causes an error in one run, etc. This package aims to automate some of the common steps in such workflows, and re-use successful estimation runs.
+# Features and use-cases
+## Who could this package be useful for?
+The idea behind this package is that rapid iteration is a necessary condition for quality science. When working with large or complicated economic models and estimating them using GMM-type methods, valuable research time can be wasted collecting results, re-running partial estimation cycles, or bootstrap runs, after a bug causes an error in one run, etc. This package aims to automate and speed up some common steps in such workflows.
 
-What does this package add above and beyond just coding `g'Wg` directly? The aim is to offer a similar set of features that a typical OLS package adds above and beyond coding directly `(X'X)-1X'Y`.
+What does this package add above and beyond just coding `g'Wg` directly? The ultimate aim is to offer a similar set of features that a typical OLS package adds above and beyond coding directly `(X'X)-1X'Y`.
 
 If you find yourself estimating GMM/CMD models and spend significant time on routine operations, read on.
 
@@ -47,7 +47,7 @@ Convenience features:
 
 
 ### Wish-list
-1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`, e.g. `Optim.jl`, [`GalacticOptim.jl`]{`https://github.com/SciML/GalacticOptim.jl`}, etc.
+1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`, e.g. `Optim.jl`, [`GalacticOptim.jl`](`https://github.com/SciML/GalacticOptim.jl`), etc.
 1. automatic differentiation 
 1. more general estimation of the covariance of the moments, e.g. Newey-West, etc.
 1. integrate with RegressionTables.jl
