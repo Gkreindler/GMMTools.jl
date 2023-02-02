@@ -1754,15 +1754,25 @@ function run_checks(;
 
         # use estimated parameters when the optimizer did not converge (due to iteration limit or time limit). 
         # Attention! Results may be wrong/misleading! Only use for testing or if this is OK for use case.
-        "use_unconverged_results" => false
+        "use_unconverged_results" => false,
+
+        "n_params" => -1
 	)
 
-    # for options that are not provided, use the default
     if isnothing(gmm_options) 
         gmm_options = Dict{String, Any}()
     end
+  
 
-	for mykey in keys(gmm_options_default)
+    # warnings for options that do not exist 
+    for mykey in keys(gmm_options)
+        if ~(mykey ∈ keys(gmm_options_default))
+            @warn "The following gmm_option is not supported by run_estimation(): " * mykey
+        end
+    end
+
+    # for options that are not provided, use the default
+    for mykey in keys(gmm_options_default)
 		if ~haskey(gmm_options, mykey)
 			gmm_options[mykey] = gmm_options_default[mykey]
 		end

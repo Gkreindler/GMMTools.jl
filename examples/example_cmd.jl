@@ -62,7 +62,6 @@ Random.seed!(1234)
         "main_run_parallel" => false,
         
         "estimator" => "cmd",
-        "cmd_omega" => V,  # variance-coveriance matrix
 
         "var_boot" => "slow",
         "boot_n_runs" => 5,
