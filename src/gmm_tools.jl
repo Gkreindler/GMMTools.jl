@@ -457,13 +457,19 @@ function estimation_one_step(;
             all_results_df = vcat(all_results_df, new_results_df, cols=:union)
             sort!(all_results_df, :run_idx)
 
-            # find optimum
-            idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
-            all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
-            
-            # FLAG: optimum (lowest obj value) corresponds to a run that has not converged
-            if ~all_results_df[idx_optimum, :opt_converged]
-                estimation_flags["optimum_not_converged"] = true
+            # if everything errored:
+            if all(all_results_df.opt_error)
+                all_results_df[!, :is_optimum] .= false
+            else
+
+                # find optimum
+                idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
+                all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
+                
+                # FLAG: optimum (lowest obj value) corresponds to a run that has not converged
+                if ~all_results_df[idx_optimum, :opt_converged]
+                    estimation_flags["optimum_not_converged"] = true
+                end
             end
 
             # FLAG: total errors, not converged, success
