@@ -93,7 +93,7 @@ function curve_fit_wrapper(
     #     results_df = CSV.read(outputfile, DataFrame)
 
     #     has_error = results_df[1, "opt_error"]
-    #     hit_limit = ~results_df[1, "opt_converged"] &&
+    #     hit_limit = !results_df[1, "opt_converged"] &&
 
     #     rerun_error = has_error && (overwrite_runs ∈ [2,3])
     #     rerun_limit = hit_limit && (overwrite_runs ∈ [1,3])
@@ -103,7 +103,7 @@ function curve_fit_wrapper(
     #         return results_df
     #     end
 
-    #     if ~rerun_error && ~rerun_limit
+    #     if !rerun_error && !rerun_limit
     #         show_progress && println("... skipping. Error=", has_error, " limit=", hit_limit, " overwrite_runs=", overwrite_runs)
     #         return results_df
     #     end
@@ -209,8 +209,7 @@ function collect_estimation_results(;
     scan_subfolder::Bool=true
 )
     # 
-    results_subfolder_path = results_folder_path * results_subfolder * "/"
-
+    results_subfolder_path = joinpath(results_folder_path, results_subfolder) * "/"
     ### Step 1. Check if any individual run results exist in the subfolder    
     all_results_df = DataFrame()
     if scan_subfolder && isdir(results_subfolder_path) # note, isdir("") = false
@@ -263,7 +262,7 @@ function collect_estimation_results(;
 
         else
 
-            all_results_noerror_df = all_results_df[.~all_results_df.opt_error, :]
+            all_results_noerror_df = all_results_df[.!all_results_df.opt_error, :]
 
             # find optimum
             idx_optimum = argmin(all_results_df.obj_vals)
@@ -271,13 +270,13 @@ function collect_estimation_results(;
             optimal_theta = all_results_noerror_df[idx_optimum, r"param_"] |> collect
 
             # case 2: none of the runs converged
-            if all(.~all_results_noerror_df.opt_converged)
+            if all(.!all_results_noerror_df.opt_converged)
                 
                 optimal_theta_flag = 2
             else
 
                 # case 1 = lowest objective value attained among runs that DID NOT converge
-                if ~all_results_df[idx_optimum, :opt_converged]
+                if !all_results_df[idx_optimum, :opt_converged]
                     optimal_theta_flag = 1
                 else # case 0 = no warnings. lowest objective value attained among runs that converged
                     optimal_theta_flag = 0
@@ -294,7 +293,7 @@ function collect_estimation_results(;
     error_idxs = all_results_df[all_results_df.opt_error, "run_idx"]
 
     ## runs that did not converge (hit the time or iterations limit)
-    limit_idxs = all_results_df[.~all_results_df.opt_converged, "run_idx"]
+    limit_idxs = all_results_df[.!all_results_df.opt_converged, "run_idx"]
 
     ### Flag
     if length(missing_idxs) > 0
@@ -362,7 +361,7 @@ function estimation_one_step(;
 
 ##  
     results_subfolder_path = results_folder_path * results_subfolder * "/"
-    # isdir(results_subfolder_path) || mkdir(results_subfolder_path)
+    isdir(results_subfolder_path) || mkdir(results_subfolder_path)
 
 ## Read existing results and compute which runs we need to launch again (default = 1:n_runs)
     show_progress && println(" Searching for existing results in folder ", results_subfolder_path)
@@ -380,7 +379,7 @@ function estimation_one_step(;
         show_progress && println("Not necessary to launch any runs. Option overwrite_runs=", overwrite_runs)
         
         # find optimum
-        idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
+        idx_optimum = argmin(all_results_df[.!all_results_df.opt_error, :obj_vals])
         all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
 
         # return all_results_df, estimation_flags    
@@ -462,30 +461,30 @@ function estimation_one_step(;
             else
 
                 # find optimum
-                idx_optimum = argmin(all_results_df[.~all_results_df.opt_error, :obj_vals])
+                idx_optimum = argmin(all_results_df[.!all_results_df.opt_error, :obj_vals])
                 all_results_df.is_optimum = ((1:n_runs) .== idx_optimum)
                 
                 # FLAG: optimum (lowest obj value) corresponds to a run that has not converged
-                if ~all_results_df[idx_optimum, :opt_converged]
+                if !all_results_df[idx_optimum, :opt_converged]
                     estimation_flags["optimum_not_converged"] = true
                 end
             end
 
             # FLAG: total errors, not converged, success
             estimation_flags["n_errors"] = sum(all_results_df.opt_error)
-            estimation_flags["n_not_converged"] = sum(.~all_results_df.opt_converged)
-            estimation_flags["n_success"] = sum(all_results_df.opt_converged .& .~all_results_df.opt_error)
+            estimation_flags["n_not_converged"] = sum(.!all_results_df.opt_converged)
+            estimation_flags["n_success"] = sum(all_results_df.opt_converged .& .!all_results_df.opt_error)
 
     end
 
     ### Save full results
     if write_results_to_file
         # dataframe with results
-        outputfile = results_folder_path * "estimation_" * results_subfolder * "_df.csv"
+        outputfile = joinpath(results_folder_path, "estimation_" * results_subfolder * "_df.csv")
 	    CSV.write(outputfile, all_results_df)
 
         # flags
-        open(results_folder_path * "estimation_flags.json" ,"w") do f
+        open(joinpath(results_folder_path, "estimation_flags.json") ,"w") do f
             JSON.print(f, estimation_flags, 4)
         end
         
@@ -741,7 +740,7 @@ show_progress = pass on to objective function
 
 #     # TODO: allow iterations that have not converged (+ warning in docs)
 #     # if not converged, replace objective value with +Infinity
-#     all_results_df[.~all_results_df.opt_converged, :obj_vals_converged] .= Inf
+#     all_results_df[.!all_results_df.opt_converged, :obj_vals_converged] .= Inf
 	
 #     if minimum(all_results_df.obj_vals_converged) == Inf
 #         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
@@ -757,7 +756,7 @@ show_progress = pass on to objective function
 
 #         return gmm_results, empty_df
 
-#     elseif any(.~all_results_df.opt_converged)
+#     elseif any(.!all_results_df.opt_converged)
 
 #         n_converged = sum(all_results_df.opt_converged)
 
@@ -792,7 +791,7 @@ show_progress = pass on to objective function
 #     end 
 
 # 	## if one-step -> stop here
-#     if ~two_step
+#     if !two_step
 #         full_df = hcat(theta0_df, all_results_df)
 
 #         gmm_results["theta_hat"] = gmm_results["theta_hat_stage1"]
@@ -908,7 +907,7 @@ show_progress = pass on to objective function
 
 #     # TODO: allow iterations that have not converged (+ warning in docs)
 #     # if not converged, replace objective value with +Infinity
-#     all_results2_df[.~all_results2_df.opt_converged, :obj_vals_converged] .= Inf
+#     all_results2_df[.!all_results2_df.opt_converged, :obj_vals_converged] .= Inf
 
 #     if minimum(all_results2_df.obj_vals_converged) == Inf
 #         gmm_results["outcome_stage2"] = gmm_results["outcome"] = "fail"
@@ -924,7 +923,7 @@ show_progress = pass on to objective function
 
 #         return gmm_results, empty_df
 
-#     elseif any(.~all_results2_df.opt_converged)
+#     elseif any(.!all_results2_df.opt_converged)
 
 #         n_converged = sum(all_results2_df.opt_converged)
 
@@ -1076,7 +1075,7 @@ function estimation_main(;
     end
 
 ## 
-    if ~two_step ## * ONE-STEP ESTIMATION
+    if !two_step ## * ONE-STEP ESTIMATION
         all_results_df, estimation_flags = estimation_one_step(;
             momfn_loaded=momfn_loaded,
             theta0=theta0,
@@ -1254,7 +1253,7 @@ end
 
 #     # TODO: allow iterations that have not converged (+ warning in docs)
 #     # if not converged, replace objective value with +Infinity
-#     all_results_df[.~all_results_df.opt_converged, :obj_vals_converged] .= Inf
+#     all_results_df[.!all_results_df.opt_converged, :obj_vals_converged] .= Inf
 	
 #     if minimum(all_results_df.obj_vals_converged) == Inf
 #         gmm_results["outcome_stage1"] = gmm_results["outcome"] = "fail"
@@ -1270,7 +1269,7 @@ end
 
 #         return gmm_results, empty_df
 
-#     elseif any(.~all_results_df.opt_converged)
+#     elseif any(.!all_results_df.opt_converged)
 
 #         n_converged = sum(all_results_df.opt_converged)
 
@@ -1305,7 +1304,7 @@ end
 #     end 
 
 # 	## if one-step -> stop here
-#     if ~two_step
+#     if !two_step
 #         full_df = hcat(theta0_df, all_results_df)
 
 #         gmm_results["theta_hat"] = gmm_results["theta_hat_stage1"]
@@ -1395,7 +1394,7 @@ end
 
 #     # TODO: allow iterations that have not converged (+ warning in docs)
 #     # if not converged, replace objective value with +Infinity
-#     all_results2_df[.~all_results2_df.opt_converged, :obj_vals_converged] .= Inf
+#     all_results2_df[.!all_results2_df.opt_converged, :obj_vals_converged] .= Inf
 
 #     if minimum(all_results2_df.obj_vals_converged) == Inf
 #         gmm_results["outcome_stage2"] = gmm_results["outcome"] = "fail"
@@ -1411,7 +1410,7 @@ end
 
 #         return gmm_results, empty_df
 
-#     elseif any(.~all_results2_df.opt_converged)
+#     elseif any(.!all_results2_df.opt_converged)
 
 #         n_converged = sum(all_results2_df.opt_converged)
 
@@ -1587,7 +1586,7 @@ Calls the moment function `momfn` combining `mytheta` and the fixed parameters i
 function momfn_theta_fix(momfn, mytheta, mydata_dict, theta_fix)
 
     # indices of parameters that are fixed and those that need to be estimated
-    idxs_fixed = findall(x -> ~isnothing(x), theta_fix)
+    idxs_fixed = findall(x -> !isnothing(x), theta_fix)
     idxs_estim = findall(isnothing, theta_fix)
 
     vals_fixed = [theta_fix[idx] for idx=idxs_fixed]
@@ -1624,7 +1623,7 @@ function compute_jacobian(;
         myfactor=1.0)
     
     # subset parameter and moments, if applicable
-    if ~isnothing(theta_fix)
+    if !isnothing(theta_fix)
 
         # define moment function taking as input only the variable entries in theta
         momfn2 = (mytheta, mydata_dict) -> momfn_theta_fix(momfn, mytheta, mydata_dict, theta_fix)
@@ -1638,7 +1637,7 @@ function compute_jacobian(;
         momfn2 = momfn
     end
 
-    if ~isnothing(moms_subset)
+    if !isnothing(moms_subset)
         # moms_subset is a sorted vector of distinct indices between 1 and n_moms 
         momfn3 = (mytheta, mydata_dict) -> momfn2(mytheta, mydata_dict)[:, moms_subset]
     else
@@ -1675,7 +1674,7 @@ function run_checks(;
 
     ## make local copy and run checks
     gmm_options = copy(gmm_options)
-    if ~isnothing(omega)
+    if !isnothing(omega)
         omega = copy(omega)
     end
 
@@ -1775,14 +1774,14 @@ function run_checks(;
 
     # warnings for options that do not exist 
     for mykey in keys(gmm_options)
-        if ~(mykey ∈ keys(gmm_options_default))
+        if !(mykey ∈ keys(gmm_options_default))
             @warn "The following gmm_option is not supported by run_estimation(): " * mykey
         end
     end
 
     # for options that are not provided, use the default
     for mykey in keys(gmm_options_default)
-		if ~haskey(gmm_options, mykey)
+		if !haskey(gmm_options, mykey)
 			gmm_options[mykey] = gmm_options_default[mykey]
 		end
 	end
@@ -1796,7 +1795,7 @@ function run_checks(;
     end
 
 ## Fix some of the parameters (estimate only the others)
-    if ~isnothing(theta_fix)
+    if !isnothing(theta_fix)
 
         # define moment function taking as input only the variable entries in theta
         momfn2 = (mytheta, mydata_dict) -> momfn_theta_fix(momfn, mytheta, mydata_dict, theta_fix)
@@ -1812,7 +1811,7 @@ function run_checks(;
     end
 
 ## Subset of moments?
-    if ~isnothing(moms_subset)
+    if !isnothing(moms_subset)
 
         # basic checks: moms_subset is a sorted vector of distinct indices between 1 and n_moms 
         sort!(moms_subset)
@@ -1845,7 +1844,7 @@ function run_checks(;
         W = diagm(ones(gmm_options["n_moms"]))
         @assert issymmetric(W)
 
-    elseif ~isnothing(W) && ~issymmetric(W)
+    elseif !isnothing(W) && !issymmetric(W)
         @warn "The provided weighting matrix W is not symmetric."
         W = Symmetric(W)
     end
@@ -1926,7 +1925,7 @@ function run_estimation(;
         "main_n_initial_cond"   => gmm_options["main_n_initial_cond"]
     )
 
-    estimation_parameters_file = gmm_options["rootpath_output"] * "estimation_parameters.json"
+    estimation_parameters_file = joinpath(gmm_options["rootpath_output"], "estimation_parameters.json")
 
     # if file already exists, check using same estimation options
     if (gmm_options["main_overwrite_runs"] != 10) && isfile(estimation_parameters_file)
@@ -2159,7 +2158,7 @@ function run_inference(;
             # W = Ω⁻¹ so the above simplifies to (G'WG)⁻¹
 
             # read W
-            Wstep2_path = gmm_options["rootpath_output"] * "Wstep2.csv"
+            Wstep2_path = joinpath(gmm_options["rootpath_output"], "Wstep2.csv")
             # W = CSV.File(Wstep2_path) |> Tables.matrix
             W = CSV.read(Wstep2_path, Tables.matrix, header=false)
 
@@ -2208,10 +2207,10 @@ function run_inference(;
 
         # write to file?
         if gmm_options["main_write_results_to_file"]
-            outputfile = string(gmm_options["rootpath_output"], "asy_vcov.csv")
+            outputfile = joinpath(gmm_options["rootpath_output"], "asy_vcov.csv")
             CSV.write(outputfile, Tables.table(est_results["asy_vcov"]), header=false)
 
-            outputfile = string(gmm_options["rootpath_output"], "jacobian.csv")
+            outputfile = joinpath(gmm_options["rootpath_output"], "jacobian.csv")
             CSV.write(outputfile, Tables.table(est_results["G"]), header=false)
         end
 
@@ -2342,11 +2341,11 @@ function run_inference(;
         boot_result_dfs = vcat(boot_result_dfs..., cols = :union)
 
         if gmm_options["boot_write_results_to_file"]
-            open(gmm_options["rootpath_output"] * "estimation_flags_bootstrap.json" ,"w") do f
+            open(joinpath(gmm_options["rootpath_output"], "estimation_flags_bootstrap.json") ,"w") do f
                 JSON.print(f, boot_result_json, 4)
             end
     
-            CSV.write(gmm_options["rootpath_output"] * "estimation_results_df_bootstrap.csv", boot_result_dfs)
+            CSV.write(joinpath(gmm_options["rootpath_output"], "estimation_results_df_bootstrap.csv"), boot_result_dfs)
         end
 
     end # end
