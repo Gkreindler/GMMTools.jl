@@ -1564,6 +1564,9 @@ end
 
 function vector_theta_fix(mytheta, theta_fix)
     
+    # nothing to fix
+    isnothing(theta_fix) && (return mytheta)
+
     # indices of parameters to estimate
     idxs_estim = findall(isnothing, theta_fix)
     
@@ -1571,6 +1574,7 @@ function vector_theta_fix(mytheta, theta_fix)
     if isa(mytheta, Vector)
         return mytheta[idxs_estim]
     else
+        @assert isa(mytheta, Matrix)
         return mytheta[:, idxs_estim]
     end
 

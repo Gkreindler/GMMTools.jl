@@ -46,6 +46,8 @@ Convenience features:
 1. Decide whether to check or reuse existing initial conditions, bootstrap samples, when resuming estimation with incomplete results
 1. (lower priority) implement "proper" package tests
 
+easy:
+1. boot cleanup: compile boot misc files into single large files, delete folders
 
 ### Wish-list
 1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`, e.g. `Optim.jl`, [`GalacticOptim.jl`](`https://github.com/SciML/GalacticOptim.jl`), etc.
