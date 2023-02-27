@@ -212,6 +212,7 @@ function collect_estimation_results(;
     results_subfolder_path = joinpath(results_folder_path, results_subfolder) * "/"
     ### Step 1. Check if any individual run results exist in the subfolder    
     all_results_df = DataFrame()
+
     if scan_subfolder && isdir(results_subfolder_path) # note, isdir("") = false
         list_of_files = readdir(results_subfolder_path)
 
