@@ -1,0 +1,6 @@
+[deps]
+GMMTools = "a7eae07c-f8b6-414c-905a-f9cf473d94bc"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"

@@ -85,7 +85,6 @@ function curve_fit_wrapper(
                 show_trace::Bool=false,
                 show_progress::Bool=true
 			)
-
     show_progress && println("starting run ", idx)
 
     outputfile = individual_run_results_path * "results_df_run_" * string(idx) * ".csv"
@@ -1877,7 +1876,6 @@ Note: all arguments must be named (indicated by the ";" at the start), meaning c
 [1] run_estimation(momfn=my_moment_function, data=mydata, theta0=my_theta0)
 [2] run_estimation(my_moment_function, mydata, my_theta0)
 """
-
 function run_estimation(;
 		momfn,
 		data,
