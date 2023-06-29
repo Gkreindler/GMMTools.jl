@@ -336,6 +336,57 @@ function collect_estimation_results(;
     end
 end
 
+function collect_boot_results(;
+        results_folder_path,
+        nbootruns=100,
+        overwrite=false)
+
+    all_df_path = results_folder_path * "estimation_results_df_bootstrap.csv"
+    if isfile(all_df_path) && ~overwrite
+        @warn "Output file already exists. Not overwriting and stopping here."
+    end
+
+    # JSON and CSV with boot results
+    # boot_result_json = []
+    boot_result_dfs = []
+
+    for i=1:nbootruns
+        
+        print("processing boot iteration ", i, " result=")
+
+        bootdir = results_folder_path * "boot/boot_run_" * string(i) * "/"
+        df_path = bootdir * "estimation_results_df.csv"
+        if isdir(bootdir) && isfile(df_path)
+
+            results_df = CSV.read(df_path, DataFrame)
+            # estimation_flags = JSON.read()
+            # estimation_flags["boot_n_initial_cond"] = size(theta0_boot, 1)
+            println("file found and read, ", nrow(results_df), " rows")
+        else
+            results_df = Dict(
+                "opt_error" => true,
+                "opt_error_message" => "no results df file")
+            results_df = DataFrame(results_df)
+            println("no file found.")
+        end
+
+        results_df[!, :boot_run_idx] .= i
+
+        # push!(boot_result_json, estimation_flags)
+        push!(boot_result_dfs, results_df)
+    end
+
+    boot_result_dfs = vcat(boot_result_dfs..., cols = :union)
+
+    if isfile(all_df_path) && ~overwrite
+        @warn "Output file already exists. Not overwriting and stopping here."
+    else
+        CSV.write(all_df_path, boot_result_dfs)
+    end
+
+    return boot_result_dfs
+end
+
 # Wstep1::Union{Matrix{Float64}, Nothing}=nothing,
 function estimation_one_step(;
     momfn_loaded::Function,
@@ -2355,3 +2406,4 @@ function run_inference(;
 
     # return boot_result_json, boot_result_dfs, gmm_options
 end
+
