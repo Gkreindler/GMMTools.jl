@@ -1,9 +1,8 @@
 using Pkg, Revise
-Pkg.activate(".")
+#Pkg.activate(".")
 using GMMTools
 
 # ! for later: we added these packages to the GMMTools environment, but they are not technicall necessary
-using FixedEffectModels
 using GLM
 using Random
 using DataFrames
@@ -15,7 +14,8 @@ Random.seed!(1234)
 # include("gmm_display.jl") # ! need this
 
 ## Generate data for testing. 
-    # The model is a logit choice model over two driving routes (short and long), where utility is a function of the time difference and any potential congestion charge on the "short" route
+    # The model is a logit choice model over two driving routes (short and long), where utility is
+    # a function of the time difference and any potential congestion charge on the "short" route
     # Utility is denominated in the currency (e.g. dollars)
     # Approx half of the agents are "treated" in an experiment where they face a fixed charge for using the short route.
     # The model parameters are alpha = value of travel time (in minutes) and sigma = logit variance parameter
@@ -43,7 +43,7 @@ Random.seed!(1234)
         # sleep(0.001)
 
         if rand() < 0.001
-            error("cracra")
+            #error("cracra")
         end
 
         return moms_model_cmd(
@@ -66,7 +66,7 @@ Random.seed!(1234)
         "var_boot" => "slow",
         "boot_n_runs" => 5,
 
-        "rootpath_output" => "G:/My Drive/optnets/analysis/temp/",
+        "rootpath_output" => ".",#G:/My Drive/optnets/analysis/temp/",
 
         "main_write_results_to_file" => true,
         "boot_write_results_to_file" => true,
@@ -94,7 +94,7 @@ Random.seed!(1234)
 ## Run GMM
 
     # est_options2, est_results, est_results_df = 
-    run_estimation(
+    s = run_estimation(
         momfn=moments_gmm_loaded,
         data=data_dict,
         theta0=theta0,
