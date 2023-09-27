@@ -8,28 +8,40 @@ TODOS:
 =#
 
 
-Base.@kwdef mutable struct GMMProb
+Base.@kwdef mutable struct GMMProblem
     data::DataFrame
-    data_other = nothing
+    cache = nothing
     mom_fn::Function
     W=I
     theta0::Array
     weights
-    # TODO: add parameter names (optional)
+    theta_names::Union{Vector{String}, Nothing} = nothing
 end
 
-function create_GMMProb(;data, data_other=nothing, mom_fn, W=I, theta0, weights=1.0)
+function create_GMMProblem(;
+    data, 
+    cache=nothing, 
+    mom_fn, 
+    W=I, 
+    theta0, 
+    weights=1.0,
+    theta_names::Union{Vector{String}, Nothing} = nothing)
 
     if isa(theta0, Vector)
         theta0 = Matrix(Transpose(theta0))
     end
 
-    return GMMProb(data, data_other, mom_fn, W, theta0, weights) 
+    if isnothing(theta_names)
+        theta_names = ["θ_" * string(i) for i=1:length(theta0)]
+    end
+
+    return GMMProblem(data, cache, mom_fn, W, theta0, weights, theta_names) 
 end
 
 Base.@kwdef mutable struct GMMResult
     theta0::Vector
     theta_hat::Vector
+    theta_names::Vector{String}
     obj_value::Number
     converged::Bool
     iterations::Integer
@@ -37,7 +49,6 @@ Base.@kwdef mutable struct GMMResult
     time_it_took::Float64
     all_results = nothing # TODO: switch to PrettyTables.jl and OrderedDict
     idx = nothing # aware of which iteration number this is
-
 end
 
 function table(r::GMMResult)
@@ -143,6 +154,24 @@ Base.@kwdef mutable struct GMMOptions
     debug::Bool = false
 end
 
+function default_optim_opts()
+    return Optim.Options(
+        show_trace = false, 
+        extended_trace = false,
+        iterations=5000)
+end
+
+function default_gmm_opts()
+    return GMMOptions(
+        path = "",
+        optim_opts=default_optim_opts(),
+        write_iter=false,
+        clean_iter=false,
+        overwrite=false,
+        debug=false
+        )
+end
+
 Base.copy(x::GMMOptions) = GMMOptions([getfield(x, k) for k ∈ fieldnames(GMMOptions)]...)
 
 function write(est_result::GMMResult, opts::GMMOptions; subpath="", filename="")
@@ -224,21 +253,25 @@ end
 
 ###### GMM
 
-function gmm_objective(theta::Vector, model::GMMProb; debug::Bool=false)
+function gmm_objective(theta::Vector, problem::GMMProblem; debug::Bool=false)
 
-    t1 = @elapsed m = model.mom_fn(model, theta)
-
-    @assert isa(m, Vector) || (isa(m, Matrix) && size(m,2) == 1) "mom_fn should return a vector or vertical (K x 1) matrix."
-    
+    t1 = @elapsed m = problem.mom_fn(problem, theta)
+   
     debug && println("Evaluation took ", t1)
     
-    return (Transpose(m) * model.W * m)[1]
+    # average of the moments over all observations
+    mmean = mean(m, dims=1)
+
+    return (mmean * problem.W * Transpose(mmean))[1]
 end
 
 """
 overall: one or multiple initial conditions
 """
-function fit(model::GMMProb; setup_fn::Union{Function, Nothing}=nothing, run_parallel=true, opts=GMMOptions())
+function fit(
+    problem::GMMProblem; 
+    run_parallel=true, 
+    opts=default_gmm_opts())
 
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
@@ -251,21 +284,16 @@ function fit(model::GMMProb; setup_fn::Union{Function, Nothing}=nothing, run_par
         end
     end
 
-    # Initial computation (if provided)
-    if !isnothing(setup_fn)
-        setup_fn(model)
-    end
-
     # number of initial conditions (and always format as matrix, rows=iterations, columns=paramters)
-    nic = size(model.theta0, 1)
+    nic = size(problem.theta0, 1)
         
     if (nic == 1) || !run_parallel
         several_est_results = Vector{GMMResult}(undef, nic)
         for i=1:nic
-            several_est_results[i] = fit(i, model, opts)
+            several_est_results[i] = fit(i, problem, opts)
         end
     else
-        several_est_results = pmap( i -> fit(i, model, opts), 1:nic)
+        several_est_results = pmap( i -> fit(i, problem, opts), 1:nic)
     end
     best_result = process_results(several_est_results)
 
@@ -285,7 +313,10 @@ end
 """
 fit function with one initial condition
 """
-function fit(idx::Int64, model::GMMProb, opts::GMMOptions)
+function fit(idx::Int64, problem::GMMProblem, opts::GMMOptions)
+
+    # default optimizer options (if missing)
+    isnothing(opts.optim_opts) && (opts.optim_opts = default_optim_opts())
 
     print("...estimation run ", idx, ". ")
 
@@ -301,14 +332,14 @@ function fit(idx::Int64, model::GMMProb, opts::GMMOptions)
     end
 
     # single vector of initial conditions
-    theta0 = model.theta0[idx, :]
+    theta0 = problem.theta0[idx, :]
 
     # matrix of instruments
-    # Z = Matrix(model.data[:, model.z])
+    # Z = Matrix(problem.data[:, problem.z])
     # Zsparse = SparseMatrixCSC(Z)
 
     # load the data
-    gmm_objective_loaded = theta -> gmm_objective(theta, model, debug=opts.debug)
+    gmm_objective_loaded = theta -> gmm_objective(theta, problem, debug=opts.debug)
 
     # optimize
     time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, opts.optim_opts)
@@ -328,6 +359,7 @@ function fit(idx::Int64, model::GMMProb, opts::GMMOptions)
     opt_results = GMMResult(
         converged = Optim.converged(raw_opt_results),
         theta_hat = Optim.minimizer(raw_opt_results),
+        theta_names = problem.theta_names,
         obj_value = Optim.minimum(raw_opt_results),
         iterations = Optim.iterations(raw_opt_results),
         iteration_limit_reached = Optim.iteration_limit_reached(raw_opt_results),
@@ -389,8 +421,8 @@ end
 Bayesian bootstrap
 """
 function bboot(
-    model::GMMProb; 
-    setup_fn::Union{Function, Nothing}=nothing, 
+    problem::GMMProblem; 
+    boot_fn::Union{Function, Nothing}=nothing, 
     nboot=100, 
     cluster_var=nothing, 
     run_parallel=true,
@@ -402,15 +434,15 @@ function bboot(
     end
 
     if !isnothing(cluster_var)
-        cluster_values = unique(model.data[:, cluster_var])
+        cluster_values = unique(problem.data[:, cluster_var])
 
         ### ___idx_cluster___ has the index in the cluster_values vector of this row's value        
             # drop column if already in the df
-            ("___idx_cluster___" in names(model.data)) && select!(model.data, Not("___idx_cluster___"))
+            ("___idx_cluster___" in names(problem.data)) && select!(problem.data, Not("___idx_cluster___"))
 
             # join
             temp_df = DataFrame(string(cluster_var) => cluster_values, "___idx_cluster___" => 1:length(cluster_values))
-            leftjoin!(model.data, temp_df, on=cluster_var)
+            leftjoin!(problem.data, temp_df, on=cluster_var)
     else
         cluster_values=nothing
     end
@@ -419,12 +451,19 @@ function bboot(
     if !run_parallel
         list_of_boot_results = Vector{GMMResult}(undef, nboot)
         for i=1:nboot
-            list_of_boot_results[i] = bboot(i, model, opts, setup_fn=setup_fn, cluster_var=cluster_var)
+            list_of_boot_results[i] = bboot(
+                i, 
+                problem, 
+                opts, 
+                boot_fn=boot_fn, 
+                cluster_var=cluster_var)
         end
     else
         list_of_boot_results = pmap( 
-            i -> bboot(i, model, opts, 
-                    setup_fn=setup_fn,
+            i -> bboot(i, 
+                    problem, 
+                    opts, 
+                    boot_fn=boot_fn,
                     cluster_var=cluster_var, 
                     cluster_values=cluster_values), 
             1:nboot)
@@ -446,31 +485,33 @@ end
 
 function bboot(
     idx::Int64, 
-    model::GMMProb, 
+    problem::GMMProblem, 
     opts::GMMOptions; 
-    setup_fn::Union{Function, Nothing}=nothing,
+    boot_fn::Union{Function, Nothing}=nothing,
     cluster_var=nothing, 
     cluster_values)
 
     println("bootstrap run ", idx)
+
+    # boot_fn
     
     if isnothing(cluster_var)
-        model.weights = rand(Dirichlet(nrow(model.data), 1.0))
+        problem.weights = rand(Dirichlet(nrow(problem.data), 1.0))
     else
         cluster_level_weights = rand(Dirichlet(length(cluster_values), 1.0))
 
         # one step "join" to get the weight for the appropriate cluster
-        model.weights .= cluster_level_weights[model.data.___idx_cluster___]
+        problem.weights .= cluster_level_weights[problem.data.___idx_cluster___]
     end
 
     # normalizing weights is important for numerical precision
-    model.weights = model.weights ./ mean(model.weights)
+    problem.weights = problem.weights ./ mean(problem.weights)
 
     # path for saving results
     new_opts = copy(opts)
     new_opts.path *= "__boot__/boot_" * string(idx) * "_"
 
-    return fit(model, setup_fn=setup_fn, run_parallel=false, opts=new_opts)
+    return fit(problem, run_parallel=false, opts=new_opts)
 end
 
 
@@ -530,62 +571,3 @@ function stderr(rb::GMMBootResults)
     return stderrors
 end
 
-
-# struct GMMResults <: RegressionModel
-#     coef::Vector{Float64}   # Vector of coefficients
-#     vcov::Matrix{Float64}   # Covariance matrix
-#     vcov_type::CovarianceEstimator
-#     nclusters::Union{NamedTuple, Nothing}
-
-#     esample::BitVector      # Is the row of the original dataframe part of the estimation sample?
-#     residuals::Union{AbstractVector, Nothing}
-#     fe::DataFrame
-#     fekeys::Vector{Symbol}
-
-
-#     coefnames::Vector       # Name of coefficients
-#     responsename::Union{String, Symbol} # Name of dependent variable
-#     formula::FormulaTerm        # Original formula
-#     formula_schema::FormulaTerm # Schema for predict
-#     contrasts::Dict
-
-#     nobs::Int64             # Number of observations
-#     dof::Int64              # Number parameters estimated - has_intercept. Used for p-value of F-stat.
-#     dof_fes::Int64          # Number of fixed effects
-#     dof_residual::Int64     # dof used for t-test and p-value of F-stat. nobs - degrees of freedoms with simple std
-#     rss::Float64            # Sum of squared residuals
-#     tss::Float64            # Total sum of squares
-
-#     F::Float64              # F statistics
-#     p::Float64              # p value for the F statistics
-
-#     # for FE
-#     iterations::Int         # Number of iterations
-#     converged::Bool         # Has the demeaning algorithm converged?
-#     r2_within::Union{Float64, Nothing}      # within r2 (with fixed effect
-
-#     # for IV
-#     F_kp::Union{Float64, Nothing}           # First Stage F statistics KP
-#     p_kp::Union{Float64, Nothing}           # First Stage p value KP
-# end
-
-# has_iv(m::FixedEffectModel) = m.F_kp !== nothing
-# has_fe(m::FixedEffectModel) = has_fe(m.formula)
-
-
-
-# StatsAPI.coef(m::FixedEffectModel) = m.coef
-# StatsAPI.coefnames(m::FixedEffectModel) = m.coefnames
-# StatsAPI.responsename(m::FixedEffectModel) = m.responsename
-# StatsAPI.vcov(m::FixedEffectModel) = m.vcov
-# StatsAPI.nobs(m::FixedEffectModel) = m.nobs
-# StatsAPI.dof(m::FixedEffectModel) = m.dof
-# StatsAPI.dof_residual(m::FixedEffectModel) = m.dof_residual
-# StatsAPI.r2(m::FixedEffectModel) = r2(m, :devianceratio)
-# StatsAPI.islinear(m::FixedEffectModel) = true
-# StatsAPI.deviance(m::FixedEffectModel) = rss(m)
-# StatsAPI.nulldeviance(m::FixedEffectModel) = m.tss
-# StatsAPI.rss(m::FixedEffectModel) = m.rss
-# StatsAPI.mss(m::FixedEffectModel) = nulldeviance(m) - rss(m)
-# StatsModels.formula(m::FixedEffectModel) = m.formula_schema
-# dof_fes(m::FixedEffectModel) = m.dof_fes

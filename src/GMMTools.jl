@@ -8,18 +8,25 @@ using DataFrames
 using LinearAlgebra
 using Statistics # means
 using StatsBase # need to take bootstrap samples
+using StatsAPI
 
 using CSV 
 using JSON
 
 using Random
 
-using FiniteDifferences
-using LsqFit # install version that accepts MaxTime. Run "add LsqFit#master" as of Jan 2023
+using Optim
+
+using Vcov # needed for regression table
+using RegressionTables
+# import ..RegressionTables: regtable, asciiOutput
 
 
-export run_estimation, run_inference, random_initial_conditions, compute_jacobian
+export GMMProblem, create_GMMProblem, GMMResult, table, random_theta0, fit, regtable
 
-include("gmm_tools.jl")
+include("functions_gmm.jl")
+include("gmm_table.jl")
 
 end
+
+
