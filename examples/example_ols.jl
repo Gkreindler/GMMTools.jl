@@ -1,17 +1,17 @@
 using Pkg
 Pkg.activate(".")
 
-using Revise
-using GMMTools
+# using Revise
 using LinearAlgebra # for identity matrix "I"
 using CSV
 using DataFrames
 using FixedEffectModels # for benchmarking
 using RegressionTables
 
+using GMMTools
 
-# load data, originally from:
-# https://www.kaggle.com/datasets/uciml/autompg-dataset/?select=auto-mpg.csv 
+
+# load data, originally from: https://www.kaggle.com/datasets/uciml/autompg-dataset/?select=auto-mpg.csv 
     df = CSV.read("examples/auto-mpg.csv", DataFrame)
     df[!, :constant] .= 1.0
 
@@ -40,7 +40,7 @@ end
     myprob = create_GMMProblem(data=df, W=I, theta0=theta0)
                 
 # estimate model
-    myfit = GMMTools.fit(myprob, ols_moments)
+    myfit = fit(myprob, ols_moments)
   
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(myprob, ols_moments, myfit)
@@ -48,6 +48,7 @@ end
 # print table with results
     GMMTools.regtable(myfit)
 
+    fsdf
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
     vcov_bboot(myprob, ols_moments, myfit, nboot=500)

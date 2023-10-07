@@ -129,7 +129,7 @@ function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult;
     opts::GMMOptions=GMMOptions())
 
     # create path for saving results
-    if opts.write_results && (opts.path != "")
+    if (opts.path != "") && (opts.path != "")
         bootpath = opts.path * "__boot__"
         isdir(bootpath) || mkdir(bootpath)
     end
@@ -181,7 +181,7 @@ function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult;
     boot_results = process_boot_results(list_of_boot_results)
 
     # save results to file?
-    opts.write_results && write(boot_results, opts)
+    (opts.path != "") && write(boot_results, opts)
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 

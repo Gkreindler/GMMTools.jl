@@ -37,6 +37,16 @@ function create_GMMProblem(;
     return GMMProblem(data, cache, W, theta0, weights, theta_names) 
 end
 
+function Base.show(io::IO, prob::GMMProblem)
+    println("GMM Problem, fields:")
+    println("- data")
+    !isnothing(prob.cache) && println("- cache")
+    println("- W = weighting matrix for GMM")
+    !isnothing(prob.theta_names) && println("- theta_names ", prob.theta_names)
+    println("- theta0 = initial conditions ", prob.theta0)
+    println("- weights = observation weights ")
+end
+
 Base.@kwdef mutable struct GMMResult
     theta0::Vector
     theta_hat::Vector
@@ -142,7 +152,6 @@ end
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
     optim_opts = nothing
-    write_results::Bool = false # write to file final results
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # 
     overwrite::Bool = false
@@ -160,7 +169,6 @@ function default_gmm_opts()
     return GMMOptions(
         path = "",
         optim_opts=default_optim_opts(),
-        write_results=false,
         write_iter=false,
         clean_iter=false,
         overwrite=false,
@@ -299,7 +307,7 @@ function fit(
     end
 
     # save results to file?
-    opts.write_results && write(best_result, opts, filename="results.csv")
+    (opts.path != "") && write(best_result, opts, filename="results.csv")
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
@@ -310,7 +318,6 @@ function fit(
 
     return best_result
 end
-
 """
 fit function with one initial condition
 """
