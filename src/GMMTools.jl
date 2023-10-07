@@ -7,8 +7,12 @@ using Future: randjump
 using DataFrames
 using LinearAlgebra
 using Statistics # means
-using StatsBase # need to take bootstrap samples
+
 using StatsAPI
+
+# for (Bayesian) bootstrap
+using StatsBase # take samples
+using Distributions # Dirichlet distribution
 
 using CSV 
 using JSON
@@ -25,7 +29,10 @@ using RegressionTables
 # import ..RegressionTables: regtable, asciiOutput
 
 
-export GMMProblem, create_GMMProblem, GMMResult, table, random_theta0, fit, vcov_simple, regtable
+export GMMProblem, create_GMMProblem, GMMResult, table, random_theta0, 
+       fit, 
+       vcov_simple, vcov_bboot,
+       regtable
 
 include("functions_gmm.jl")
 include("functions_inference.jl")

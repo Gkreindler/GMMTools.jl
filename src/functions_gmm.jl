@@ -11,10 +11,9 @@ TODOS:
 Base.@kwdef mutable struct GMMProblem
     data::DataFrame
     cache = nothing
-    # mom_fn::Function
-    W=I
+    W=I                 # weight Matrix
     theta0::Array
-    weights
+    weights             # weights for each observation (e.g. used in Bayesian bootstrap)
     theta_names::Union{Vector{String}, Nothing} = nothing
 end
 
@@ -24,7 +23,7 @@ function create_GMMProblem(;
     # mom_fn, 
     W=I, 
     theta0, 
-    weights=1.0,
+    weights=nothing,
     theta_names::Union{Vector{String}, Nothing} = nothing)
 
     if isa(theta0, Vector)
@@ -49,6 +48,8 @@ Base.@kwdef mutable struct GMMResult
     time_it_took::Float64
     all_results = nothing # TODO: switch to PrettyTables.jl and OrderedDict
     idx = nothing # aware of which iteration number this is
+
+    N = -1 # number of observations
 
     vcov = nothing
 end
@@ -145,7 +146,7 @@ Base.@kwdef mutable struct GMMOptions
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # 
     overwrite::Bool = false
-    debug::Bool = false
+    trace::Integer = 0
 end
 
 function default_optim_opts()
@@ -163,7 +164,7 @@ function default_gmm_opts()
         write_iter=false,
         clean_iter=false,
         overwrite=false,
-        debug=false
+        trace=0
         )
 end
 
@@ -239,17 +240,22 @@ end
 
 ###### GMM
 
-function gmm_objective(theta::Vector, problem::GMMProblem, mom_fn::Function; debug::Bool=false)
+function gmm_objective(theta::Vector, problem::GMMProblem, mom_fn::Function; trace=0)
 
     t1 = @elapsed m = mom_fn(problem, theta)
 
     @assert isa(m, Matrix) "m must be a Matrix (rows = observations, columns = moments)"
 
-    debug && println("Evaluation took ", t1)
+    (trace > 1) && println("Evaluation took ", t1)
     
-    # average of the moments over all observations
-    mmean = mean(m, dims=1)
+    # average of the moments over all observations (with/without weights)
+    if isnothing(problem.weights)
+        mmean = mean(m, dims=1)
+    else
+        mmean = (problem.weights' * m) ./ sum(problem.weights)
+    end
 
+    # objective
     return (mmean * problem.W * Transpose(mmean))[1]
 end
 
@@ -259,7 +265,6 @@ overall: one or multiple initial conditions
 function fit(
     problem::GMMProblem, 
     mom_fn::Function;
-    vcov=:simple, 
     run_parallel=true, 
     opts=default_gmm_opts())
 
@@ -285,7 +290,13 @@ function fit(
     else
         several_est_results = pmap( i -> fit(i, problem, mom_fn, opts), 1:nic)
     end
+    
     best_result = process_results(several_est_results)
+    try
+        best_result.N = size(problem.data, 1)
+    catch
+        best_result.N = size(mome_fn(problem, theta0), 1)
+    end
 
     # save results to file?
     opts.write_results && write(best_result, opts, filename="results.csv")
@@ -296,11 +307,6 @@ function fit(
         rm(opts.path * "__iter__/", force=true, recursive=true)
         println(" Done.")
     end
-
-    # compute asymptotic variance-covariance matrix
-    # if !isnothing(vcov)
-    #     vcov_plain(problem, best_result, opts=opts)
-    # end
 
     return best_result
 end
@@ -313,7 +319,7 @@ function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions
     # default optimizer options (if missing)
     isnothing(opts.optim_opts) && (opts.optim_opts = default_optim_opts())
 
-    print("...estimation run ", idx, ". ")
+    (opts.trace > 0) && print("...estimation run ", idx, ". ")
 
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
@@ -321,7 +327,7 @@ function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions
         opt_results_from_file = load(opts, "__iter__/results_" * string(idx) * ".csv")
         
         if !isnothing(opt_results_from_file)
-            println(" Reading from file.")
+            (opts.trace > 0) && println(" Reading from file.")
             return opt_results_from_file
         end
     end
@@ -329,12 +335,8 @@ function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions
     # single vector of initial conditions
     theta0 = problem.theta0[idx, :]
 
-    # matrix of instruments
-    # Z = Matrix(problem.data[:, problem.z])
-    # Zsparse = SparseMatrixCSC(Z)
-
     # load the data
-    gmm_objective_loaded = theta -> gmm_objective(theta, problem, mom_fn, debug=opts.debug)
+    gmm_objective_loaded = theta -> gmm_objective(theta, problem, mom_fn, trace=opts.trace)
 
     # optimize
     time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, opts.optim_opts)
@@ -365,10 +367,10 @@ function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions
 
     # write intermediate results to file
     if opts.write_iter 
-        println(" Done and done writing to file.")
+        (opts.trace > 0) && println(" Done and done writing to file.")
         write(opt_results, opts, subpath="__iter__", filename="results_" * string(idx) * ".csv")
     else
-        println(" Done. ")
+        (opts.trace > 0) && println(" Done. ")
     end
 
     return opt_results
@@ -383,14 +385,4 @@ end
 
 
 
-### Table
-function coef(r::GMMResult)
-
-    df = r.all_results
-    mysample = df.is_optimum .== 1
-    theta_hat = df[mysample, :theta_hat]
-    theta_hat = parse_vector(theta_hat[1])
-    
-    return theta_hat
-end
 

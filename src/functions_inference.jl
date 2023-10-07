@@ -7,30 +7,8 @@ TODOS:
 1. switch to PrettyTables.jl (cf Peter's suggestion)
 =#
 
-Base.@kwdef mutable struct GMMBootResults
-    all_results
-    all_results_allbootruns
-end
 
-function Base.show(io::IO, r::GMMBootResults)
-    println("Baysian bootstrap results")
-    display(r.all_results)
-    display(r.all_results_allbootruns)
-end
-
-function write(boot_results::GMMBootResults, opts::GMMOptions)
-    if opts.path == ""
-        return
-    end
-
-    # temp_df = DataFrame(boot_results.table, :auto)
-
-    CSV.write(opts.path * "results_boot.csv", boot_results.all_results)
-    CSV.write(opts.path * "results_boot_all.csv", boot_results.all_results_allbootruns)
-end
-
-
-###
+### Asymptotic variance-covariance matrix
 
 function jacobian(problem::GMMProblem, mom_fn::Function, myfit::GMMResult)
     
@@ -82,6 +60,34 @@ function vcov_simple(problem::GMMProblem, mom_fn::Function, myfit::GMMResult)
     return
 end
 
+### Bayesian bootstrap
+
+struct bayesian_bootstrap <: CovarianceEstimator
+end
+
+Base.@kwdef mutable struct GMMBootResults
+    all_theta_hat  # nboot x nparams matrix with result for each bootstrap run
+    all_results    # df with results (one per bootstrap run)
+    all_results_allbootruns # df with all iterations for all bootstrap runs
+end
+
+function Base.show(io::IO, r::GMMBootResults)
+    println("Baysian bootstrap results")
+    display(r.all_results)
+    display(r.all_results_allbootruns)
+end
+
+function write(boot_results::GMMBootResults, opts::GMMOptions)
+    if opts.path == ""
+        return
+    end
+
+    # temp_df = DataFrame(boot_results.table, :auto)
+
+    CSV.write(opts.path * "results_boot.csv", boot_results.all_results)
+    CSV.write(opts.path * "results_boot_all.csv", boot_results.all_results_allbootruns)
+end
+
 function process_boot_results(lb::Vector{GMMResult})
 
     boot_results_allruns = []
@@ -98,41 +104,37 @@ function process_boot_results(lb::Vector{GMMResult})
     mysample = boot_results_allruns.is_optimum .== 1
     boot_results = copy(boot_results_allruns[mysample, :])
 
-    # nparams = length(lb[1].theta_hat)
+    nparams = length(lb[1].theta_hat)
     # nboot = length(lb)
 
-    # res_table = Matrix{Float64}(undef, nboot, nparams)
-    # for i=1:nboot
-    #     res_table[i, :] = lb[i].theta_hat
-    #     lb[i].all_results[!, :boot_idx] .= i
-    # end
+    res_table = Matrix{Float64}(undef, nboot, nparams)
+    for i=1:nboot
+        res_table[i, :] = lb[i].theta_hat
+        # lb[i].all_results[!, :boot_idx] .= i
+    end
 
     return GMMBootResults(
+        all_theta_hat = res_table,
         all_results = boot_results,
         all_results_allbootruns = boot_results_allruns
     )
 end
 
 
-
-
-"""
-Bayesian bootstrap
-"""
-function bboot(
-    problem::GMMProblem,
-    mom_fn::Function; 
+function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult; 
     boot_fn::Union{Function, Nothing}=nothing, 
     nboot=100, 
     cluster_var=nothing, 
     run_parallel=true,
     opts::GMMOptions=GMMOptions())
 
-    if opts.path != ""
+    # create path for saving results
+    if opts.write_results && (opts.path != "")
         bootpath = opts.path * "__boot__"
         isdir(bootpath) || mkdir(bootpath)
     end
 
+    # for clustering
     if !isnothing(cluster_var)
         cluster_values = unique(problem.data[:, cluster_var])
 
@@ -147,14 +149,19 @@ function bboot(
         cluster_values=nothing
     end
 
-    #         
+    # bootstrap moment function (zero at theta_hat)
+    m = mom_fn(problem, myfit.theta_hat)
+    mom_fn_boot = (problem, theta) -> mom_fn(problem, theta) .- mean(m, dims=1)
+    # mom_fn_boot = mom_fn
+
+    # run bootstrap (serial or parallel)
     if !run_parallel
         list_of_boot_results = Vector{GMMResult}(undef, nboot)
         for i=1:nboot
             list_of_boot_results[i] = bboot(
                 i, 
                 problem, 
-                mom_fn,
+                mom_fn_boot, # using the boot mom function (zero at theta_hat)
                 opts, 
                 boot_fn=boot_fn, 
                 cluster_var=cluster_var)
@@ -163,7 +170,7 @@ function bboot(
         list_of_boot_results = pmap( 
             i -> bboot(i, 
                     problem, 
-                    mom_fn,
+                    mom_fn_boot, # using the boot mom function (zero at theta_hat)
                     opts, 
                     boot_fn=boot_fn,
                     cluster_var=cluster_var, 
@@ -173,7 +180,8 @@ function bboot(
 
     boot_results = process_boot_results(list_of_boot_results)
 
-    write(boot_results, opts)
+    # save results to file?
+    opts.write_results && write(boot_results, opts)
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
@@ -181,6 +189,14 @@ function bboot(
         rm(opts.path * "__boot__/", force=true, recursive=true)
         println(" Done.")
     end
+
+    # store results
+    myfit.vcov = Dict(
+        :method => bayesian_bootstrap(),
+        :boot_results => boot_results,
+        :V => cov(boot_results.all_theta_hat),
+        :N => size(m, 1) # TODO : should really move this up to main fit object
+    )
 
     return boot_results
 end
@@ -194,9 +210,13 @@ function bboot(
     cluster_var=nothing, 
     cluster_values)
 
-    println("bootstrap run ", idx)
+    (opts.trace > 0) && println("bootstrap run ", idx)
 
-    # boot_fn
+    # TODO: document this feature + example (e.g. create large cache object to speed up calc)
+    # sometimes, we need a bit of setup (e.g. create cache objects)
+    if !isnothing(boot_fn)
+        boot_fn(problem, mom_fn)
+    end
     
     if isnothing(cluster_var)
         problem.weights = rand(Dirichlet(nrow(problem.data), 1.0))
@@ -215,50 +235,5 @@ function bboot(
     new_opts.path *= "__boot__/boot_" * string(idx) * "_"
 
     return fit(problem, mom_fn, run_parallel=false, opts=new_opts)
-end
-
-
-
-
-
-
-# ! move to table?
-# Returns a matrix with all bootstrap estimates (for computing CIs of other stats)
-function theta_hat_boot(rb::Union{GMMBootResults, GMMResult})
-    x = parse_vector.(rb.all_results.theta_hat)
-    x = hcat(x...) |> Transpose |> Matrix
-
-    return x
-end
-
-# Returns confidence intervals (95%)
-function cis(rb::GMMBootResults; ci_levels=[2.5, 97.5])
-
-    nparams = length(rb.all_results[1, :theta_hat])
-
-    theta_hat_boot = theta_hat_boot(rb)
-
-    cis = []
-    for i=1:nparams
-        cil, cih = percentile(theta_hat_boot[:, i], ci_levels)
-        push!(cis, (cil, cih))
-    end
-    
-    return cis
-end
-
-# Returns standard errors (SD of bootstrap estimates)
-function stderr(rb::GMMBootResults)
-
-    nparams = length(rb.all_results[1, :theta_hat])
-
-    theta_hat_boot = theta_hat_boot(rb)
-
-    stderrors = zeros(nparams)
-    for i=1:nparams
-        stderrors[i] = std(theta_hat_boot[:, i])
-    end
-    
-    return stderrors
 end
 

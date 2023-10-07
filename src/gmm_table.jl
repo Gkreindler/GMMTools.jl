@@ -57,32 +57,57 @@ StatsAPI.mss(m::GMMResultTable) = nulldeviance(m) - rss(m)
 # StatsModels.formula(m::GMMResultTable) = m.formula_schema
 dof_fes(m::GMMResultTable) = m.dof_fes
 
-function GMMResultTable(r::GMMResult)
-    
-    GMMResultTable(
-    coef = r.theta_hat,
-    vcov = r.vcov[:V],
-    vcov_type=Vcov.simple(),
-    esample=[],
-    fe=DataFrame(),
-    fekeys=[],
-    coefnames=r.theta_names,
-    responsename="",
-    # formula::FormulaTerm        # Original formula
-    # formula_schema::FormulaTerm # Schema for predict
-    contrasts=Dict(),
-    nobs=r.vcov[:N],
-    dof=1,
-    dof_fes=1,
-    dof_residual=1,
-    rss=0.00,
-    tss=0.00,
-    F=0.0,
-    p=0.0,
-    iterations=5, 
-    converged=true)
+function vcov(r::GMMResult)
+    if isnothing(r.vcov)
+        nparams = length(r.theta_hat)
+        return zeros(nparams, nparams)
+    else
+        return r.vcov[:V]
+    end
 end
 
+function vcov_method(r::GMMResult)
+    if isnothing(r.vcov)
+        return Vcov.simple()
+    else
+        return r.vcov[:method]
+    end
+end
+
+function GMMResultTable(r::GMMResult)
+    
+    nobs = r.N
+
+    if isnothing(r.vcov)
+        @error "Cannot print table. No vcov estimated yet"
+        error("Cannot print table. No vcov estimated yet")
+    end
+
+    GMMResultTable(
+        coef = r.theta_hat,
+        vcov = vcov(r),
+        vcov_type=vcov_method(r),
+        esample=[],
+        fe=DataFrame(),
+        fekeys=[],
+        coefnames=r.theta_names,
+        responsename="",
+        # formula::FormulaTerm        # Original formula
+        # formula_schema::FormulaTerm # Schema for predict
+        contrasts=Dict(),
+        nobs=nobs,
+        dof=nobs,
+        dof_fes=1,
+        dof_residual=nobs, # TODO: needs adjustment for parameters (!?)
+        rss=0.00,
+        tss=0.00,
+        F=0.0,
+        p=0.0,
+        iterations=5, 
+        converged=true)         
+end
+
+# TODO: integrate better with RegressionModels, allow mixed inputs etc. Should be easy.
 function regtable(r::GMMResult)
     RegressionTables.regtable(GMMResultTable(r);  
         labels = Dict("__LABEL_ESTIMATOR_OLS__" => "GMM"), 
@@ -90,3 +115,52 @@ function regtable(r::GMMResult)
 end
 
 
+### Table
+# function coef(r::GMMResult)
+
+#     df = r.all_results
+#     mysample = df.is_optimum .== 1
+#     theta_hat = df[mysample, :theta_hat]
+#     theta_hat = parse_vector(theta_hat[1])
+    
+#     return theta_hat
+# end
+
+# Returns a matrix with all bootstrap estimates (for computing CIs of other stats)
+# function theta_hat_boot(rb::Union{GMMBootResults, GMMResult})
+#     x = parse_vector.(rb.all_results.theta_hat)
+#     x = hcat(x...) |> Transpose |> Matrix
+
+#     return x
+# end
+
+# # Returns confidence intervals (95%)
+# function cis(rb::GMMBootResults; ci_levels=[2.5, 97.5])
+
+#     nparams = length(rb.all_results[1, :theta_hat])
+
+#     theta_hat_boot = theta_hat_boot(rb)
+
+#     cis = []
+#     for i=1:nparams
+#         cil, cih = percentile(theta_hat_boot[:, i], ci_levels)
+#         push!(cis, (cil, cih))
+#     end
+    
+#     return cis
+# end
+
+# Returns standard errors (SD of bootstrap estimates)
+# function stderr(rb::GMMBootResults)
+
+#     nparams = length(rb.all_results[1, :theta_hat])
+
+#     theta_hat_boot = theta_hat_boot(rb)
+
+#     stderrors = zeros(nparams)
+#     for i=1:nparams
+#         stderrors[i] = std(theta_hat_boot[:, i])
+#     end
+    
+#     return stderrors
+# end
