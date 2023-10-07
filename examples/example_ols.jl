@@ -1,3 +1,6 @@
+using Pkg
+Pkg.activate(".")
+
 using Revise
 using GMMTools
 using LinearAlgebra
@@ -8,13 +11,17 @@ using StatsBase
 
 using RegressionTables
 
+# for inference
+using FiniteDiff
+using ForwardDiff
+
 # load data
 # https://www.kaggle.com/datasets/uciml/autompg-dataset/?select=auto-mpg.csv
 df = CSV.read("examples/auto-mpg.csv", DataFrame)
 df[!, :constant] .= 1.0
 
 # regression of interest
-reg(df, term(:mpg) ~ term(:acceleration))
+r = reg(df, term(:mpg) ~ term(:acceleration))
 
 # define moments for OLS regression
 function ols_moments(prob, theta)
@@ -29,13 +36,12 @@ end
 
     theta0 = [0.0, 0.0]
 
-    myprob = create_GMMProblem(
-        data=df, 
-        mom_fn=ols_moments, 
-        W=I,
-        theta0=theta0)
+    myprob = create_GMMProblem(data=df, W=I, theta0=theta0)
                 
-    myfit = GMMTools.fit(myprob)
+    myfit = GMMTools.fit(myprob, ols_moments)
+
+    # Asymptotic SEs
+    vcov_simple(myprob, ols_moments, myfit)
 
     # print results
     GMMTools.regtable(myfit)

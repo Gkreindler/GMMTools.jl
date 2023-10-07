@@ -11,7 +11,7 @@ TODOS:
 Base.@kwdef mutable struct GMMProblem
     data::DataFrame
     cache = nothing
-    mom_fn::Function
+    # mom_fn::Function
     W=I
     theta0::Array
     weights
@@ -21,7 +21,7 @@ end
 function create_GMMProblem(;
     data, 
     cache=nothing, 
-    mom_fn, 
+    # mom_fn, 
     W=I, 
     theta0, 
     weights=1.0,
@@ -35,7 +35,7 @@ function create_GMMProblem(;
         theta_names = ["θ_" * string(i) for i=1:length(theta0)]
     end
 
-    return GMMProblem(data, cache, mom_fn, W, theta0, weights, theta_names) 
+    return GMMProblem(data, cache, W, theta0, weights, theta_names) 
 end
 
 Base.@kwdef mutable struct GMMResult
@@ -49,6 +49,8 @@ Base.@kwdef mutable struct GMMResult
     time_it_took::Float64
     all_results = nothing # TODO: switch to PrettyTables.jl and OrderedDict
     idx = nothing # aware of which iteration number this is
+
+    vcov = nothing
 end
 
 function table(r::GMMResult)
@@ -83,16 +85,7 @@ function Base.show(io::IO, r::GMMResult)
     display(r.all_results)
 end
 
-Base.@kwdef mutable struct GMMBootResults
-    all_results
-    all_results_allbootruns
-end
 
-function Base.show(io::IO, r::GMMBootResults)
-    println("Baysian bootstrap results")
-    display(r.all_results)
-    display(r.all_results_allbootruns)
-end
 
 
 ### Initial conditions
@@ -148,8 +141,9 @@ end
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
     optim_opts = nothing
-    write_iter::Bool = false  # write results to file along the way?
-    clean_iter::Bool = false  # 
+    write_results::Bool = false # write to file final results
+    write_iter::Bool = false    # write to file each result (each initial run)
+    clean_iter::Bool = false    # 
     overwrite::Bool = false
     debug::Bool = false
 end
@@ -165,6 +159,7 @@ function default_gmm_opts()
     return GMMOptions(
         path = "",
         optim_opts=default_optim_opts(),
+        write_results=false,
         write_iter=false,
         clean_iter=false,
         overwrite=false,
@@ -172,6 +167,7 @@ function default_gmm_opts()
         )
 end
 
+# extent the "copy" method to the GMMOptions type
 Base.copy(x::GMMOptions) = GMMOptions([getfield(x, k) for k ∈ fieldnames(GMMOptions)]...)
 
 function write(est_result::GMMResult, opts::GMMOptions; subpath="", filename="")
@@ -194,16 +190,6 @@ function write(est_result::GMMResult, opts::GMMOptions; subpath="", filename="")
     CSV.write(file_path, table(est_result))
 end
 
-function write(boot_results::GMMBootResults, opts::GMMOptions)
-    if opts.path == ""
-        return
-    end
-
-    # temp_df = DataFrame(boot_results.table, :auto)
-
-    CSV.write(opts.path * "results_boot.csv", boot_results.all_results)
-    CSV.write(opts.path * "results_boot_all.csv", boot_results.all_results_allbootruns)
-end
 
 function parse_vector(s::String)
     return parse.(Float64, split(s[2:(end-1)],","))
@@ -253,10 +239,12 @@ end
 
 ###### GMM
 
-function gmm_objective(theta::Vector, problem::GMMProblem; debug::Bool=false)
+function gmm_objective(theta::Vector, problem::GMMProblem, mom_fn::Function; debug::Bool=false)
 
-    t1 = @elapsed m = problem.mom_fn(problem, theta)
-   
+    t1 = @elapsed m = mom_fn(problem, theta)
+
+    @assert isa(m, Matrix) "m must be a Matrix (rows = observations, columns = moments)"
+
     debug && println("Evaluation took ", t1)
     
     # average of the moments over all observations
@@ -269,7 +257,9 @@ end
 overall: one or multiple initial conditions
 """
 function fit(
-    problem::GMMProblem; 
+    problem::GMMProblem, 
+    mom_fn::Function;
+    vcov=:simple, 
     run_parallel=true, 
     opts=default_gmm_opts())
 
@@ -290,15 +280,15 @@ function fit(
     if (nic == 1) || !run_parallel
         several_est_results = Vector{GMMResult}(undef, nic)
         for i=1:nic
-            several_est_results[i] = fit(i, problem, opts)
+            several_est_results[i] = fit(i, problem, mom_fn, opts)
         end
     else
-        several_est_results = pmap( i -> fit(i, problem, opts), 1:nic)
+        several_est_results = pmap( i -> fit(i, problem, mom_fn, opts), 1:nic)
     end
     best_result = process_results(several_est_results)
 
-    # Base.show(best_result)
-    write(best_result, opts, filename="results.csv")
+    # save results to file?
+    opts.write_results && write(best_result, opts, filename="results.csv")
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
@@ -307,13 +297,18 @@ function fit(
         println(" Done.")
     end
 
+    # compute asymptotic variance-covariance matrix
+    # if !isnothing(vcov)
+    #     vcov_plain(problem, best_result, opts=opts)
+    # end
+
     return best_result
 end
 
 """
 fit function with one initial condition
 """
-function fit(idx::Int64, problem::GMMProblem, opts::GMMOptions)
+function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions)
 
     # default optimizer options (if missing)
     isnothing(opts.optim_opts) && (opts.optim_opts = default_optim_opts())
@@ -339,7 +334,7 @@ function fit(idx::Int64, problem::GMMProblem, opts::GMMOptions)
     # Zsparse = SparseMatrixCSC(Z)
 
     # load the data
-    gmm_objective_loaded = theta -> gmm_objective(theta, problem, debug=opts.debug)
+    gmm_objective_loaded = theta -> gmm_objective(theta, problem, mom_fn, debug=opts.debug)
 
     # optimize
     time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, opts.optim_opts)
@@ -383,138 +378,6 @@ end
 
 
 
-function process_boot_results(lb::Vector{GMMResult})
-
-    boot_results_allruns = []
-    nboot = length(lb)
-    for i=1:nboot
-        temp_df = copy(lb[i].all_results)
-        temp_df[!, :boot_idx] .= i
-        push!(boot_results_allruns, temp_df)
-    end
-    boot_results_allruns = vcat(boot_results_allruns...)
-    
-    # vcat([b.all_results for b=lb]...)
-
-    mysample = boot_results_allruns.is_optimum .== 1
-    boot_results = copy(boot_results_allruns[mysample, :])
-
-    # nparams = length(lb[1].theta_hat)
-    # nboot = length(lb)
-
-    # res_table = Matrix{Float64}(undef, nboot, nparams)
-    # for i=1:nboot
-    #     res_table[i, :] = lb[i].theta_hat
-    #     lb[i].all_results[!, :boot_idx] .= i
-    # end
-
-    return GMMBootResults(
-        all_results = boot_results,
-        all_results_allbootruns = boot_results_allruns
-    )
-end
-
-
-
-
-"""
-Bayesian bootstrap
-"""
-function bboot(
-    problem::GMMProblem; 
-    boot_fn::Union{Function, Nothing}=nothing, 
-    nboot=100, 
-    cluster_var=nothing, 
-    run_parallel=true,
-    opts::GMMOptions=GMMOptions())
-
-    if opts.path != ""
-        bootpath = opts.path * "__boot__"
-        isdir(bootpath) || mkdir(bootpath)
-    end
-
-    if !isnothing(cluster_var)
-        cluster_values = unique(problem.data[:, cluster_var])
-
-        ### ___idx_cluster___ has the index in the cluster_values vector of this row's value        
-            # drop column if already in the df
-            ("___idx_cluster___" in names(problem.data)) && select!(problem.data, Not("___idx_cluster___"))
-
-            # join
-            temp_df = DataFrame(string(cluster_var) => cluster_values, "___idx_cluster___" => 1:length(cluster_values))
-            leftjoin!(problem.data, temp_df, on=cluster_var)
-    else
-        cluster_values=nothing
-    end
-
-    #         
-    if !run_parallel
-        list_of_boot_results = Vector{GMMResult}(undef, nboot)
-        for i=1:nboot
-            list_of_boot_results[i] = bboot(
-                i, 
-                problem, 
-                opts, 
-                boot_fn=boot_fn, 
-                cluster_var=cluster_var)
-        end
-    else
-        list_of_boot_results = pmap( 
-            i -> bboot(i, 
-                    problem, 
-                    opts, 
-                    boot_fn=boot_fn,
-                    cluster_var=cluster_var, 
-                    cluster_values=cluster_values), 
-            1:nboot)
-    end
-
-    boot_results = process_boot_results(list_of_boot_results)
-
-    write(boot_results, opts)
-
-    # delete all intermediate files with individual iteration results
-    if opts.clean_iter 
-        print("Deleting individual boot files...")
-        rm(opts.path * "__boot__/", force=true, recursive=true)
-        println(" Done.")
-    end
-
-    return boot_results
-end
-
-function bboot(
-    idx::Int64, 
-    problem::GMMProblem, 
-    opts::GMMOptions; 
-    boot_fn::Union{Function, Nothing}=nothing,
-    cluster_var=nothing, 
-    cluster_values)
-
-    println("bootstrap run ", idx)
-
-    # boot_fn
-    
-    if isnothing(cluster_var)
-        problem.weights = rand(Dirichlet(nrow(problem.data), 1.0))
-    else
-        cluster_level_weights = rand(Dirichlet(length(cluster_values), 1.0))
-
-        # one step "join" to get the weight for the appropriate cluster
-        problem.weights .= cluster_level_weights[problem.data.___idx_cluster___]
-    end
-
-    # normalizing weights is important for numerical precision
-    problem.weights = problem.weights ./ mean(problem.weights)
-
-    # path for saving results
-    new_opts = copy(opts)
-    new_opts.path *= "__boot__/boot_" * string(idx) * "_"
-
-    return fit(problem, run_parallel=false, opts=new_opts)
-end
-
-
 
 
 
@@ -529,45 +392,5 @@ function coef(r::GMMResult)
     theta_hat = parse_vector(theta_hat[1])
     
     return theta_hat
-end
-
-
-# Returns a matrix with all bootstrap estimates (for computing CIs of other stats)
-function theta_hat_boot(rb::Union{GMMBootResults, GMMResult})
-    x = parse_vector.(rb.all_results.theta_hat)
-    x = hcat(x...) |> Transpose |> Matrix
-
-    return x
-end
-
-# Returns confidence intervals (95%)
-function cis(rb::GMMBootResults; ci_levels=[2.5, 97.5])
-
-    nparams = length(rb.all_results[1, :theta_hat])
-
-    theta_hat_boot = theta_hat_boot(rb)
-
-    cis = []
-    for i=1:nparams
-        cil, cih = percentile(theta_hat_boot[:, i], ci_levels)
-        push!(cis, (cil, cih))
-    end
-    
-    return cis
-end
-
-# Returns standard errors (SD of bootstrap estimates)
-function stderr(rb::GMMBootResults)
-
-    nparams = length(rb.all_results[1, :theta_hat])
-
-    theta_hat_boot = theta_hat_boot(rb)
-
-    stderrors = zeros(nparams)
-    for i=1:nparams
-        stderrors[i] = std(theta_hat_boot[:, i])
-    end
-    
-    return stderrors
 end
 

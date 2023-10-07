@@ -61,7 +61,7 @@ function GMMResultTable(r::GMMResult)
     
     GMMResultTable(
     coef = r.theta_hat,
-    vcov = diagm(r.theta_hat),
+    vcov = r.vcov[:V],
     vcov_type=Vcov.simple(),
     esample=[],
     fe=DataFrame(),
@@ -71,7 +71,7 @@ function GMMResultTable(r::GMMResult)
     # formula::FormulaTerm        # Original formula
     # formula_schema::FormulaTerm # Schema for predict
     contrasts=Dict(),
-    nobs=1, # ! this only works for dataframes
+    nobs=r.vcov[:N],
     dof=1,
     dof_fes=1,
     dof_residual=1,
