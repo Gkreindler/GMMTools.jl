@@ -1,6 +1,6 @@
 # GMM with GMMTools.jl
 
-This tutorial demonstrates how to use GMMTools.jl to run GMM estimation.
+This tutorial shows how to use GMMTools.jl to estimate models using the generalized method of moments. If you have questions, open an issue or get in touch (gkreindler@g.harvard.edu).
 
 Outline
 1. Estimate OLS using GMM
@@ -10,20 +10,22 @@ Outline
 1. General usage
 1. More powerful settings (write results, etc.)
 
-Todos:
-1. PARTIAL add table support using RegressionTable
-    - reduce dependency
-    - allow kwargs
+## Getting started
+Install [Julia](https://julialang.org/downloads/) and pick an IDE (I use [VSCode](https://code.visualstudio.com/)). Julia has an interactive mode (called REPL) and you can run entire scripts. To use a package [environment](https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/), start your Julia script with
+```julia
+using Pkg
+Pkg.activate(".")
+```
+to use an environment in the current folder. The environment will be stored in two files (`Project.toml` and `Manifest.toml`). (You can also use a specific path `Pkg.activate("C:/my/favorite/path/")`). You can access the package manager from REPL by typing `]`. See [this](https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/) or other tutorials on environments and packages.
 
-1. clean up code (e.g. do we need setup function vs bootstrap fn?)
-    - 
+You can install packages at the REPL by typing `] add MyPackage`. For exmple, `add CSV` adds the package [`CSV.jl`](https://github.com/JuliaData/CSV.jl). Common useful packages in economics are [`DataFrames.jl`](https://github.com/JuliaData/DataFrames.jl), [`FixedEffectModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl), [`RegressionTables.jl`](https://github.com/jmboehm/RegressionTables.jl), and [`Optim.jl`](https://julianlsolvers.github.io/Optim.jl/stable/). Install all of them with `] add CSV, DataFrames, FixedEffectModels, RegressionTables, Optim`.
 
-1. general standard errors
-    - 
+To install `GMMTools.jl`, you need to get it directly from github like this
+```
+] add https://github.com/Gkreindler/GMMTools.jl#redesign-methods
+```
 
-1. two-step GMM
-
-## General usage
+## Basic usage
 
 ```julia
 # compute the model, e.g. solve a fixed point problem or simulate
