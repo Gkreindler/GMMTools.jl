@@ -120,7 +120,7 @@ R2
 --------------------
 ```
 
-This is quite similar to the result from using the `reg` function from `FixedEffectsModel.jl` (there are no fixed effects here)
+This is quite similar to the result from using the `reg` function from `FixedEffectsModel.jl` (note, there are no fixed effects here, but this works)
 ```julia
     r = reg(df, term(:mpg) ~ term(:acceleration))
     RegressionTables.regtable(r)
@@ -146,6 +146,8 @@ R2                0.177
 
 ### Bayesian Bootstrap
 The example script also shows how to compute [Bayesian (weighted) bootstrap](https://matteocourthoud.github.io/post/bayes_boot/) inference. More detailed notes to be added.
+
+Notably, you can cluster the bootstrap by including `cluster_var=:my_cluster_var` when calling `vcov_bboot()`.
 
 ### More details
 For most up-to-date details, check the source files in `src/functions_estimation.jl`, etc.

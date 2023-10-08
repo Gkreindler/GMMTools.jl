@@ -50,10 +50,11 @@ end
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
     vcov_bboot(myprob, ols_moments, myfit, nboot=500)
+    GMMTools.regtable(myfit) # print table with new bootstrap SEs
 
-# print table with new bootstrap SEs
+# bootstrap with weightes drawn at the level of clusters defined by the variable df.cylinders
+    vcov_bboot(myprob, ols_moments, myfit, cluster_var=:cylinders, nboot=500)
     GMMTools.regtable(myfit)
-
 
 ### Multiple initial conditions and save to file
     theta0 = [0.3, 0.5]
