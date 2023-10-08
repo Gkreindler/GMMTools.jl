@@ -134,6 +134,9 @@ function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult;
         isdir(bootpath) || mkdir(bootpath)
     end
 
+    # init weights
+    problem.weights = zeros(nrow(problem.data))
+
     # for clustering
     if !isnothing(cluster_var)
         cluster_values = unique(problem.data[:, cluster_var])
@@ -164,7 +167,8 @@ function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult;
                 mom_fn_boot, # using the boot mom function (zero at theta_hat)
                 opts, 
                 boot_fn=boot_fn, 
-                cluster_var=cluster_var)
+                cluster_var=cluster_var,
+                cluster_values=cluster_values)
         end
     else
         list_of_boot_results = pmap( 
