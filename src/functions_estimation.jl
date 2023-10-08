@@ -20,7 +20,6 @@ end
 function create_GMMProblem(;
     data, 
     cache=nothing, 
-    # mom_fn, 
     W=I, 
     theta0, 
     weights=nothing,
@@ -31,7 +30,8 @@ function create_GMMProblem(;
     end
 
     if isnothing(theta_names)
-        theta_names = ["θ_" * string(i) for i=1:length(theta0)]
+        nparams = size(theta0, 2)
+        theta_names = ["θ_" * string(i) for i=1:nparams]
     end
 
     return GMMProblem(data, cache, W, theta0, weights, theta_names) 
@@ -165,15 +165,21 @@ function default_optim_opts()
         iterations=5000)
 end
 
-function default_gmm_opts()
+function default_gmm_opts(;
+    path = "",
+    optim_opts=default_optim_opts(),
+    write_iter = false,    # write to file each result (each initial run)
+    clean_iter = false,    # 
+    overwrite = false,
+    trace = 0)
+
     return GMMOptions(
-        path = "",
-        optim_opts=default_optim_opts(),
-        write_iter=false,
-        clean_iter=false,
-        overwrite=false,
-        trace=0
-        )
+        path=path,
+        optim_opts=optim_opts,
+        write_iter=write_iter,
+        clean_iter=clean_iter,
+        overwrite=overwrite,
+        trace=trace)
 end
 
 # extent the "copy" method to the GMMOptions type
@@ -204,7 +210,7 @@ function parse_vector(s::String)
     return parse.(Float64, split(s[2:(end-1)],","))
 end
 
-function load(opts::GMMOptions, filepath::String)
+function load(prob::GMMProblem, opts::GMMOptions, filepath::String)
 
     full_path = opts.path * filepath
     if isfile(full_path)
@@ -214,6 +220,7 @@ function load(opts::GMMOptions, filepath::String)
             return GMMResult(
                 theta0=parse_vector(df[1, :theta0]),
                 theta_hat=parse_vector(df[1, :theta_hat]),
+                theta_names=prob.theta_names,
                 converged=df[1, :converged],
                 obj_value=df[1, :obj_value],
                 iterations=df[1, :iterations],
@@ -225,9 +232,11 @@ function load(opts::GMMOptions, filepath::String)
             
                 mysample = df.is_optimum .== 1
                 df_optimum = df[mysample, :]
+
             return GMMResult(
                 theta0=parse_vector(df_optimum[1, :theta0]),
                 theta_hat=parse_vector(df_optimum[1, :theta_hat]),
+                theta_names=prob.theta_names,
                 converged=df_optimum[1, :converged],
                 obj_value=df_optimum[1, :obj_value],
                 iterations=df_optimum[1, :iterations],
@@ -243,6 +252,14 @@ function load(opts::GMMOptions, filepath::String)
     end
 end
 
+function add_nobs(myfit::GMMResult, problem::GMMProblem, mom_fn::Function)
+    try
+        myfit.N = size(problem.data, 1)
+    catch
+        mytheta = problem.theta0[1, :]
+        myfit.N = size(mome_fn(problem, mytheta), 1)
+    end
+end
 
 
 
@@ -279,10 +296,11 @@ function fit(
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = load(opts, "results.csv")
+        opt_results_from_file = load(problem, opts, "results.csv")
         
         if !isnothing(opt_results_from_file)
             println(" Results already exist. Reading from file.")
+            add_nobs(opt_results_from_file, problem, mom_fn)
             return opt_results_from_file
         end
     end
@@ -300,11 +318,7 @@ function fit(
     end
     
     best_result = process_results(several_est_results)
-    try
-        best_result.N = size(problem.data, 1)
-    catch
-        best_result.N = size(mome_fn(problem, theta0), 1)
-    end
+    add_nobs(best_result, problem, mom_fn)
 
     # save results to file?
     (opts.path != "") && write(best_result, opts, filename="results.csv")
@@ -331,7 +345,7 @@ function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = load(opts, "__iter__/results_" * string(idx) * ".csv")
+        opt_results_from_file = load(problem, opts, "__iter__/results_" * string(idx) * ".csv")
         
         if !isnothing(opt_results_from_file)
             (opts.trace > 0) && println(" Reading from file.")

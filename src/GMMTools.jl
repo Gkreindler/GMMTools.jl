@@ -29,10 +29,11 @@ using RegressionTables
 # import ..RegressionTables: regtable, asciiOutput
 
 
-export GMMProblem, create_GMMProblem, GMMResult, table, random_theta0, 
-       fit, 
-       vcov_simple, vcov_bboot,
-       regtable
+export GMMProblem, create_GMMProblem, GMMResult, table, 
+        random_theta0, default_gmm_opts, default_optim_opts,
+        fit, 
+        vcov_simple, vcov_bboot,
+        regtable
 
 include("functions_estimation.jl")
 include("functions_inference.jl")

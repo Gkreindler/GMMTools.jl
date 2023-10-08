@@ -2,11 +2,6 @@
 
 This tutorial shows how to use GMMTools.jl to estimate models using the generalized method of moments. If you have questions, open an issue or get in touch (gkreindler@g.harvard.edu).
 
-Outline
-1. Estimate OLS using GMM
-1. Bayesian bootstrap
-1. Other settings (write results, etc.)
-
 ## Getting started
 Install [Julia](https://julialang.org/downloads/) and pick an IDE (I use [VSCode](https://code.visualstudio.com/)). Julia has an interactive mode (called REPL) and you can run entire scripts. To use a package [environment](https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/), start your Julia script with
 ```julia
@@ -31,11 +26,11 @@ y_i = \alpha + \beta x_i + \epsilon_i
 ```
 Given residuals $\widehat\epsilon_i = y_i - \widehat\alpha + \widehat\beta x_i$, the two moment conditions are 
 ```math
-\mathbb E \widehat\epsilon = 0
+\mathbb E \widehat\epsilon_i = 0
 ```
 and 
 ```math
-\mathbb E \widehat\epsilon x_i = 0.
+\mathbb E \widehat\epsilon_i x_i = 0.
 ```
 
 ### Setup
@@ -77,7 +72,7 @@ We start by defining a `GMMProblem`, a type of object specific to this package. 
 ```
 
 ### Moment function
-The moment function is a key part of our model. For the package `GMMTools.jl`, the moment function must take as argument a `GMMProblem` object called `prob` and a vector of parameters `theta`. It must return a matrix with rows corresponding to data observations and columns corresponding to moments. We will get an error is the moment function returns a vector instead of a matrix. As mentioned above, the function accesses the dataframe with data using `prob.data`. It then further selects dataframe columns using `prob.data.mpg` and `prob.data.acceleration`.
+The moment function is a key part of our model. For the package `GMMTools.jl`, the moment function must take as argument a `GMMProblem` object called `prob` and a vector of parameters `theta`. It must return a matrix with rows corresponding to data observations and columns corresponding to moments. We will get an error is the moment function returns a vector instead of a matrix. As mentioned above, the function accesses the dataframe with data using `prob.data`. It then further selects dataframe columns using `prob.data.mpg` and `prob.data.acceleration`. (Passing the entire object `prob` allows more advanced functionalities, for example, storing pre-allocated matrices in `prob.cache` for doing model computation.)
 ```julia
 function ols_moments(prob::GMMProblem, theta)
     
@@ -149,8 +144,12 @@ R2                0.177
 -----------------------
 ```
 
+### Bayesian Bootstrap
+The example script also shows how to compute [Bayesian (weighted) bootstrap](https://matteocourthoud.github.io/post/bayes_boot/) inference. More detailed notes to be added.
 
 ### More details
+For most up-to-date details, check the source files in `src/functions_estimation.jl`, etc.
+
 The `GMMProblem` object has the following fields
 - `data`: can be accessed with `myprob.data` (any type, by default a DataFrame)
 - `theta0`: vector with starting guesses of `theta`, or a $K\times P$ matrix where $K$ is the number of initial conditions to try, and $P$ the number of parameters (vector)
@@ -173,7 +172,18 @@ The function `fit` takes the following argments
     - `trace=0`          - whether to print details during estimation, `=0,1,2`
     - `optim_opts=default_optim_opts()` - options for the optimizer function in `Optim.jl`
 
-
+The object `myfit` is of the type `GMMResult` with fields
+- `theta0` - initial conditions
+- `theta_hat` - estimated parameters
+- `theta_names`
+- `obj_value` - GMM objective value at `theta_hat`
+- `converged` - dummy
+- `iterations` - number of iterations
+- `iteration_limit_reached` - dummy
+- `time_it_took` - in seconds
+- `all_results` - DataFrame with results from all initial conditions
+- `N` - number of observations
+- `vcov` - variance covariance object (a Dictionary) or nothing
 
 
 

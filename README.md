@@ -10,14 +10,12 @@ A toolbox for generalized method of moments (GMM) and classical minimum distance
 
 For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl). [SMM.jl](https://github.com/floswald/SMM.jl)
 
-# Features and use-cases
-
-# Examples
+# Basic Usage
 See an example and basic usage in
 ```
 examples/example_ols.jl
 ```
-And the associated readme [docs/src/tutorials/gmm.md]().
+And the associated readme [docs/src/tutorials/gmm.md](https://github.com/Gkreindler/GMMTools.jl/blob/main/docs/src/tutorials/gmm.md).
 
 ## Features
 Core estimation features:

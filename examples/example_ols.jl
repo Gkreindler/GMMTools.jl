@@ -53,3 +53,23 @@ end
 
 # print table with new bootstrap SEs
     GMMTools.regtable(myfit)
+
+
+### Multiple initial conditions and save to file
+    theta0 = [0.3, 0.5]
+
+    theta0_matrix = random_theta0(theta0, 100) # generate 100 random initial conditions "around" theta0
+
+    myprob = create_GMMProblem(data=df, W=I, theta0=theta0_matrix)
+
+    myopts = default_gmm_opts(
+        path = "C:/git-repos/GMMTools.jl/examples/temp/", # replace with target folder on your machine
+        write_iter=true, # save results to file option
+        clean_iter=true, # save results to file option
+        overwrite=false,  # save results to file option
+        trace=1
+        )
+
+    myfit = fit(myprob, ols_moments, opts=myopts)
+    vcov_simple(myprob, ols_moments, myfit)
+    GMMTools.regtable(myfit)
