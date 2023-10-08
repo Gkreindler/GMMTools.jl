@@ -34,7 +34,7 @@ and
 ```
 
 ### Setup
-To run this example, copy to your folder of choice the file [`auto-mpg.csv`](https://github.com/Gkreindler/GMMTools.jl/blob/redesign-methods/examples/auto-mpg.csv) and the script [`example_ols.jl`](https://github.com/Gkreindler/GMMTools.jl/blob/redesign-methods/examples/example_ols.jl).
+To run this example, copy to your folder of choice the file [`auto-mpg.csv`](https://github.com/Gkreindler/GMMTools.jl/blob/main/examples/auto-mpg.csv) and the script [`example_ols.jl`](https://github.com/Gkreindler/GMMTools.jl/blob/main/examples/example_ols.jl).
 
 ### Understanding the example script
 The example script starts by initializing the environment and using the required packages 

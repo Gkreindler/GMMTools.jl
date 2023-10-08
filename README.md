@@ -6,7 +6,7 @@
 # Summary 
 *Preliminary/In progress.*
 
-A toolbox for generalized method of moments (GMM) and classical minimum distance (CMD) estimation, with functionality aimed at streamlining estimating models that have long runtime and estimation launched on a computer cluster.
+A toolbox for generalized method of moments (GMM) with functionality aimed at streamlining estimating models that have long runtime and estimation launched on a computer cluster.
 
 For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl). [SMM.jl](https://github.com/floswald/SMM.jl)
 
@@ -29,10 +29,9 @@ Convenience features:
 1. parallel initial conditions (embarrassingly parallel using `Distributed.jl`)
 1. parallel bootstrap (embarrassingly parallel using `Distributed.jl`)
 1. suitable for running on computer clusters (e.g. using slurm)
-1. include limits for time or number of iterations 
 
 ### Dev to-do list
-1. two-step GMM, cue, classical minimum distance (CMD)
+1. two-step GMM, CUE, classical minimum distance (CMD)
 1. more general estimation of the covariance of the moments, cluster, HAC, Newey-West, etc.
 1. parameter box constraints
 1. automatic differentiation (AD)
@@ -47,6 +46,7 @@ Convenience features:
 
 ### Documentation to-do list
 1. Example with `Distributed.jl` for parallel runs or parallel bootstrap
+1. Non-linear estimation example
 1. Example with AD including cache data and implicit function differentiation
 
 
