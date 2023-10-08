@@ -1,25 +1,43 @@
 module GMMTools
 
 # Write your package code here.
-using Distributed
-using Future: randjump
+using Distributed # for parallel
+using Future: randjump # will use for generating random seeds for parallel bootstrap runs
 
 using DataFrames
 using LinearAlgebra
 using Statistics # means
-using StatsBase # need to take bootstrap samples
+
+using StatsAPI
+
+# for (Bayesian) bootstrap
+using StatsBase # take samples
+using Distributions # Dirichlet distribution
 
 using CSV 
 using JSON
 
 using Random
 
-using FiniteDifferences
-using LsqFit # install version that accepts MaxTime. Run "add LsqFit#master" as of Jan 2023
+using Optim
+
+using FiniteDiff
+using ForwardDiff
+
+using Vcov # needed for regression table
+using RegressionTables
+# import ..RegressionTables: regtable, asciiOutput
 
 
-export run_estimation, run_inference, random_initial_conditions, compute_jacobian
+export GMMProblem, create_GMMProblem, GMMResult, table, random_theta0, 
+       fit, 
+       vcov_simple, vcov_bboot,
+       regtable
 
-include("gmm_tools.jl")
+include("functions_estimation.jl")
+include("functions_inference.jl")
+include("functions_regtable.jl")
 
 end
+
+
