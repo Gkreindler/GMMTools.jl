@@ -67,7 +67,7 @@ Next, we load the sample data and add a constant column
 ### Setting up a model for estimation
 In our example, $y_i$ measures `mpg` and $x_i$ measures `acceleration`. We will estimate two parameters $\theta = (\theta_1, \theta_1) = (\alpha, \beta)$.
 
-We start by defining a `GMMProblem`, a type of object specific to this package. It holds the dataframe with data `df`, a weighting matrix (here we use the identity matrix `I`), and a vector of initial conditions for $(\alpha, \beta)$.
+We start by defining a `GMMProblem`, a type of object specific to this package. It holds the dataframe with data `df`, a weighting matrix (here we use the identity matrix `I`, which requires the package `LinearAlgebra`), and a vector of initial conditions for $(\alpha, \beta)$.
 ```julia
 # initial parameter guess
     theta0 = [0.0, 0.0]

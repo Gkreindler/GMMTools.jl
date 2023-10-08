@@ -1,7 +1,7 @@
 using Pkg
 Pkg.activate(".")
 
-# using Revise
+using Revise
 using LinearAlgebra # for identity matrix "I"
 using CSV
 using DataFrames
@@ -47,8 +47,6 @@ end
 
 # print table with results
     GMMTools.regtable(myfit)
-
-    fsdf
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
     vcov_bboot(myprob, ols_moments, myfit, nboot=500)

@@ -1,8 +1,8 @@
 module GMMTools
 
 # Write your package code here.
-using Distributed
-using Future: randjump
+using Distributed # for parallel
+using Future: randjump # will use for generating random seeds for parallel bootstrap runs
 
 using DataFrames
 using LinearAlgebra
@@ -34,9 +34,9 @@ export GMMProblem, create_GMMProblem, GMMResult, table, random_theta0,
        vcov_simple, vcov_bboot,
        regtable
 
-include("functions_gmm.jl")
+include("functions_estimation.jl")
 include("functions_inference.jl")
-include("gmm_table.jl")
+include("functions_regtable.jl")
 
 end
 

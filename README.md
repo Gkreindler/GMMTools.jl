@@ -11,6 +11,48 @@ A toolbox for generalized method of moments (GMM) and classical minimum distance
 For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl). [SMM.jl](https://github.com/floswald/SMM.jl)
 
 # Features and use-cases
+
+# Examples
+See an example and basic usage in
+```
+examples/example_ols.jl
+```
+And the associated readme [docs/src/tutorials/gmm.md]().
+
+## Features
+Core estimation features:
+1. run one-step GMM estimation
+1. multiple initial conditions
+1. estimate asymptotic variance-covariance matrix
+1. Bayesian (weighted) bootstrap inference
+
+Convenience features:
+1. efficiently resume estimation based on incomplete results (e.g. when bootstrap run #63, or initial condition #35, fails or runs out of time after many hours)
+1. parallel initial conditions (embarrassingly parallel using `Distributed.jl`)
+1. parallel bootstrap (embarrassingly parallel using `Distributed.jl`)
+1. suitable for running on computer clusters (e.g. using slurm)
+1. include limits for time or number of iterations 
+
+### Dev to-do list
+1. two-step GMM, cue, classical minimum distance (CMD)
+1. more general estimation of the covariance of the moments, cluster, HAC, Newey-West, etc.
+1. parameter box constraints
+1. automatic differentiation (AD)
+1. other optimization backends (`curve_fit` from `LsqFit.jl`, suboptions in `Optim.jl`, [`GalacticOptim.jl`](`https://github.com/SciML/GalacticOptim.jl`), etc.)
+1. tests
+1. integrate with RegressionTables.jl
+1. compute sensitivity measure (Andrews et al 2017)
+1. easily select subset of parameters to estimate
+1. easily select subset of moments used in estimation
+1. (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
+1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
+
+### Documentation to-do list
+1. Example with `Distributed.jl` for parallel runs or parallel bootstrap
+1. Example with AD including cache data and implicit function differentiation
+
+
+<!---
 ## Who could this package be useful for?
 The idea behind this package is that rapid iteration is useful when doing science. When working with large or complicated economic models and estimating them using GMM-type methods, valuable research time can be wasted collecting results, re-running partial estimation cycles, or bootstrap runs, after a bug causes an error in one run, etc. This package aims to automate and speed up some common steps in such workflows.
 
@@ -110,6 +152,8 @@ It is the user's responsibility to ensure that the existing results and the new 
 
 ### Understanding the file output from incomplete cycles
 We save the results from each initial condition run in a separate file (one-row dataframe) in `"SUBFOLDER/results_df_run_<iter_n>.csv"` where `SUBFOLDER` is one of `"results", "step1", "step2"`. After all runs are finished, we combine all results into a single dataframe in `"estimation_SUBFOLDER_df.csv"`. To avoid a large number of files (thousands in the case of bootstrap with multiple initial conditions), we clean up and delete the individual run output files (the entire `"SUBFOLDER"` subfolder) after the combined dataframe is generated.
+-->
 
 ## Acknowledgements
-For useful suggestions: Peter Deffebach, Michael Creel.
+Contributor: Peter Deffebach.
+For useful suggestions and conversations: Michael Creel, Jeff Gortmaker.

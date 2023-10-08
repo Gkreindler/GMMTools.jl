@@ -126,7 +126,7 @@ function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult;
     nboot=100, 
     cluster_var=nothing, 
     run_parallel=true,
-    opts::GMMOptions=GMMOptions())
+    opts::GMMOptions=default_gmm_opts())
 
     # create path for saving results
     if (opts.path != "") && (opts.path != "")
@@ -232,7 +232,7 @@ function bboot(
 
     # path for saving results
     new_opts = copy(opts)
-    new_opts.path *= "__boot__/boot_" * string(idx) * "_"
+    (new_opts.path != "") && (new_opts.path *= "__boot__/boot_" * string(idx) * "_")
 
     return fit(problem, mom_fn, run_parallel=false, opts=new_opts)
 end
