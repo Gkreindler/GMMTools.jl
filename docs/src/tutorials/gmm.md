@@ -14,7 +14,7 @@ You can install packages at the REPL by typing `] add MyPackage`. For exmple, `a
 
 To install `GMMTools.jl`, you need to get it directly from github like this
 ```
-] add https://github.com/Gkreindler/GMMTools.jl#redesign-methods
+] add https://github.com/Gkreindler/GMMTools.jl
 ```
 
 ## Example 1: Estimate OLS using GMM
