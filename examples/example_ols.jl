@@ -1,5 +1,7 @@
 using Pkg
 Pkg.activate(".")
+Pkg.resolve()
+Pkg.instantiate()
 
 using Revise
 using LinearAlgebra # for identity matrix "I"
@@ -40,6 +42,10 @@ end
     myprob = create_GMMProblem(data=df, W=I, theta0=theta0)
                 
 # estimate model
+fit(myprob, ols_moments, mode=:twostep)
+
+
+fdsfds
     myfit = fit(myprob, ols_moments)
   
 # compute asymptotic variance-covariance matrix and save in myfit.vcov

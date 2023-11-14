@@ -9,7 +9,7 @@ TODOS:
 
 
 Base.@kwdef mutable struct GMMProblem
-    data::DataFrame
+    data
     cache = nothing
     W=I                 # weight Matrix
     theta0::Array
@@ -151,6 +151,7 @@ end
 
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
+    autodiff::Symbol = :none
     optim_opts = nothing
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # 
@@ -168,6 +169,7 @@ end
 function default_gmm_opts(;
     path = "",
     optim_opts=default_optim_opts(),
+    autodiff=:none,
     write_iter = false,    # write to file each result (each initial run)
     clean_iter = false,    # 
     overwrite = false,
@@ -175,6 +177,7 @@ function default_gmm_opts(;
 
     return GMMOptions(
         path=path,
+        autodiff=autodiff,
         optim_opts=optim_opts,
         write_iter=write_iter,
         clean_iter=clean_iter,
@@ -257,7 +260,7 @@ function add_nobs(myfit::GMMResult, problem::GMMProblem, mom_fn::Function)
         myfit.N = size(problem.data, 1)
     catch
         mytheta = problem.theta0[1, :]
-        myfit.N = size(mome_fn(problem, mytheta), 1)
+        myfit.N = size(mom_fn(problem, mytheta), 1)
     end
 end
 
@@ -285,9 +288,73 @@ function gmm_objective(theta::Vector, problem::GMMProblem, mom_fn::Function; tra
 end
 
 """
-overall: one or multiple initial conditions
 """
 function fit(
+    problem::GMMProblem, 
+    mom_fn::Function;
+    mode=:onestep,
+    run_parallel=true, 
+    opts=default_gmm_opts())
+
+    if mode == :onestep
+        return fit_onestep(
+                problem,
+                mom_fn,
+                run_parallel=run_parallel,
+                opts=opts)
+    else
+        @assert mode == :twostep "mode must be :onestep or :twostep"
+        return fit_twostep(
+                problem,
+                mom_fn,
+                run_parallel=run_parallel,
+                opts=opts)
+    end
+end
+
+"""
+Two-step GMM estimation (one or multiple initial conditions)
+"""
+function fit_twostep(
+    problem::GMMProblem, 
+    mom_fn::Function;
+    run_parallel=true, 
+    opts=default_gmm_opts())
+
+    # Step 1
+    fit_step1 = fit_onestep(
+        problem,
+        mom_fn,
+        run_parallel=run_parallel,
+        opts=opts)
+
+    # optimal weight matrix
+    m = mom_fn(problem, fit_step1.theta_hat)
+    nmomsize = size(m, 1)
+    println("number of observations: ", nmomsize)
+
+    Wstep2 = Hermitian(transpose(m) * m / nmomsize)
+    Wstep2 = inv(Wstep2)
+    problem.W = Wstep2
+
+    display(Wstep2)
+
+    # TODO: save Wstep2 to file
+
+    fit_step2 = fit_onestep(
+        problem,
+        mom_fn,
+        run_parallel=run_parallel,
+        opts=opts)
+
+    return fit_step2
+end
+
+
+"""
+overall: one or multiple initial conditions
+"""
+function fit_onestep(
     problem::GMMProblem, 
     mom_fn::Function;
     run_parallel=true, 
@@ -311,10 +378,10 @@ function fit(
     if (nic == 1) || !run_parallel
         several_est_results = Vector{GMMResult}(undef, nic)
         for i=1:nic
-            several_est_results[i] = fit(i, problem, mom_fn, opts)
+            several_est_results[i] = fit_onerun(i, problem, mom_fn, opts)
         end
     else
-        several_est_results = pmap( i -> fit(i, problem, mom_fn, opts), 1:nic)
+        several_est_results = pmap( i -> fit_onerun(i, problem, mom_fn, opts), 1:nic)
     end
     
     best_result = process_results(several_est_results)
@@ -335,7 +402,7 @@ end
 """
 fit function with one initial condition
 """
-function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions)
+function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions)
 
     # default optimizer options (if missing)
     isnothing(opts.optim_opts) && (opts.optim_opts = default_optim_opts())
@@ -360,7 +427,12 @@ function fit(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions
     gmm_objective_loaded = theta -> gmm_objective(theta, problem, mom_fn, trace=opts.trace)
 
     # optimize
-    time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, opts.optim_opts)
+    if opts.autodiff == :forward
+        println("using AD")
+        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, LBFGS(), opts.optim_opts, autodiff=:forward)
+    else
+        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, opts.optim_opts)
+    end
     #= 
     summary(res)
     minimizer(res)
