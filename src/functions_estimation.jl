@@ -151,7 +151,8 @@ end
 
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
-    autodiff::Symbol = :none
+    optim_autodiff::Symbol = :none
+    optim_algo = LBFGS()
     optim_opts = nothing
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # 
@@ -169,7 +170,8 @@ end
 function default_gmm_opts(;
     path = "",
     optim_opts=default_optim_opts(),
-    autodiff=:none,
+    optim_autodiff=:none,
+    optim_algo=LBFGS(),
     write_iter = false,    # write to file each result (each initial run)
     clean_iter = false,    # 
     overwrite = false,
@@ -177,7 +179,8 @@ function default_gmm_opts(;
 
     return GMMOptions(
         path=path,
-        autodiff=autodiff,
+        optim_autodiff=optim_autodiff,
+        optim_algo=optim_algo,
         optim_opts=optim_opts,
         write_iter=write_iter,
         clean_iter=clean_iter,
@@ -188,7 +191,8 @@ end
 # extent the "copy" method to the GMMOptions type
 Base.copy(x::GMMOptions) = GMMOptions([getfield(x, k) for k ∈ fieldnames(GMMOptions)]...)
 
-function write(est_result::GMMResult, opts::GMMOptions; subpath="", filename="")
+function write(est_result::GMMResult, opts::GMMOptions, filename; subpath="")
+    
     if opts.path == ""
         return
     end
@@ -196,26 +200,27 @@ function write(est_result::GMMResult, opts::GMMOptions; subpath="", filename="")
     if subpath == ""
         full_path = opts.path
     else
-        (subpath[end] != "/") && (subpath *= "/")
+        (subpath[end] != '/') && (subpath *= "/")
         full_path = opts.path * subpath
         isdir(full_path) || mkdir(full_path)
     end
 
-    (filename == "") ? filename = "results.csv" : nothing
-
-    file_path = full_path * filename
-
-    CSV.write(file_path, table(est_result))
+    CSV.write(full_path * filename, table(est_result))
 end
 
 
-function parse_vector(s::String)
+function parse_vector(s::AbstractString)
     return parse.(Float64, split(s[2:(end-1)],","))
 end
 
-function load(prob::GMMProblem, opts::GMMOptions, filepath::String)
+function load(prob::GMMProblem, opts::GMMOptions; filepath="")
 
-    full_path = opts.path * filepath
+    if filepath == ""
+        full_path = opts.path * "results.csv"
+    else
+        full_path = opts.path * filepath
+    end
+
     if isfile(full_path)
         df = CSV.read(full_path, DataFrame)
 
@@ -252,6 +257,16 @@ function load(prob::GMMProblem, opts::GMMOptions, filepath::String)
         end
     else
         return nothing
+    end
+end
+
+function clean_iter(opts)
+    try
+        print("Deleting intermediate files from: ", opts.path)
+        rm(opts.path * "__iter__/", force=true, recursive=true)
+        println(" Done.")
+    catch e
+        println(" Error while deleting intermediate files from : ", opts.path, ". Error: ", e)
     end
 end
 
@@ -321,31 +336,45 @@ function fit_twostep(
     run_parallel=true, 
     opts=default_gmm_opts())
 
-    # Step 1
+    main_path = opts.path
+    (main_path[end] != '/') && (main_path *= "/")
+
+    ### Step 1
+    (opts.trace > 0) && println(">>> Starting GMM step 1.")
+    opts.path = main_path * "step1/"
+    isdir(opts.path) || mkdir(opts.path)
+
     fit_step1 = fit_onestep(
         problem,
         mom_fn,
         run_parallel=run_parallel,
         opts=opts)
 
-    # optimal weight matrix
+    ### optimal weight matrix
     m = mom_fn(problem, fit_step1.theta_hat)
     nmomsize = size(m, 1)
-    println("number of observations: ", nmomsize)
+    # (opts.trace > 0) && println("number of observations: ", nmomsize)
 
     Wstep2 = Hermitian(transpose(m) * m / nmomsize)
     Wstep2 = inv(Wstep2)
     problem.W = Wstep2
 
-    display(Wstep2)
+    # Save Wstep2 to file
+    writedlm( opts.path * "Wstep2.csv",  Wstep2, ',')
 
-    # TODO: save Wstep2 to file
+    ### Step 2
+    (opts.trace > 0) && println(">>> Starting GMM step 2.")
+    opts.path = main_path * "step2/"
+    isdir(opts.path) || mkdir(opts.path)
 
     fit_step2 = fit_onestep(
         problem,
         mom_fn,
         run_parallel=run_parallel,
         opts=opts)
+
+    # revert
+    opts.path = main_path
 
     return fit_step2
 end
@@ -363,11 +392,15 @@ function fit_onestep(
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = load(problem, opts, "results.csv")
+        opt_results_from_file = load(problem, opts)
         
         if !isnothing(opt_results_from_file)
-            println(" Results already exist. Reading from file.")
+            println(" Results file already exists. Reading from file.")
             add_nobs(opt_results_from_file, problem, mom_fn)
+
+            # delete all intermediate files with individual iteration results
+            opts.clean_iter && clean_iter(opts)
+
             return opt_results_from_file
         end
     end
@@ -388,14 +421,10 @@ function fit_onestep(
     add_nobs(best_result, problem, mom_fn)
 
     # save results to file?
-    (opts.path != "") && write(best_result, opts, filename="results.csv")
+    (opts.path != "") && write(best_result, opts, "results.csv")
 
     # delete all intermediate files with individual iteration results
-    if opts.clean_iter 
-        print("Deleting intermediate files...")
-        rm(opts.path * "__iter__/", force=true, recursive=true)
-        println(" Done.")
-    end
+    opts.clean_iter && clean_iter(opts)
 
     return best_result
 end
@@ -412,7 +441,7 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = load(problem, opts, "__iter__/results_" * string(idx) * ".csv")
+        opt_results_from_file = load(problem, opts, filepath="__iter__/results_" * string(idx) * ".csv")
         
         if !isnothing(opt_results_from_file)
             (opts.trace > 0) && println(" Reading from file.")
@@ -427,11 +456,21 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
     gmm_objective_loaded = theta -> gmm_objective(theta, problem, mom_fn, trace=opts.trace)
 
     # optimize
-    if opts.autodiff == :forward
-        println("using AD")
-        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, LBFGS(), opts.optim_opts, autodiff=:forward)
+    if opts.optim_autodiff == :forward
+        (opts.trace > 0) && print("using AD")
+        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, 
+                                                                theta0, 
+                                                                opts.optim_algo, # defalut = LBFGS()
+                                                                opts.optim_opts, 
+                                                                autodiff=:forward)
+
+        # results = optimize(f, g!, lower, upper, initial_x, Fminbox(GradientDescent()), Optim.Options(outer_iterations = 2))
+
     else
-        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, theta0, opts.optim_opts)
+        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, 
+                                                                theta0, 
+                                                                opts.optim_algo, # defalut = LBFGS()
+                                                                opts.optim_opts)
     end
     #= 
     summary(res)
@@ -461,7 +500,7 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
     # write intermediate results to file
     if opts.write_iter 
         (opts.trace > 0) && println(" Done and done writing to file.")
-        write(opt_results, opts, subpath="__iter__", filename="results_" * string(idx) * ".csv")
+        write(opt_results, opts, "results_" * string(idx) * ".csv", subpath="__iter__")
     else
         (opts.trace > 0) && println(" Done. ")
     end

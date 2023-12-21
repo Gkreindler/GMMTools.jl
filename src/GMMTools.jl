@@ -12,8 +12,9 @@ using StatsAPI
 
 # for (Bayesian) bootstrap
 using StatsBase # take samples
-using Distributions # Dirichlet distribution
+using Distributions # Dirichlet distribution for bootstrap
 
+using DelimitedFiles
 using CSV 
 using JSON
 
