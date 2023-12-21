@@ -57,7 +57,7 @@ StatsAPI.mss(m::GMMResultTable) = nulldeviance(m) - rss(m)
 # StatsModels.formula(m::GMMResultTable) = m.formula_schema
 dof_fes(m::GMMResultTable) = m.dof_fes
 
-function vcov(r::GMMResult)
+function vcov(r::GMMFit)
     if isnothing(r.vcov)
         nparams = length(r.theta_hat)
         return zeros(nparams, nparams)
@@ -66,7 +66,7 @@ function vcov(r::GMMResult)
     end
 end
 
-function vcov_method(r::GMMResult)
+function vcov_method(r::GMMFit)
     if isnothing(r.vcov)
         return Vcov.simple()
     else
@@ -74,13 +74,17 @@ function vcov_method(r::GMMResult)
     end
 end
 
-function GMMResultTable(r::GMMResult)
+function GMMResultTable(r::GMMFit)
     
     nobs = r.N
 
     if isnothing(r.vcov)
         @error "Cannot print table. No vcov estimated yet"
         error("Cannot print table. No vcov estimated yet")
+    end
+
+    if isnothing(r.theta_names)
+        r.theta_names = ["theta_$i" for i=1:length(r.theta_hat)]
     end
 
     GMMResultTable(
@@ -108,7 +112,7 @@ function GMMResultTable(r::GMMResult)
 end
 
 # TODO: integrate better with RegressionModels, allow mixed inputs etc. Should be easy.
-function regtable(r::GMMResult)
+function regtable(r::GMMFit)
     RegressionTables.regtable(GMMResultTable(r);  
         labels = Dict("__LABEL_ESTIMATOR_OLS__" => "GMM"), 
         renderSettings = asciiOutput())

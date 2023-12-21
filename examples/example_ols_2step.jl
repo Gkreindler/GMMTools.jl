@@ -26,12 +26,12 @@ using Optim # need for NewtonTrustRegion()
 # define moments for OLS regression
 # residuals orthogonal to the constant and to the variable (acceleration)
 # this must always return a Matrix (rows = observations, columns = moments)
-function ols_moments(prob, theta)
+function ols_moments_fn(data, theta)
     
-    resids = @. prob.data.mpg - theta[1] - theta[2] * prob.data.acceleration
+    resids = @. data.mpg - theta[1] - theta[2] * data.acceleration
     
     # n by 2 matrix of moments
-    moms = hcat(resids, resids .* prob.data.acceleration)
+    moms = hcat(resids, resids .* data.acceleration)
     
     return moms
 end
@@ -41,10 +41,10 @@ end
     theta0 = randn(20,2)
 
 # create GMM problem (data + weighting matrix + initial parameter guess)
-    myprob = create_GMMProblem(
-                data=df, 
-                W=I,    
-                theta0=theta0)
+    # myprob = create_GMMProblem(
+    #             data=df, 
+    #             W=I,    
+    #             theta0=theta0)
                 
 # estimation options
 myopts = GMMTools.GMMOptions(
@@ -57,12 +57,10 @@ myopts = GMMTools.GMMOptions(
                 trace=1)
 
 # estimate model
-myfit = fit(myprob, ols_moments, mode=:twostep, opts=myopts)
-
-
+myfit = fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
-    vcov_simple(myprob, ols_moments, myfit)
+    vcov_simple(df, ols_moments_fn, myfit)
 
 # print table with results
     GMMTools.regtable(myfit)
@@ -73,10 +71,13 @@ myfit = fit(myprob, ols_moments, mode=:twostep, opts=myopts)
 
 
 
-    
+
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
-    vcov_bboot(myprob, ols_moments, myfit, nboot=500)
+    vcov_bboot(df, ols_moments_fn, theta0, myfit, nboot=500)
     GMMTools.regtable(myfit) # print table with new bootstrap SEs
+
+
+fsdfds
 
 # bootstrap with weightes drawn at the level of clusters defined by the variable df.cylinders
     vcov_bboot(myprob, ols_moments, myfit, cluster_var=:cylinders, nboot=500)

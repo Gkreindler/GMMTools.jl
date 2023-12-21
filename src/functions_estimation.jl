@@ -8,69 +8,80 @@ TODOS:
 =#
 
 
-Base.@kwdef mutable struct GMMProblem
-    data
-    cache = nothing
-    W=I                 # weight Matrix
-    theta0::Array
-    weights             # weights for each observation (e.g. used in Bayesian bootstrap)
-    theta_names::Union{Vector{String}, Nothing} = nothing
-end
+# Base.@kwdef mutable struct GMMProblem
+#     data
+#     cache = nothing
+#     W=I                 # weight Matrix
+#     theta0::Array
+#     weights             # weights for each observation (e.g. used in Bayesian bootstrap)
+#     theta_names::Union{Vector{String}, Nothing} = nothing
+# end
 
-function create_GMMProblem(;
-    data, 
-    cache=nothing, 
-    W=I, 
-    theta0, 
-    weights=nothing,
-    theta_names::Union{Vector{String}, Nothing} = nothing)
+# function create_GMMProblem(;
+#     data, 
+#     cache=nothing, 
+#     W=I, 
+#     theta0, 
+#     weights=nothing,
+#     theta_names::Union{Vector{String}, Nothing} = nothing)
 
-    if isa(theta0, Vector)
-        theta0 = Matrix(Transpose(theta0))
-    end
+#     if isa(theta0, Vector)
+#         theta0 = Matrix(Transpose(theta0))
+#     end
 
-    if isnothing(theta_names)
-        nparams = size(theta0, 2)
-        theta_names = ["θ_" * string(i) for i=1:nparams]
-    end
+#     if isnothing(theta_names)
+#         nparams = size(theta0, 2)
+#         theta_names = ["θ_" * string(i) for i=1:nparams]
+#     end
 
-    return GMMProblem(data, cache, W, theta0, weights, theta_names) 
-end
+#     return GMMProblem(data, cache, W, theta0, weights, theta_names) 
+# end
 
-function Base.show(io::IO, prob::GMMProblem)
-    println("GMM Problem, fields:")
-    println("- data")
-    !isnothing(prob.cache) && println("- cache")
-    println("- W = weighting matrix for GMM")
-    !isnothing(prob.theta_names) && println("- theta_names ", prob.theta_names)
-    println("- theta0 = initial conditions ", prob.theta0)
-    println("- weights = observation weights ")
-end
+# function Base.show(io::IO, prob::GMMProblem)
+#     println("GMM Problem, fields:")
+#     println("- data")
+#     !isnothing(prob.cache) && println("- cache")
+#     println("- W = weighting matrix for GMM")
+#     !isnothing(prob.theta_names) && println("- theta_names ", prob.theta_names)
+#     println("- theta0 = initial conditions ", prob.theta0)
+#     println("- weights = observation weights ")
+# end
 
-Base.@kwdef mutable struct GMMResult
+Base.@kwdef mutable struct GMMFit
     theta0::Vector
     theta_hat::Vector
-    theta_names::Vector{String}
+    theta_names::Union{Vector{String}, Nothing}
+
+    # estimation parameters
+    mode::Symbol = :unassigned # onestep, twostep, etc.
+    weights=nothing
+    W=I
+    N = -1 # number of observations
+    
+    fit_step1=nothing
+
+    # optimization results
     obj_value::Number
     converged::Bool
     iterations::Integer
     iteration_limit_reached::Bool
     time_it_took::Float64
-    all_results = nothing # TODO: switch to PrettyTables.jl and OrderedDict
+
+    # results from multiple initial conditions (DataFrame)
+    all_model_fits = nothing # TODO: switch to PrettyTables.jl and OrderedDict
     idx = nothing # aware of which iteration number this is
 
-    N = -1 # number of observations
-
+    # variance covariance matrix
     vcov = nothing
 end
 
-function table(r::GMMResult)
+function table(r::GMMFit)
 
-    if !isnothing(r.all_results)
-        return r.all_results
+    if !isnothing(r.all_model_fits)
+        return r.all_model_fits
     end
 
-    all_results = DataFrame(
+    all_model_fits = DataFrame(
         "idx" => [isnothing(r.idx) ? 1 : r.idx],
         "obj_value" => [r.obj_value],
         "converged" => [r.converged],
@@ -81,19 +92,23 @@ function table(r::GMMResult)
     
     # estimated parameters
     nparams = length(r.theta_hat)
-    all_results[!, "theta_hat"] = [r.theta_hat]
+    all_model_fits[!, "theta_hat"] = [r.theta_hat]
 
     # initial conditions
-    all_results[!, "theta0"] = [r.theta0]
+    all_model_fits[!, "theta0"] = [r.theta0]
 
-    return all_results
+    return all_model_fits
 end
 
-function Base.show(io::IO, r::GMMResult)
-    println("θ hat    = ", r.theta_hat)
-    println("Converged? ", r.converged)
-    println("Obj value  ", r.obj_value)
-    display(r.all_results)
+function Base.show(io::IO, r::GMMFit)
+    println("GMMResult object with fields: thata0, W, weights, N, all_model_fits, vcov, fit_step1, etc.")
+    println("  theta_names:", r.theta_names)
+    println("  thata_hat:  ", r.theta_hat)
+    println("Optimization results:")
+    println("  converged:  ", r.converged)
+    println("  obj_value:  ", r.obj_value)
+    println("  iterations:  ", r.iterations)
+    println("  iteration_limit_reached:  ", r.iteration_limit_reached)
 end
 
 
@@ -134,23 +149,25 @@ function random_theta0(theta0::Vector, nic::Int; theta_lower=nothing, theta_uppe
 end
 
 
-function process_results(est_results::Vector{GMMResult})
-    obj_values = [er.obj_value for er = est_results]
+"""
+Select best results from multiple initial conditions
+"""
+function process_model_fits(model_fits::Vector{GMMFit})
+    obj_values = [er.obj_value for er = model_fits]
     idx = argmin(obj_values)
 
-    best_result = est_results[idx]
+    best_model_fit = model_fits[idx]
 
-    best_result.all_results = vcat([table(er) for er = est_results]...)
-    best_result.all_results[!, :is_optimum] = ((1:length(est_results)) .== idx) .+ 0
+    best_model_fit.all_model_fits = vcat([table(er) for er = model_fits]...)
+    best_model_fit.all_model_fits[!, :is_optimum] = ((1:length(model_fits)) .== idx) .+ 0
     
-    # sort!(best_result.all_results, :obj_value)
-
-    return best_result
+    return best_model_fit
 end
 
 
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
+    theta_names::Union{Vector{String}, Nothing} = nothing
     optim_autodiff::Symbol = :none
     optim_algo = LBFGS()
     optim_opts = nothing
@@ -169,9 +186,10 @@ end
 
 function default_gmm_opts(;
     path = "",
-    optim_opts=default_optim_opts(),
-    optim_autodiff=:none,
-    optim_algo=LBFGS(),
+    theta_names = nothing,
+    optim_opts = default_optim_opts(),
+    optim_autodiff = :none,
+    optim_algo = LBFGS(),
     write_iter = false,    # write to file each result (each initial run)
     clean_iter = false,    # 
     overwrite = false,
@@ -179,6 +197,7 @@ function default_gmm_opts(;
 
     return GMMOptions(
         path=path,
+        theta_names=theta_names,
         optim_autodiff=optim_autodiff,
         optim_algo=optim_algo,
         optim_opts=optim_opts,
@@ -191,7 +210,7 @@ end
 # extent the "copy" method to the GMMOptions type
 Base.copy(x::GMMOptions) = GMMOptions([getfield(x, k) for k ∈ fieldnames(GMMOptions)]...)
 
-function write(est_result::GMMResult, opts::GMMOptions, filename; subpath="")
+function write(est_result::GMMFit, opts::GMMOptions, filename; subpath="")
     
     if opts.path == ""
         return
@@ -213,7 +232,7 @@ function parse_vector(s::AbstractString)
     return parse.(Float64, split(s[2:(end-1)],","))
 end
 
-function load(prob::GMMProblem, opts::GMMOptions; filepath="")
+function load_from_file(opts::GMMOptions; filepath="")
 
     if filepath == ""
         full_path = opts.path * "results.csv"
@@ -225,10 +244,10 @@ function load(prob::GMMProblem, opts::GMMOptions; filepath="")
         df = CSV.read(full_path, DataFrame)
 
         if nrow(df) == 1
-            return GMMResult(
+            return GMMFit(
                 theta0=parse_vector(df[1, :theta0]),
                 theta_hat=parse_vector(df[1, :theta_hat]),
-                theta_names=prob.theta_names,
+                theta_names=opts.theta_names,
                 converged=df[1, :converged],
                 obj_value=df[1, :obj_value],
                 iterations=df[1, :iterations],
@@ -241,17 +260,17 @@ function load(prob::GMMProblem, opts::GMMOptions; filepath="")
                 mysample = df.is_optimum .== 1
                 df_optimum = df[mysample, :]
 
-            return GMMResult(
+            return GMMFit(
                 theta0=parse_vector(df_optimum[1, :theta0]),
                 theta_hat=parse_vector(df_optimum[1, :theta_hat]),
-                theta_names=prob.theta_names,
+                theta_names=opts.theta_names,
                 converged=df_optimum[1, :converged],
                 obj_value=df_optimum[1, :obj_value],
                 iterations=df_optimum[1, :iterations],
                 iteration_limit_reached=df_optimum[1, :iteration_limit_reached],
                 time_it_took=df_optimum[1, :time_it_took],
                 idx=df_optimum[1, :idx],
-                all_results=df)
+                all_model_fits=df)
 
             # @error "load large DF not yet supported"
         end
@@ -270,12 +289,12 @@ function clean_iter(opts)
     end
 end
 
-function add_nobs(myfit::GMMResult, problem::GMMProblem, mom_fn::Function)
+function add_nobs(myfit::GMMFit, data, mom_fn::Function, theta0)
     try
-        myfit.N = size(problem.data, 1)
+        myfit.N = size(data, 1)
     catch
-        mytheta = problem.theta0[1, :]
-        myfit.N = size(mom_fn(problem, mytheta), 1)
+        mytheta = theta0[1, :]
+        myfit.N = size(mom_fn(data, mytheta), 1)
     end
 end
 
@@ -283,45 +302,54 @@ end
 
 ###### GMM
 
-function gmm_objective(theta::Vector, problem::GMMProblem, mom_fn::Function; trace=0)
+function gmm_objective(theta::Vector, data, mom_fn::Function, W, weights; trace=0)
 
-    t1 = @elapsed m = mom_fn(problem, theta)
+    t1 = @elapsed m = mom_fn(data, theta)
 
-    @assert isa(m, Matrix) "m must be a Matrix (rows = observations, columns = moments)"
+    @assert isa(m, Matrix) "m(data, theta) must return a Matrix (rows = observations, columns = moments)"
 
     (trace > 1) && println("Evaluation took ", t1)
     
     # average of the moments over all observations (with/without weights)
-    if isnothing(problem.weights)
+    if isnothing(weights)
         mmean = mean(m, dims=1)
     else
-        mmean = (problem.weights' * m) ./ sum(problem.weights)
+        mmean = (weights' * m) ./ sum(weights)
     end
 
     # objective
-    return (mmean * problem.W * Transpose(mmean))[1]
+    return (mmean * W * Transpose(mmean))[1]
 end
 
 """
 """
 function fit(
-    problem::GMMProblem, 
-    mom_fn::Function;
+    data, 
+    mom_fn::Function,
+    theta0;
+    W=I,    
+    weights=nothing,
     mode=:onestep,
     run_parallel=true, 
     opts=default_gmm_opts())
 
     if mode == :onestep
         return fit_onestep(
-                problem,
+                data, 
                 mom_fn,
+                theta0;
+                W=W,    
+                weights=weights,
                 run_parallel=run_parallel,
                 opts=opts)
     else
         @assert mode == :twostep "mode must be :onestep or :twostep"
         return fit_twostep(
-                problem,
+                data, 
                 mom_fn,
+                theta0;
+                W=W,    
+                weights=weights,
                 run_parallel=run_parallel,
                 opts=opts)
     end
@@ -331,8 +359,11 @@ end
 Two-step GMM estimation (one or multiple initial conditions)
 """
 function fit_twostep(
-    problem::GMMProblem, 
-    mom_fn::Function;
+    data, 
+    mom_fn::Function,
+    theta0;
+    W=I,    
+    weights=nothing,
     run_parallel=true, 
     opts=default_gmm_opts())
 
@@ -345,19 +376,21 @@ function fit_twostep(
     isdir(opts.path) || mkdir(opts.path)
 
     fit_step1 = fit_onestep(
-        problem,
+        data, 
         mom_fn,
+        theta0;
+        W=W,    
+        weights=weights,
         run_parallel=run_parallel,
         opts=opts)
 
     ### optimal weight matrix
-    m = mom_fn(problem, fit_step1.theta_hat)
+    m = mom_fn(data, fit_step1.theta_hat)
     nmomsize = size(m, 1)
     # (opts.trace > 0) && println("number of observations: ", nmomsize)
 
     Wstep2 = Hermitian(transpose(m) * m / nmomsize)
     Wstep2 = inv(Wstep2)
-    problem.W = Wstep2
 
     # Save Wstep2 to file
     writedlm( opts.path * "Wstep2.csv",  Wstep2, ',')
@@ -368,10 +401,15 @@ function fit_twostep(
     isdir(opts.path) || mkdir(opts.path)
 
     fit_step2 = fit_onestep(
-        problem,
+        data, 
         mom_fn,
+        theta0;
+        W=Wstep2,    
+        weights=weights,
         run_parallel=run_parallel,
         opts=opts)
+
+    fit_step2.fit_step1 = fit_step1
 
     # revert
     opts.path = main_path
@@ -384,19 +422,27 @@ end
 overall: one or multiple initial conditions
 """
 function fit_onestep(
-    problem::GMMProblem, 
-    mom_fn::Function;
+    data, 
+    mom_fn::Function,
+    theta0;
+    W=I,    
+    weights=nothing,
     run_parallel=true, 
     opts=default_gmm_opts())
+
+    # number of initial conditions (and always format as matrix, rows=iterations, columns=paramters)
+    nic = size(theta0, 1)
+    # number of parameters
+    nparam = size(theta0, 2)
 
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = load(problem, opts)
+        opt_results_from_file = load_from_file(opts, nparam=nparam)
         
         if !isnothing(opt_results_from_file)
             println(" Results file already exists. Reading from file.")
-            add_nobs(opt_results_from_file, problem, mom_fn)
+            add_nobs(opt_results_from_file, data, mom_fn, theta0)
 
             # delete all intermediate files with individual iteration results
             opts.clean_iter && clean_iter(opts)
@@ -404,34 +450,39 @@ function fit_onestep(
             return opt_results_from_file
         end
     end
-
-    # number of initial conditions (and always format as matrix, rows=iterations, columns=paramters)
-    nic = size(problem.theta0, 1)
         
     if (nic == 1) || !run_parallel
-        several_est_results = Vector{GMMResult}(undef, nic)
+        all_model_fits = Vector{GMMFit}(undef, nic)
         for i=1:nic
-            several_est_results[i] = fit_onerun(i, problem, mom_fn, opts)
+            all_model_fits[i] = fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts)
         end
     else
-        several_est_results = pmap( i -> fit_onerun(i, problem, mom_fn, opts), 1:nic)
+        all_model_fits = pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts), 1:nic)
     end
     
-    best_result = process_results(several_est_results)
-    add_nobs(best_result, problem, mom_fn)
+    best_model_fit = process_model_fits(all_model_fits)
+    add_nobs(best_model_fit, data, mom_fn, theta0)
 
     # save results to file?
-    (opts.path != "") && write(best_result, opts, "results.csv")
+    (opts.path != "") && write(best_model_fit, opts, "results.csv")
 
     # delete all intermediate files with individual iteration results
     opts.clean_iter && clean_iter(opts)
 
-    return best_result
+    return best_model_fit
 end
+
 """
 fit function with one initial condition
 """
-function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMMOptions)
+function fit_onerun(
+            idx::Int64, 
+            data, 
+            mom_fn::Function,
+            theta0;
+            W=I,    
+            weights=nothing, 
+            opts::GMMOptions)
 
     # default optimizer options (if missing)
     isnothing(opts.optim_opts) && (opts.optim_opts = default_optim_opts())
@@ -441,7 +492,7 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = load(problem, opts, filepath="__iter__/results_" * string(idx) * ".csv")
+        opt_results_from_file = load_from_file(opts, filepath="__iter__/results_" * string(idx) * ".csv")
         
         if !isnothing(opt_results_from_file)
             (opts.trace > 0) && println(" Reading from file.")
@@ -449,11 +500,8 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
         end
     end
 
-    # single vector of initial conditions
-    theta0 = problem.theta0[idx, :]
-
     # load the data
-    gmm_objective_loaded = theta -> gmm_objective(theta, problem, mom_fn, trace=opts.trace)
+    gmm_objective_loaded = theta -> gmm_objective(theta, data, mom_fn, W, weights, trace=opts.trace)
 
     # optimize
     if opts.optim_autodiff == :forward
@@ -485,10 +533,12 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
     converged(res)
     =#
     
-    opt_results = GMMResult(
+    model_fit = GMMFit(
         converged = Optim.converged(raw_opt_results),
         theta_hat = Optim.minimizer(raw_opt_results),
-        theta_names = problem.theta_names,
+        theta_names = opts.theta_names,
+        weights=weights,
+        W=W,
         obj_value = Optim.minimum(raw_opt_results),
         iterations = Optim.iterations(raw_opt_results),
         iteration_limit_reached = Optim.iteration_limit_reached(raw_opt_results),
@@ -500,12 +550,12 @@ function fit_onerun(idx::Int64, problem::GMMProblem, mom_fn::Function, opts::GMM
     # write intermediate results to file
     if opts.write_iter 
         (opts.trace > 0) && println(" Done and done writing to file.")
-        write(opt_results, opts, "results_" * string(idx) * ".csv", subpath="__iter__")
+        write(model_fit, opts, "results_" * string(idx) * ".csv", subpath="__iter__")
     else
         (opts.trace > 0) && println(" Done. ")
     end
 
-    return opt_results
+    return model_fit
 end
 
 

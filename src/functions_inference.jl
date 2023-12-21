@@ -1,18 +1,9 @@
-#= 
-TODOS:
-1. add try ... catch blocks
-1. add optimizer options / variants. Where to save the optimizer-specific options? kwargs.
-1. save bootstrap weights?
-1. add parameter names in the problem object
-1. switch to PrettyTables.jl (cf Peter's suggestion)
-=#
-
 
 ### Asymptotic variance-covariance matrix
 
-function jacobian(problem::GMMProblem, mom_fn::Function, myfit::GMMResult)
+function jacobian(data, mom_fn::Function, myfit::GMMFit)
     
-    moment_loaded = theta -> mean(mom_fn(problem, theta), dims=1)
+    moment_loaded = theta -> mean(mom_fn(data, theta), dims=1)
 
     try
         # try automatic differentiation
@@ -25,20 +16,18 @@ function jacobian(problem::GMMProblem, mom_fn::Function, myfit::GMMResult)
 
 end
 
-function vcov_simple(problem::GMMProblem, mom_fn::Function, myfit::GMMResult)
+function vcov_simple(data, mom_fn::Function, myfit::GMMFit)
     
     # jacobian
-    J = jacobian(problem, mom_fn, myfit)
-    # display(J)
-
-    # weight matrix
-    W = problem.W
-    # display(W)
-
+    J = jacobian(data, mom_fn, myfit)
+   
+    # weighting matrix
+    W = myfit.W
+    
     # simple, general: (JWJ')⁻¹ * JWΣW'J * (JWJ')⁻¹
 
     # estimate Σ
-    m = mom_fn(problem, myfit.theta_hat)
+    m = mom_fn(data, myfit.theta_hat)
     N = size(m, 1)
     Σ = Transpose(m) * m / N
     # display(Σ)
@@ -65,126 +54,188 @@ end
 struct bayesian_bootstrap <: CovarianceEstimator
 end
 
-Base.@kwdef mutable struct GMMBootResults
+Base.@kwdef mutable struct GMMBootFits
     all_theta_hat  # nboot x nparams matrix with result for each bootstrap run
-    all_results    # df with results (one per bootstrap run)
-    all_results_allbootruns # df with all iterations for all bootstrap runs
+    all_model_fits # df with results (one per bootstrap run)
+    all_boot_fits  # df with all iterations for all bootstrap runs
 end
 
-function Base.show(io::IO, r::GMMBootResults)
+function Base.show(io::IO, r::GMMBootFits)
     println("Baysian bootstrap results")
-    display(r.all_results)
-    display(r.all_results_allbootruns)
+    display(r.all_model_fits)
+    display(r.all_boot_fits)
 end
 
-function write(boot_results::GMMBootResults, opts::GMMOptions)
+function write(boot_fits::GMMBootFits, opts::GMMOptions)
     if opts.path == ""
         return
     end
 
     # temp_df = DataFrame(boot_results.table, :auto)
 
-    CSV.write(opts.path * "results_boot.csv", boot_results.all_results)
-    CSV.write(opts.path * "results_boot_all.csv", boot_results.all_results_allbootruns)
+    CSV.write(opts.path * "fits_boot.csv", boot_fits.all_model_fits)
+    CSV.write(opts.path * "fits_boot_all.csv", boot_fits.all_boot_fits)
 end
 
-function process_boot_results(lb::Vector{GMMResult})
+function process_boot_fits(lb::Vector{GMMFit})
 
-    boot_results_allruns = []
+    all_boot_fits = []
     nboot = length(lb)
     for i=1:nboot
-        temp_df = copy(lb[i].all_results)
+        temp_df = copy(lb[i].all_fits)
         temp_df[!, :boot_idx] .= i
-        push!(boot_results_allruns, temp_df)
+        push!(all_boot_fits, temp_df)
     end
-    boot_results_allruns = vcat(boot_results_allruns...)
-    
-    # vcat([b.all_results for b=lb]...)
+    all_boot_fits = vcat(all_boot_fits...)
 
-    mysample = boot_results_allruns.is_optimum .== 1
-    boot_results = copy(boot_results_allruns[mysample, :])
+    mysample = all_boot_fits.is_optimum .== 1
+    all_fits = copy(all_boot_fits[mysample, :])
 
     nparams = length(lb[1].theta_hat)
     # nboot = length(lb)
 
-    res_table = Matrix{Float64}(undef, nboot, nparams)
+    fit_table = Matrix{Float64}(undef, nboot, nparams)
     for i=1:nboot
-        res_table[i, :] = lb[i].theta_hat
-        # lb[i].all_results[!, :boot_idx] .= i
+        fit_table[i, :] = lb[i].theta_hat
     end
 
-    return GMMBootResults(
-        all_theta_hat = res_table,
-        all_results = boot_results,
-        all_results_allbootruns = boot_results_allruns
+    return GMMBootFits(
+        all_theta_hat = fit_table,
+        all_fits = all_fits,
+        all_boot_fits = all_boot_fits
     )
 end
 
 
-function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult; 
-    boot_fn::Union{Function, Nothing}=nothing, 
+function gen_boot_rngs(boot_n_runs, rng_initial_seed)
+  
+    # Random number generators (being extra careful) one per bootstrap run
+    master_rng = MersenneTwister(rng_initial_seed)
+    boot_rngs = Vector{Any}(undef, boot_n_runs)
+
+    # each bootstrap run gets a different random seed
+    # as we run the bootrap in separate rounds, large initial skip
+    # boostrap_skip = (boot_round-1)*boot_n_runs + i
+    for i=1:boot_n_runs
+        println("creating random number generator for boot run ", i)
+        boot_rngs[i] = randjump(master_rng, big(10)^20 * i)
+    end
+
+    return boot_rngs
+end
+
+"""
+I.i.d observations. Draw independent weights from a Dirichlet distribution with parameter 1.0. Assuming `data` is a DataFrame.
+"""
+function boot_weights_simple(rng, data)
+    @assert isa(data, DataFrame) "`data` must be a DataFrame"
+    return rand(rng, Dirichlet(nrow(data), 1.0))
+end
+
+function boot_weights_cluster(rng, idx_cluster_crosswalk, n_clusters)
+    cluster_level_weights = rand(rng, Dirichlet(n_clusters, 1.0))
+
+    # one step "join" to get the weight for the appropriate cluster
+    return cluster_level_weights[idx_cluster_crosswalk]
+end
+
+
+function vcov_bboot(
+    data, 
+    mom_fn::Function, 
+    theta0, 
+    myfit::GMMFit; 
+    W=I, 
+    boot_weights::Union{Function, Symbol}=:simple,
     nboot=100, 
+    rng_initial_seed=1234,
     cluster_var=nothing, 
     run_parallel=true,
     opts::GMMOptions=default_gmm_opts())
 
     # create path for saving results
     if (opts.path != "") && (opts.path != "")
-        bootpath = opts.path * "__boot__"
+        (opts.trace > 0) && println("creating path for saving results")
+        bootpath = opts.path * "__boot__/"
         isdir(bootpath) || mkdir(bootpath)
     end
 
-    # init weights
-    problem.weights = zeros(nrow(problem.data))
+    # pre-generate random numbers for parallel bootstrap runs
+    (opts.trace > 0) && println("creating random number generators for each bootstrap run (using randjump)")
+    boot_rngs = gen_boot_rngs(nboot, rng_initial_seed)
 
-    # for clustering
-    if !isnothing(cluster_var)
-        cluster_values = unique(problem.data[:, cluster_var])
+    # generate bayesian bootstrap weight vectors (one per bootstrap run)
+    if boot_weights == :simple
+        boot_weights_fn = boot_weights_simple
+
+    elseif boot_weights == :cluster
+        # prep cluster
+
+        @assert !isnothing(cluster_var) "cluster_var must be specified if boot_weights=:cluster"
+
+        cluster_values = unique(data[:, cluster_var])
 
         ### ___idx_cluster___ has the index in the cluster_values vector of this row's value        
-            # drop column if already in the df
-            ("___idx_cluster___" in names(problem.data)) && select!(problem.data, Not("___idx_cluster___"))
+        # join to original data (must be a DataFrame)
+        temp_df = DataFrame(string(cluster_var) => cluster_values, "___idx_cluster___" => 1:length(cluster_values))
+        crosswalk_df = leftjoin(data[:,[cluster_var]], temp_df, on=cluster_var)
 
-            # join
-            temp_df = DataFrame(string(cluster_var) => cluster_values, "___idx_cluster___" => 1:length(cluster_values))
-            leftjoin!(problem.data, temp_df, on=cluster_var)
+        # draw random weights for each cluster and fill in a vector as large as the original data
+        boot_weights_fn = (rng, data) -> boot_weights_cluster(rng, crosswalk_df.___idx_cluster___, length(cluster_values))
     else
-        cluster_values=nothing
+        @assert isa(boot_weights, Function) "boot_weights must be :simple, :cluster, or a function(rng, data)"
+        boot_weights_fn = boot_weights
     end
 
-    # bootstrap moment function (zero at theta_hat)
-    m = mom_fn(problem, myfit.theta_hat)
-    mom_fn_boot = (problem, theta) -> mom_fn(problem, theta) .- mean(m, dims=1)
-    # mom_fn_boot = mom_fn
+    all_boot_weights = []
+    for i=1:nboot
+        (opts.trace > 0) && println("generating bootstrap weights for run ", i)
+
+        # the output is a vector of weights same size as the number of rows from the moment
+        boot_weights = boot_weights_fn(boot_rngs[i], data)
+
+        # normalizing weights is important for numerical precision
+        boot_weights ./= mean(boot_weights)
+
+        push!(all_boot_weights, boot_weights)
+    end
+
+    ### bootstrap moment function 
+    # need recenter so that it equal zero at theta_hat
+    # see Hall and Horowitz (1996) for details
+    m = mom_fn(data, myfit.theta_hat)
+    mom_fn_boot = (data, theta) -> mom_fn(data, theta) .- mean(m, dims=1)
 
     # run bootstrap (serial or parallel)
     if !run_parallel
-        list_of_boot_results = Vector{GMMResult}(undef, nboot)
+        all_boot_fits = Vector{GMMFit}(undef, nboot)
         for i=1:nboot
-            list_of_boot_results[i] = bboot(
+            all_boot_fits[i] = bboot(
                 i, 
-                problem, 
+                data, 
                 mom_fn_boot, # using the boot mom function (zero at theta_hat)
-                opts, 
-                boot_fn=boot_fn, 
-                cluster_var=cluster_var)
+                theta0,
+                all_boot_weights[i],
+                W=W,
+                opts=opts)
         end
     else
-        list_of_boot_results = pmap( 
+        all_boot_fits = pmap( 
             i -> bboot(i, 
-                    problem, 
+                    data, 
                     mom_fn_boot, # using the boot mom function (zero at theta_hat)
-                    opts, 
-                    boot_fn=boot_fn,
-                    cluster_var=cluster_var, 
-                    cluster_values=cluster_values), 
+                    theta0,
+                    all_boot_weights[i],
+                    W=W,
+                    opts=opts), 
             1:nboot)
     end
 
-    boot_results = process_boot_results(list_of_boot_results)
+    # collect and process all bootstrap results
+    boot_fits = process_boot_fits(all_boot_fits)
 
     # save results to file?
-    (opts.path != "") && write(boot_results, opts)
+    (opts.path != "") && write(boot_fits, opts)
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
@@ -196,47 +247,29 @@ function vcov_bboot(problem::GMMProblem, mom_fn::Function, myfit::GMMResult;
     # store results
     myfit.vcov = Dict(
         :method => bayesian_bootstrap(),
-        :boot_results => boot_results,
-        :V => cov(boot_results.all_theta_hat),
+        :boot_fits => boot_fits,
+        :V => cov(boot_fits.all_theta_hat),
         :N => size(m, 1) # TODO : should really move this up to main fit object
     )
 
-    return boot_results
+    return boot_fits
 end
 
 function bboot(
     idx::Int64, 
-    problem::GMMProblem, 
+    data, 
     mom_fn::Function,
-    opts::GMMOptions; 
-    boot_fn::Union{Function, Nothing}=nothing,
-    cluster_var=nothing, 
-    cluster_values)
+    theta0,
+    boot_weights; # ? where do we want this?
+    W=I,
+    opts::GMMOptions)
 
     (opts.trace > 0) && println("bootstrap run ", idx)
-
-    # TODO: document this feature + example (e.g. create large cache object to speed up calc)
-    # sometimes, we need a bit of setup (e.g. create cache objects)
-    if !isnothing(boot_fn)
-        boot_fn(problem, mom_fn)
-    end
-    
-    if isnothing(cluster_var)
-        problem.weights = rand(Dirichlet(nrow(problem.data), 1.0))
-    else
-        cluster_level_weights = rand(Dirichlet(length(cluster_values), 1.0))
-
-        # one step "join" to get the weight for the appropriate cluster
-        problem.weights .= cluster_level_weights[problem.data.___idx_cluster___]
-    end
-
-    # normalizing weights is important for numerical precision
-    problem.weights = problem.weights ./ mean(problem.weights)
 
     # path for saving results
     new_opts = copy(opts)
     (new_opts.path != "") && (new_opts.path *= "__boot__/boot_" * string(idx) * "_")
 
-    return fit(problem, mom_fn, run_parallel=false, opts=new_opts)
+    return fit(data, mom_fn, theta0, W=W, weights=boot_weights, run_parallel=false, opts=new_opts)
 end
 
