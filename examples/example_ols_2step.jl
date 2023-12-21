@@ -80,5 +80,7 @@ myfit = fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
 # bootstrap with weightes drawn at the level of clusters defined by the variable df.cylinders
     vcov_bboot(df, ols_moments_fn, theta0, myfit, boot_weights=:cluster, cluster_var=:cylinders, nboot=500, opts=myopts)
+    myfit.vcov
+
     GMMTools.regtable(myfit)
 

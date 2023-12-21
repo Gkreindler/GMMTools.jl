@@ -2,7 +2,7 @@ module GMMTools
 
 # Write your package code here.
 using Distributed # for parallel
-using Future: randjump # will use for generating random seeds for parallel bootstrap runs
+# using Future: randjump # will use for generating random seeds for parallel bootstrap runs
 
 using DataFrames
 using LinearAlgebra

@@ -61,9 +61,13 @@ Base.@kwdef mutable struct GMMBootFits
 end
 
 function Base.show(io::IO, r::GMMBootFits)
-    println("Baysian bootstrap results")
-    display(r.all_model_fits)
-    display(r.all_boot_fits)
+    println("Baysian bootstrap results struct with the following fields:")
+    for f in fieldnames(GMMBootFits)
+        # println("  ", f, ": ", getfield(r, ))
+        println("...field ", f, " is a ", typeof(getfield(r, f)))
+    end
+    # display(r.all_model_fits)
+    # display(r.all_boot_fits)
 end
 
 function write(boot_fits::GMMBootFits, opts::GMMOptions)

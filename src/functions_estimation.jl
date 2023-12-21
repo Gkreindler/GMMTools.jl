@@ -281,9 +281,9 @@ end
 
 function clean_iter(opts)
     try
-        print("Deleting intermediate files from: ", opts.path)
+        (opts.trace > 0) && print("Deleting intermediate files from: ", opts.path)
         rm(opts.path * "__iter__/", force=true, recursive=true)
-        println(" Done.")
+        (opts.trace > 0) && println(" Done.")
     catch e
         println(" Error while deleting intermediate files from : ", opts.path, ". Error: ", e)
     end
