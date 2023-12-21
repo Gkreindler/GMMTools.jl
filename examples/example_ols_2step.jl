@@ -73,31 +73,12 @@ myfit = fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
-    vcov_bboot(df, ols_moments_fn, theta0, myfit, nboot=500)
-    GMMTools.regtable(myfit) # print table with new bootstrap SEs
+    myopts.trace = 0
+    vcov_bboot(df, ols_moments_fn, theta0, myfit, nboot=500, opts=myopts)
+    GMMTools.regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
 
-
-fsdfds
 
 # bootstrap with weightes drawn at the level of clusters defined by the variable df.cylinders
-    vcov_bboot(myprob, ols_moments, myfit, cluster_var=:cylinders, nboot=500)
+    vcov_bboot(df, ols_moments_fn, theta0, myfit, boot_weights=:cluster, cluster_var=:cylinders, nboot=500, opts=myopts)
     GMMTools.regtable(myfit)
 
-### Multiple initial conditions and save to file
-    theta0 = [0.3, 0.5]
-
-    theta0_matrix = random_theta0(theta0, 100) # generate 100 random initial conditions "around" theta0
-
-    myprob = create_GMMProblem(data=df, W=I, theta0=theta0_matrix)
-
-    myopts = default_gmm_opts(
-        path = "C:/git-repos/GMMTools.jl/examples/temp/", # replace with target folder on your machine
-        write_iter=true, # save results to file option
-        clean_iter=true, # save results to file option
-        overwrite=false,  # save results to file option
-        trace=1
-        )
-
-    myfit = fit(myprob, ols_moments, opts=myopts)
-    vcov_simple(myprob, ols_moments, myfit)
-    GMMTools.regtable(myfit)

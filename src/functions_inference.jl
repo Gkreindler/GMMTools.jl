@@ -82,7 +82,7 @@ function process_boot_fits(lb::Vector{GMMFit})
     all_boot_fits = []
     nboot = length(lb)
     for i=1:nboot
-        temp_df = copy(lb[i].all_fits)
+        temp_df = copy(lb[i].all_model_fits)
         temp_df[!, :boot_idx] .= i
         push!(all_boot_fits, temp_df)
     end
@@ -101,28 +101,12 @@ function process_boot_fits(lb::Vector{GMMFit})
 
     return GMMBootFits(
         all_theta_hat = fit_table,
-        all_fits = all_fits,
+        all_model_fits = all_fits,
         all_boot_fits = all_boot_fits
     )
 end
 
 
-function gen_boot_rngs(boot_n_runs, rng_initial_seed)
-  
-    # Random number generators (being extra careful) one per bootstrap run
-    master_rng = MersenneTwister(rng_initial_seed)
-    boot_rngs = Vector{Any}(undef, boot_n_runs)
-
-    # each bootstrap run gets a different random seed
-    # as we run the bootrap in separate rounds, large initial skip
-    # boostrap_skip = (boot_round-1)*boot_n_runs + i
-    for i=1:boot_n_runs
-        println("creating random number generator for boot run ", i)
-        boot_rngs[i] = randjump(master_rng, big(10)^20 * i)
-    end
-
-    return boot_rngs
-end
 
 """
 I.i.d observations. Draw independent weights from a Dirichlet distribution with parameter 1.0. Assuming `data` is a DataFrame.
@@ -153,6 +137,10 @@ function vcov_bboot(
     run_parallel=true,
     opts::GMMOptions=default_gmm_opts())
 
+    if !isnothing(cluster_var) && (boot_weights != :cluster)
+        @error "cluster_var is specified but boot_weights is not :cluster. Proceeding without clustering."
+    end
+
     # create path for saving results
     if (opts.path != "") && (opts.path != "")
         (opts.trace > 0) && println("creating path for saving results")
@@ -160,9 +148,8 @@ function vcov_bboot(
         isdir(bootpath) || mkdir(bootpath)
     end
 
-    # pre-generate random numbers for parallel bootstrap runs
-    (opts.trace > 0) && println("creating random number generators for each bootstrap run (using randjump)")
-    boot_rngs = gen_boot_rngs(nboot, rng_initial_seed)
+    # random number generator
+    main_rng = MersenneTwister(rng_initial_seed)
 
     # generate bayesian bootstrap weight vectors (one per bootstrap run)
     if boot_weights == :simple
@@ -192,7 +179,7 @@ function vcov_bboot(
         (opts.trace > 0) && println("generating bootstrap weights for run ", i)
 
         # the output is a vector of weights same size as the number of rows from the moment
-        boot_weights = boot_weights_fn(boot_rngs[i], data)
+        boot_weights = boot_weights_fn(main_rng, data)
 
         # normalizing weights is important for numerical precision
         boot_weights ./= mean(boot_weights)
