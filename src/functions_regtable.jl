@@ -1,5 +1,5 @@
 
-Base.@kwdef struct GMMResultTable <: RegressionModel
+Base.@kwdef struct GMMModel <: RegressionModel
     coef::Vector{Float64}   # Vector of coefficients
     vcov::Matrix{Float64}   # Covariance matrix
     vcov_type::CovarianceEstimator
@@ -38,24 +38,29 @@ Base.@kwdef struct GMMResultTable <: RegressionModel
 end
 
 
-has_iv(m::GMMResultTable) = m.F_kp !== nothing
-has_fe(m::GMMResultTable) = false
+has_iv(m::GMMModel) = m.F_kp !== nothing
+has_fe(m::GMMModel) = false
 
-StatsAPI.coef(m::GMMResultTable) = m.coef
-StatsAPI.coefnames(m::GMMResultTable) = m.coefnames
-StatsAPI.responsename(m::GMMResultTable) = m.responsename
-StatsAPI.vcov(m::GMMResultTable) = m.vcov
-StatsAPI.nobs(m::GMMResultTable) = m.nobs
-StatsAPI.dof(m::GMMResultTable) = m.dof
-StatsAPI.dof_residual(m::GMMResultTable) = m.dof_residual
-StatsAPI.r2(m::GMMResultTable) = r2(m, :devianceratio)
-StatsAPI.islinear(m::GMMResultTable) = true
-StatsAPI.deviance(m::GMMResultTable) = rss(m)
-StatsAPI.nulldeviance(m::GMMResultTable) = m.tss
-StatsAPI.rss(m::GMMResultTable) = m.rss
-StatsAPI.mss(m::GMMResultTable) = nulldeviance(m) - rss(m)
+# RegressionTables.get_coefname(x::Tuple{Vararg{Term}}) = RegressionTables.get_coefname.(x)
+# RegressionTables.replace_name(x::Tuple{Vararg{Any}}, a::Dict{String, String}, b::Dict{String, String}) = [RegressionTables.replace_name(x[i], a, b) for i=1:length(x)]
+
+RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
+
+StatsAPI.coef(m::GMMModel) = m.coef
+StatsAPI.coefnames(m::GMMModel) = m.coefnames
+StatsAPI.responsename(m::GMMModel) = m.responsename
+StatsAPI.vcov(m::GMMModel) = m.vcov
+StatsAPI.nobs(m::GMMModel) = m.nobs
+StatsAPI.dof(m::GMMModel) = m.dof
+StatsAPI.dof_residual(m::GMMModel) = m.dof_residual
+StatsAPI.r2(m::GMMModel) = r2(m, :devianceratio)
+StatsAPI.islinear(m::GMMModel) = true
+StatsAPI.deviance(m::GMMModel) = rss(m)
+StatsAPI.nulldeviance(m::GMMModel) = m.tss
+StatsAPI.rss(m::GMMModel) = m.rss
+StatsAPI.mss(m::GMMModel) = nulldeviance(m) - rss(m)
 # StatsModels.formula(m::GMMResultTable) = m.formula_schema
-dof_fes(m::GMMResultTable) = m.dof_fes
+dof_fes(m::GMMModel) = m.dof_fes
 
 function vcov(r::GMMFit)
     if isnothing(r.vcov)
@@ -74,7 +79,7 @@ function vcov_method(r::GMMFit)
     end
 end
 
-function GMMResultTable(r::GMMFit)
+function GMMModel(r::GMMFit)
     
     nobs = r.N
 
@@ -87,7 +92,7 @@ function GMMResultTable(r::GMMFit)
         r.theta_names = ["theta_$i" for i=1:length(r.theta_hat)]
     end
 
-    GMMResultTable(
+    GMMModel(
         coef = r.theta_hat,
         vcov = vcov(r),
         vcov_type=vcov_method(r),
@@ -95,7 +100,7 @@ function GMMResultTable(r::GMMFit)
         fe=DataFrame(),
         fekeys=[],
         coefnames=r.theta_names,
-        responsename="",
+        responsename="a",
         # formula::FormulaTerm        # Original formula
         # formula_schema::FormulaTerm # Schema for predict
         contrasts=Dict(),
@@ -113,10 +118,10 @@ end
 
 # TODO: integrate better with RegressionModels, allow mixed inputs etc. Should be easy.
 function regtable(r::GMMFit)
-    RegressionTables.regtable(GMMResultTable(r);  
-        labels = Dict("__LABEL_ESTIMATOR_OLS__" => "GMM"), 
-        renderSettings = asciiOutput())
+    RegressionTables.regtable(GMMModel(r), render = AsciiTable())
 end
+
+        # labels = Dict("__LABEL_ESTIMATOR_OLS__" => "GMM"), 
 
 
 ### Table

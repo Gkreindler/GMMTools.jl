@@ -57,16 +57,36 @@ myopts = GMMTools.GMMOptions(
                 trace=1)
 
 # estimate model
-myfit = fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(df, ols_moments_fn, myfit)
 
 # print table with results
+
+    # temp = GMMTools.GMMModel(myfit)
+    # dfsdfsdf
+    # RegressionTables.get_coefname()
+    # # formula_schema
+    # formula(temp)
+
+    temp = GMMTools.GMMModel(myfit)
+    formula(temp)
+    display(temp)
+
+    dsfd
+    # RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
+
     GMMTools.regtable(myfit)
 
+fsdfds
+    f1 = term("mpg") ~ term("acceleration") + term("acceleration2")
+    get_coefname(f1.rhs)
 
 
+    
+
+sdf
 
 
 
