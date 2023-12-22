@@ -31,7 +31,8 @@ using RegressionTables
 
 
 export GMMFit, table, 
-        random_theta0, default_gmm_opts, default_optim_opts,
+        random_initial_conditions,theta_add_fixed_values,
+        default_gmm_opts, default_optim_opts,
         fit, 
         vcov_simple, vcov_bboot,
         regtable
