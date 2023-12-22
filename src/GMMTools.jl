@@ -40,6 +40,7 @@ export GMMFit, table,
 include("functions_estimation.jl")
 include("functions_inference.jl")
 include("functions_regtable.jl")
+include("utilities.jl")
 
 end
 
