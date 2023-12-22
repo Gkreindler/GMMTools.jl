@@ -37,9 +37,12 @@ theta_fix is a vector with the fixed values of the parameters, and missing at th
 this function fills in the missing values with values from theta_small
 """
 function theta_add_fixed_values(theta_small, theta_fix)
-    theta = copy(theta_fix)
+    
+    # theta_small elements are sometimes Dual or other types when doing AD
+    theta = Vector{Number}(undef, length(theta_fix))
 
-    theta[ismissing.(theta)] .= theta_small
+    theta[  ismissing.(theta_fix)] .= theta_small
+    theta[.!ismissing.(theta_fix)] .= theta_fix[.!ismissing.(theta_fix)]
 
     return theta
 end
