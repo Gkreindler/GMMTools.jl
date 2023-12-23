@@ -21,7 +21,7 @@ using Optim # need for NewtonTrustRegion()
 
 # Run plain OLS for comparison
     r = reg(df, term(:mpg) ~ term(:acceleration))
-    RegressionTables.regtable(r)
+    regtable(r)
 
 # define moments for OLS regression
 # residuals orthogonal to the constant and to the variable (acceleration)
@@ -70,14 +70,14 @@ myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
     # # formula_schema
     # formula(temp)
 
-    temp = GMMTools.GMMModel(myfit)
-    formula(temp)
-    display(temp)
+    # temp = GMMTools.GMMModel(myfit)
+    # formula(temp)
+    # display(temp)
 
-    dsfd
+    # dsfd
     # RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
 
-    GMMTools.regtable(myfit)
+    regtable(myfit)
 
 fsdfds
     f1 = term("mpg") ~ term("acceleration") + term("acceleration2")

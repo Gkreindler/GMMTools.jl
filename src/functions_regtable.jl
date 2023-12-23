@@ -43,8 +43,10 @@ has_fe(m::GMMModel) = false
 
 # RegressionTables.get_coefname(x::Tuple{Vararg{Term}}) = RegressionTables.get_coefname.(x)
 # RegressionTables.replace_name(x::Tuple{Vararg{Any}}, a::Dict{String, String}, b::Dict{String, String}) = [RegressionTables.replace_name(x[i], a, b) for i=1:length(x)]
-
 # RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
+
+RegressionTables._responsename(x::GMMModel) = string(responsename(x))
+RegressionTables._coefnames(x::GMMModel) = string.(coefnames(x))
 
 StatsAPI.coef(m::GMMModel) = m.coef
 StatsAPI.coefnames(m::GMMModel) = m.coefnames
@@ -117,9 +119,7 @@ function GMMModel(r::GMMFit)
 end
 
 # TODO: integrate better with RegressionModels, allow mixed inputs etc. Should be easy.
-function regtable(r::GMMFit)
-    RegressionTables.regtable(GMMModel(r), render = AsciiTable())
-end
+RegressionTables.regtable(r::GMMFit) = RegressionTables.regtable(GMMModel(r), render = AsciiTable())
 
         # labels = Dict("__LABEL_ESTIMATOR_OLS__" => "GMM"), 
 
