@@ -86,6 +86,9 @@ Base.@kwdef mutable struct GMMOptions
     optim_autodiff::Symbol = :none
     optim_algo = LBFGS()
     optim_opts = nothing
+    optim_algo_bounds::Bool = false
+    lower_bound = nothing
+    upper_bound = nothing
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # 
     overwrite::Bool = false
@@ -418,23 +421,25 @@ function fit_onerun(
     # load the data
     gmm_objective_loaded = theta -> gmm_objective(theta, data, mom_fn, W, weights, trace=opts.trace)
 
-    # optimize
-    if opts.optim_autodiff == :forward
-        (opts.trace > 0) && print("using AD")
-        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, 
-                                                                theta0, 
-                                                                opts.optim_algo, # defalut = LBFGS()
-                                                                opts.optim_opts, 
-                                                                autodiff=:forward)
-
-        # results = optimize(f, g!, lower, upper, initial_x, Fminbox(GradientDescent()), Optim.Options(outer_iterations = 2))
-
-    else
-        time_it_took = @elapsed raw_opt_results = Optim.optimize(gmm_objective_loaded, 
-                                                                theta0, 
-                                                                opts.optim_algo, # defalut = LBFGS()
-                                                                opts.optim_opts)
+    # Optim.jl optimize
+    optim_main_args = []
+    push!(optim_main_args, gmm_objective_loaded)
+    if opts.optim_algo_bounds
+        push!(optim_main_args, opts.lower_bound)
+        push!(optim_main_args, opts.upper_bound)
     end
+    push!(optim_main_args, theta0)
+    
+    push!(optim_main_args, opts.optim_algo) # defalut = LBFGS()
+    push!(optim_main_args, opts.optim_opts)
+    if opts.optim_autodiff != :none
+        kwargs = (autodiff = :forward, )
+    else
+        kwargs = ()
+    end
+
+    time_it_took = @elapsed raw_opt_results = Optim.optimize(optim_main_args...; kwargs...)
+
     #= 
     summary(res)
     minimizer(res)
