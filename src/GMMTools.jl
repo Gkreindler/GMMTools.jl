@@ -22,6 +22,7 @@ using JSON
 using Random
 
 using Optim
+using LsqFit
 
 using FiniteDiff
 using ForwardDiff

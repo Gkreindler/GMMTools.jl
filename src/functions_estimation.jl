@@ -83,6 +83,7 @@ end
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
     theta_names::Union{Vector{String}, Nothing} = nothing
+    optimizer::Symbol = :optim # optimizer backend: :optim or :lsqfit
     optim_autodiff::Symbol = :none
     optim_algo = LBFGS()
     optim_opts = nothing
@@ -418,54 +419,120 @@ function fit_onerun(
         end
     end
 
-    # load the data
-    gmm_objective_loaded = theta -> gmm_objective(theta, data, mom_fn, W, weights, trace=opts.trace)
+    if opts.optimizer == :optim
+        
+        # load the data
+        gmm_objective_loaded = theta -> gmm_objective(theta, data, mom_fn, W, weights, trace=opts.trace)
 
-    # Optim.jl optimize
-    optim_main_args = []
-    push!(optim_main_args, gmm_objective_loaded)
-    if opts.optim_algo_bounds
-        push!(optim_main_args, opts.lower_bound)
-        push!(optim_main_args, opts.upper_bound)
-    end
-    push!(optim_main_args, theta0)
+        # Optim.jl optimize
+        optim_main_args = []
+        push!(optim_main_args, gmm_objective_loaded)
+        if opts.optim_algo_bounds
+            push!(optim_main_args, opts.lower_bound)
+            push!(optim_main_args, opts.upper_bound)
+        end
+        push!(optim_main_args, theta0)
+        
+        push!(optim_main_args, opts.optim_algo) # defalut = LBFGS()
+        push!(optim_main_args, opts.optim_opts)
+        if opts.optim_autodiff != :none
+            kwargs = (autodiff = :forward, )
+        else
+            kwargs = ()
+        end
+
+        time_it_took = @elapsed raw_opt_results = Optim.optimize(optim_main_args...; kwargs...)
+
+        #= 
+        summary(res)
+        minimizer(res)
+        minimum(res)
+        iterations(res)
+        iteration_limit_reached(res)
+        trace(res)
+        x_trace(res)
+        f_trace(res)
+        f_calls(res)
+        converged(res)
+        =#
+        
+        model_fit = GMMFit(
+            converged = Optim.converged(raw_opt_results),
+            theta_hat = Optim.minimizer(raw_opt_results),
+            theta_names = opts.theta_names,
+            weights=weights,
+            W=W,
+            obj_value = Optim.minimum(raw_opt_results),
+            iterations = Optim.iterations(raw_opt_results),
+            iteration_limit_reached = Optim.iteration_limit_reached(raw_opt_results),
+            theta0 = theta0,
+            time_it_took = time_it_took,
+            idx=idx
+        )
+    elseif opts.optimizer == :lsqfit
+        
+        # TODO: add Cholesky decomposition of W = Whalf * Whalf' 
+
+        # Objective function
+        gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1))  
+
+        # Build options programatically
+
+        m = mom_fn(data, theta0)
+        n_moms = size(m, 2)
+
+        lsqfit_main_args = []
+        push!(lsqfit_main_args, gmm_objective_loaded) # function
+        push!(lsqfit_main_args, zeros(n_moms)) # x
+        push!(lsqfit_main_args, zeros(n_moms)) # y
+        push!(lsqfit_main_args, theta0)
+
+        mynames = []
+        myvalues = []
+        if opts.optim_algo_bounds
+            push!(mynames, :lower)
+            push!(myvalues, opts.lower_bound)
+
+            push!(mynames, :upper)
+            push!(myvalues, opts.upper_bound)
+        end
     
-    push!(optim_main_args, opts.optim_algo) # defalut = LBFGS()
-    push!(optim_main_args, opts.optim_opts)
-    if opts.optim_autodiff != :none
-        kwargs = (autodiff = :forward, )
+        if opts.optim_autodiff != :none
+            push!(mynames, :autodiff)
+            push!(myvalues, :forwarddiff)
+        end
+
+        # always store the trace (to know how many iterations were done)
+        push!(mynames, :store_trace)
+        push!(myvalues, true)
+
+        lsqfit_kwargs = NamedTuple{Tuple(mynames)}(myvalues)
+    
+        time_it_took = @elapsed raw_opt_results = curve_fit(lsqfit_main_args...; lsqfit_kwargs...)
+
+        # time_it_took = @elapsed result = curve_fit(myobjfunction, zeros(n_moms), zeros(n_moms),
+        #             theta0, 
+        #             lower=theta_lower, 
+        #             upper=theta_upper,
+        #             show_trace=true, 
+        #             maxIter=1000, autodiff=:forwarddiff)
+
+        model_fit = GMMFit(
+            converged = raw_opt_results.converged,
+            theta_hat = raw_opt_results.param,
+            theta_names = opts.theta_names,
+            weights=weights,
+            W=W,
+            obj_value = sum(raw_opt_results.resid .* raw_opt_results.resid),
+            iterations = length(raw_opt_results.trace),  
+            iteration_limit_reached = length(raw_opt_results.trace) >= 1000,
+            theta0 = theta0,
+            time_it_took = time_it_took,
+            idx=idx
+        )
     else
-        kwargs = ()
+        error("Optimizer " * string(opts.optimizer) * " not supported. Stopping.")
     end
-
-    time_it_took = @elapsed raw_opt_results = Optim.optimize(optim_main_args...; kwargs...)
-
-    #= 
-    summary(res)
-    minimizer(res)
-    minimum(res)
-    iterations(res)
-    iteration_limit_reached(res)
-    trace(res)
-    x_trace(res)
-    f_trace(res)
-    f_calls(res)
-    converged(res)
-    =#
-    
-    model_fit = GMMFit(
-        converged = Optim.converged(raw_opt_results),
-        theta_hat = Optim.minimizer(raw_opt_results),
-        theta_names = opts.theta_names,
-        weights=weights,
-        W=W,
-        obj_value = Optim.minimum(raw_opt_results),
-        iterations = Optim.iterations(raw_opt_results),
-        iteration_limit_reached = Optim.iteration_limit_reached(raw_opt_results),
-        theta0 = theta0,
-        time_it_took = time_it_took,
-        idx=idx
-    )
 
     # write intermediate results to file
     if opts.write_iter 

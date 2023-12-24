@@ -37,27 +37,38 @@ function ols_moments_fn(data, theta)
 end
 
 # initial parameter guess
-    # theta0 = [0.0, 0.0]
     theta0 = randn(20,2)
 
-# create GMM problem (data + weighting matrix + initial parameter guess)
-    # myprob = create_GMMProblem(
-    #             data=df, 
-    #             W=I,    
-    #             theta0=theta0)
-                
-# estimation options
-myopts = GMMTools.GMMOptions(
-                path="C:/git-repos/GMMTools.jl/examples/temp/", 
-                optim_algo=NewtonTrustRegion(), 
-                optim_autodiff=:forward,
-                write_iter=true,
-                clean_iter=true,
-                overwrite=true,
-                trace=1)
+### using Optim.jl
+    # estimation options
+    myopts = GMMTools.GMMOptions(
+                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
+                    optimizer=:lsqfit,
+                    optim_algo_bounds=true,
+                    lower_bound=[-Inf, -Inf],
+                    upper_bound=[Inf, Inf],
+                    optim_autodiff=:forward,
+                    write_iter=true,
+                    clean_iter=true,
+                    overwrite=true,
+                    trace=1)
 
-# estimate model
-myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+    # estimate model
+    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+
+### using Optim.jl
+    # estimation options
+    myopts = GMMTools.GMMOptions(
+                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
+                    optim_algo=LBFGS(), 
+                    optim_autodiff=:forward,
+                    write_iter=true,
+                    clean_iter=true,
+                    overwrite=true,
+                    trace=1)
+
+    # estimate model
+    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(df, ols_moments_fn, myfit)
