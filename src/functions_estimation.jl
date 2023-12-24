@@ -471,13 +471,24 @@ function fit_onerun(
         )
     elseif opts.optimizer == :lsqfit
         
-        # TODO: add Cholesky decomposition of W = Whalf * Whalf' 
+        # Cholesky decomposition of W = Whalf * Whalf' 
+        if !isa(W, UniformScaling)
+            Whalf = Matrix(cholesky(Hermitian(W)).L)
+            if norm(Whalf * transpose(Whalf) - W) > 1e-8
+                @warn "Cholesky decomposition approximate: abs(Whalf * Whalf' - W) > 1e-8"
+            end
+        else
+            Whalf = W
+        end
 
-        # Objective function
-        gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1))  
+        # Objective function: multiply avg moments by (Cholesky) half matrice and take means
+        # (1 x n_moms) x (n_moms x n_moms) = (1 x n_moms)
+        gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1) * Whalf)
+
+        # old
+        # gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1))  
 
         # Build options programatically
-
         m = mom_fn(data, theta0)
         n_moms = size(m, 2)
 

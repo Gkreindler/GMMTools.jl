@@ -13,6 +13,8 @@ using RegressionTables
 using GMMTools
 using Optim # need for NewtonTrustRegion()
 
+using Random
+
 
 # load data, originally from: https://www.kaggle.com/datasets/uciml/autompg-dataset/?select=auto-mpg.csv 
     df = CSV.read("examples/auto-mpg.csv", DataFrame)
@@ -37,6 +39,7 @@ function ols_moments_fn(data, theta)
 end
 
 # initial parameter guess
+    Random.seed!(123)
     theta0 = randn(20,2)
 
 ### using Optim.jl
@@ -56,52 +59,27 @@ end
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
-### using Optim.jl
-    # estimation options
-    myopts = GMMTools.GMMOptions(
-                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
-                    optim_algo=LBFGS(), 
-                    optim_autodiff=:forward,
-                    write_iter=true,
-                    clean_iter=true,
-                    overwrite=true,
-                    trace=1)
+# ### using Optim.jl
+#     # estimation options
+#     myopts = GMMTools.GMMOptions(
+#                     path="C:/git-repos/GMMTools.jl/examples/temp/", 
+#                     optim_algo=LBFGS(), 
+#                     optim_autodiff=:forward,
+#                     write_iter=true,
+#                     clean_iter=true,
+#                     overwrite=true,
+#                     trace=1)
 
-    # estimate model
-    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+#     # estimate model
+#     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(df, ols_moments_fn, myfit)
-
+0
 # print table with results
-
-    # temp = GMMTools.GMMModel(myfit)
-    # dfsdfsdf
-    # RegressionTables.get_coefname()
-    # # formula_schema
-    # formula(temp)
-
-    # temp = GMMTools.GMMModel(myfit)
-    # formula(temp)
-    # display(temp)
-
-    # dsfd
-    # RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
-
     regtable(myfit)
 
-fsdfds
-    f1 = term("mpg") ~ term("acceleration") + term("acceleration2")
-    get_coefname(f1.rhs)
-
-
-    
-
-sdf
-
-
-
-
+fdsfd
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
     myopts.trace = 0
