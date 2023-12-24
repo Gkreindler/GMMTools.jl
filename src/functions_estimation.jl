@@ -83,7 +83,7 @@ end
 Base.@kwdef mutable struct GMMOptions
     path::String = ""
     theta_names::Union{Vector{String}, Nothing} = nothing
-    optimizer::Symbol = :optim # optimizer backend: :optim or :lsqfit
+    optimizer::Symbol = :optim # optimizer backend: :optim or :lsqfit (LM)
     optim_autodiff::Symbol = :none
     optim_algo = LBFGS()
     optim_opts = nothing
@@ -420,7 +420,8 @@ function fit_onerun(
     end
 
     if opts.optimizer == :optim
-        
+        # Use the general purpose Optim.jl package for optimization (default)
+
         # load the data
         gmm_objective_loaded = theta -> gmm_objective(theta, data, mom_fn, W, weights, trace=opts.trace)
 
@@ -470,6 +471,8 @@ function fit_onerun(
             idx=idx
         )
     elseif opts.optimizer == :lsqfit
+        # use the Levenberg Marquardt algorithm from LsqFit.jl for optimization
+        # this relies on the fact that the GMM objective function is a sum of squares
         
         # Cholesky decomposition of W = Whalf * Whalf' 
         if !isa(W, UniformScaling)
@@ -484,9 +487,6 @@ function fit_onerun(
         # Objective function: multiply avg moments by (Cholesky) half matrice and take means
         # (1 x n_moms) x (n_moms x n_moms) = (1 x n_moms)
         gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1) * Whalf)
-
-        # old
-        # gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1))  
 
         # Build options programatically
         m = mom_fn(data, theta0)
@@ -520,13 +520,6 @@ function fit_onerun(
         lsqfit_kwargs = NamedTuple{Tuple(mynames)}(myvalues)
     
         time_it_took = @elapsed raw_opt_results = curve_fit(lsqfit_main_args...; lsqfit_kwargs...)
-
-        # time_it_took = @elapsed result = curve_fit(myobjfunction, zeros(n_moms), zeros(n_moms),
-        #             theta0, 
-        #             lower=theta_lower, 
-        #             upper=theta_upper,
-        #             show_trace=true, 
-        #             maxIter=1000, autodiff=:forwarddiff)
 
         model_fit = GMMFit(
             converged = raw_opt_results.converged,
