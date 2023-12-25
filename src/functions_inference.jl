@@ -115,9 +115,14 @@ end
 """
 I.i.d observations. Draw independent weights from a Dirichlet distribution with parameter 1.0. Assuming `data` is a DataFrame.
 """
-function boot_weights_simple(rng, data)
-    @assert isa(data, DataFrame) "`data` must be a DataFrame"
-    return rand(rng, Dirichlet(nrow(data), 1.0))
+function boot_weights_simple(rng, data, n_obs)
+    if isa(data, DataFrame) 
+        return rand(rng, Dirichlet(nrow(data), 1.0))        
+    else
+        @warn "`data` is not a DataFrame, using n_obs directly"
+        return rand(rng, Dirichlet(n_obs, 1.0))
+    end
+    
 end
 
 function boot_weights_cluster(rng, idx_cluster_crosswalk, n_clusters)
@@ -134,7 +139,7 @@ function vcov_bboot(
     theta0, 
     myfit::GMMFit; 
     W=I, 
-    boot_weights::Union{Function, Symbol}=:simple,
+    boot_weights::Union{Function, Symbol}=:simple, # accepts :simple, :cluster, or a user-provided function(rng, data, n_obs)
     nboot=100, 
     rng_initial_seed=1234,
     cluster_var=nothing, 
@@ -154,6 +159,15 @@ function vcov_bboot(
         bootpath = opts.path * "__boot__/"
         isdir(bootpath) || mkdir(bootpath)
     end
+
+     ### bootstrap moment function 
+    # need recenter so that it equal zero at theta_hat
+    # see Hall and Horowitz (1996) for details
+    m = mom_fn(data, myfit.theta_hat)
+    mom_fn_boot = (data, theta) -> mom_fn(data, theta) .- mean(m, dims=1)
+
+    n_obs = size(m, 1)
+    n_moms = size(m, 2)
 
     # random number generator
     main_rng = MersenneTwister(rng_initial_seed)
@@ -175,7 +189,7 @@ function vcov_bboot(
         crosswalk_df = leftjoin(data[:,[cluster_var]], temp_df, on=cluster_var)
 
         # draw random weights for each cluster and fill in a vector as large as the original data
-        boot_weights_fn = (rng, data) -> boot_weights_cluster(rng, crosswalk_df.___idx_cluster___, length(cluster_values))
+        boot_weights_fn = (rng, data, n_obs) -> boot_weights_cluster(rng, crosswalk_df.___idx_cluster___, length(cluster_values))
     else
         @assert isa(boot_weights, Function) "boot_weights must be :simple, :cluster, or a function(rng, data)"
         boot_weights_fn = boot_weights
@@ -186,19 +200,13 @@ function vcov_bboot(
         (opts.trace > 0) && println("generating bootstrap weights for run ", i)
 
         # the output is a vector of weights same size as the number of rows from the moment
-        boot_weights = boot_weights_fn(main_rng, data)
+        boot_weights = boot_weights_fn(main_rng, data, n_obs)
 
         # normalizing weights is important for numerical precision
         boot_weights ./= mean(boot_weights)
 
         push!(all_boot_weights, boot_weights)
     end
-
-    ### bootstrap moment function 
-    # need recenter so that it equal zero at theta_hat
-    # see Hall and Horowitz (1996) for details
-    m = mom_fn(data, myfit.theta_hat)
-    mom_fn_boot = (data, theta) -> mom_fn(data, theta) .- mean(m, dims=1)
 
     # run bootstrap (serial or parallel)
     if !run_parallel

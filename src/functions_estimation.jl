@@ -203,9 +203,13 @@ end
 
 function clean_iter(opts)
     try
-        (opts.trace > 0) && print("Deleting intermediate files from: ", opts.path)
-        rm(opts.path * "__iter__/", force=true, recursive=true)
-        (opts.trace > 0) && println(" Done.")
+        if isdir(opts.path * "__iter__/")
+            (opts.trace > 0) && print("Deleting intermediate files from: ", opts.path)
+            rm(opts.path * "__iter__/", force=true, recursive=true)
+            (opts.trace > 0) && println(" Done.")
+        else
+            (opts.trace > 0) && println("No intermediate files to delete.")
+        end
     catch e
         println(" Error while deleting intermediate files from : ", opts.path, ". Error: ", e)
     end
@@ -292,17 +296,29 @@ function fit_twostep(
         opts=opts)
 
     ### optimal weight matrix
-    m = mom_fn(data, fit_step1.theta_hat)
-    nmomsize = size(m, 1)
-    # (opts.trace > 0) && println("number of observations: ", nmomsize)
-
-    Wstep2 = Hermitian(transpose(m) * m / nmomsize)
-    Wstep2 = inv(Wstep2)
-
-    # Save Wstep2 to file
     opts.path = main_path * "step2/"
     isdir(opts.path) || mkdir(opts.path)
-    writedlm( opts.path * "Wstep2.csv",  Wstep2, ',')
+
+    Wstep2_path = opts.path * "Wstep2.csv"
+    if isfile(Wstep2_path)
+        (opts.trace > 0) && print(">>> Starting GMM step 2. Reading optimal weight matrix from file... ")
+        Wstep2 = readdlm(Wstep2_path, ',', Float64)
+        (opts.trace > 0) && println("DONE")
+
+    else
+        (opts.trace > 0) && print(">>> Starting GMM step 2. Computing optimal weight matrix... ")
+
+        m = mom_fn(data, fit_step1.theta_hat)
+        nmomsize = size(m, 1)
+        # (opts.trace > 0) && println("number of observations: ", nmomsize)
+
+        Wstep2 = Hermitian(transpose(m) * m / nmomsize)
+        Wstep2 = inv(Wstep2)
+
+        # Save Wstep2 to file
+        writedlm(Wstep2_path,  Wstep2, ',')
+        (opts.trace > 0) && println("DONE and saved to file")
+    end
 
     ### Step 2
     (opts.trace > 0) && println(">>> Starting GMM step 2.")
@@ -336,6 +352,8 @@ function fit_onestep(
     weights=nothing,
     run_parallel=true, 
     opts=default_gmm_opts())
+
+    isa(theta0, Vector) && (theta0 = Matrix(transpose(theta0)))
 
     # number of initial conditions (and always format as matrix, rows=iterations, columns=paramters)
     nic = size(theta0, 1)
