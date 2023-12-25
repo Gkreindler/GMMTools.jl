@@ -141,6 +141,9 @@ function vcov_bboot(
     run_parallel=true,
     opts::GMMOptions=default_gmm_opts())
 
+    # copy options so we can modify them (trace and path)
+    opts = copy(opts)
+
     if !isnothing(cluster_var) && (boot_weights != :cluster)
         @error "cluster_var is specified but boot_weights is not :cluster. Proceeding without clustering."
     end
@@ -211,6 +214,7 @@ function vcov_bboot(
                 opts=opts)
         end
     else
+        # all_boot_fits = @showprogress pmap( 
         all_boot_fits = pmap( 
             i -> bboot(i, 
                     data, 
@@ -230,9 +234,9 @@ function vcov_bboot(
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
-        print("Deleting individual boot files...")
+        (opts.trace > 0) && print("Deleting individual boot files...")
         rm(opts.path * "__boot__/", force=true, recursive=true)
-        println(" Done.")
+        (opts.trace > 0) && println(" Done.")
     end
 
     # store results
@@ -251,7 +255,7 @@ function bboot(
     data, 
     mom_fn::Function,
     theta0,
-    boot_weights; # ? where do we want this?
+    boot_weights;
     W=I,
     opts::GMMOptions)
 
@@ -260,6 +264,7 @@ function bboot(
     # path for saving results
     new_opts = copy(opts)
     (new_opts.path != "") && (new_opts.path *= "__boot__/boot_" * string(idx) * "_")
+    new_opts.trace = 0
 
     return fit(data, mom_fn, theta0, W=W, weights=boot_weights, run_parallel=false, opts=new_opts)
 end

@@ -140,7 +140,10 @@ function write(est_result::GMMFit, opts::GMMOptions, filename; subpath="")
     else
         (subpath[end] != '/') && (subpath *= "/")
         full_path = opts.path * subpath
-        isdir(full_path) || mkdir(full_path)
+        # if !isdir(full_path) 
+        #     sleep(0.1 * rand()) # avoid race conditions when running in parallel
+        #     mkdir(full_path)
+        # end
     end
 
     CSV.write(full_path * filename, table(est_result))
@@ -221,24 +224,6 @@ end
 
 ###### GMM
 
-function gmm_objective(theta::Vector, data, mom_fn::Function, W, weights; trace=0)
-
-    t1 = @elapsed m = mom_fn(data, theta)
-
-    @assert isa(m, Matrix) "m(data, theta) must return a Matrix (rows = observations, columns = moments)"
-
-    (trace > 1) && println("Evaluation took ", t1)
-    
-    # average of the moments over all observations (with/without weights)
-    if isnothing(weights)
-        mmean = mean(m, dims=1)
-    else
-        mmean = (weights' * m) ./ sum(weights)
-    end
-
-    # objective
-    return (mmean * W * Transpose(mmean))[1]
-end
 
 """
 """
@@ -286,6 +271,9 @@ function fit_twostep(
     run_parallel=true, 
     opts=default_gmm_opts())
 
+    # avoid modifying the original (change paths)
+    opts = copy(opts)
+
     main_path = opts.path
     (main_path[end] != '/') && (main_path *= "/")
 
@@ -312,12 +300,12 @@ function fit_twostep(
     Wstep2 = inv(Wstep2)
 
     # Save Wstep2 to file
+    opts.path = main_path * "step2/"
+    isdir(opts.path) || mkdir(opts.path)
     writedlm( opts.path * "Wstep2.csv",  Wstep2, ',')
 
     ### Step 2
     (opts.trace > 0) && println(">>> Starting GMM step 2.")
-    opts.path = main_path * "step2/"
-    isdir(opts.path) || mkdir(opts.path)
 
     fit_step2 = fit_onestep(
         data, 
@@ -331,7 +319,7 @@ function fit_twostep(
     fit_step2.fit_step1 = fit_step1
 
     # revert
-    opts.path = main_path
+    # opts.path = main_path
 
     return fit_step2
 end
@@ -353,6 +341,13 @@ function fit_onestep(
     nic = size(theta0, 1)
     # number of parameters
     nparam = size(theta0, 2)
+
+    # create folder to store iterations
+    if (opts.path != "") && (opts.write_iter)
+        (opts.trace > 0) && println("creating path for saving results")
+        iterpath = opts.path * "__iter__/"
+        isdir(iterpath) || mkdir(iterpath)
+    end
 
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
@@ -376,7 +371,7 @@ function fit_onestep(
             all_model_fits[i] = fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts)
         end
     else
-        all_model_fits = pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts), 1:nic)
+        all_model_fits = @showprogress pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts), 1:nic)
     end
     
     best_model_fit = process_model_fits(all_model_fits)
@@ -422,118 +417,30 @@ function fit_onerun(
     if opts.optimizer == :optim
         # Use the general purpose Optim.jl package for optimization (default)
 
-        # load the data
-        gmm_objective_loaded = theta -> gmm_objective(theta, data, mom_fn, W, weights, trace=opts.trace)
-
-        # Optim.jl optimize
-        optim_main_args = []
-        push!(optim_main_args, gmm_objective_loaded)
-        if opts.optim_algo_bounds
-            push!(optim_main_args, opts.lower_bound)
-            push!(optim_main_args, opts.upper_bound)
-        end
-        push!(optim_main_args, theta0)
+        model_fit = backend_optimjl( 
+            data, 
+            mom_fn,
+            theta0;
+            W=W,    
+            weights=weights, 
+            opts=opts)
         
-        push!(optim_main_args, opts.optim_algo) # defalut = LBFGS()
-        push!(optim_main_args, opts.optim_opts)
-        if opts.optim_autodiff != :none
-            kwargs = (autodiff = :forward, )
-        else
-            kwargs = ()
-        end
+        model_fit.idx = idx
 
-        time_it_took = @elapsed raw_opt_results = Optim.optimize(optim_main_args...; kwargs...)
-
-        #= 
-        summary(res)
-        minimizer(res)
-        minimum(res)
-        iterations(res)
-        iteration_limit_reached(res)
-        trace(res)
-        x_trace(res)
-        f_trace(res)
-        f_calls(res)
-        converged(res)
-        =#
-        
-        model_fit = GMMFit(
-            converged = Optim.converged(raw_opt_results),
-            theta_hat = Optim.minimizer(raw_opt_results),
-            theta_names = opts.theta_names,
-            weights=weights,
-            W=W,
-            obj_value = Optim.minimum(raw_opt_results),
-            iterations = Optim.iterations(raw_opt_results),
-            iteration_limit_reached = Optim.iteration_limit_reached(raw_opt_results),
-            theta0 = theta0,
-            time_it_took = time_it_took,
-            idx=idx
-        )
     elseif opts.optimizer == :lsqfit
         # use the Levenberg Marquardt algorithm from LsqFit.jl for optimization
         # this relies on the fact that the GMM objective function is a sum of squares
+
+        model_fit = backend_lsqfit( 
+            data, 
+            mom_fn,
+            theta0;
+            W=W,    
+            weights=weights, 
+            opts=opts)
         
-        # Cholesky decomposition of W = Whalf * Whalf' 
-        if !isa(W, UniformScaling)
-            Whalf = Matrix(cholesky(Hermitian(W)).L)
-            if norm(Whalf * transpose(Whalf) - W) > 1e-8
-                @warn "Cholesky decomposition approximate: abs(Whalf * Whalf' - W) > 1e-8"
-            end
-        else
-            Whalf = W
-        end
+        model_fit.idx = idx
 
-        # Objective function: multiply avg moments by (Cholesky) half matrice and take means
-        # (1 x n_moms) x (n_moms x n_moms) = (1 x n_moms)
-        gmm_objective_loaded = (x, theta) -> vec(mean(mom_fn(data, theta), dims=1) * Whalf)
-
-        # Build options programatically
-        m = mom_fn(data, theta0)
-        n_moms = size(m, 2)
-
-        lsqfit_main_args = []
-        push!(lsqfit_main_args, gmm_objective_loaded) # function
-        push!(lsqfit_main_args, zeros(n_moms)) # x
-        push!(lsqfit_main_args, zeros(n_moms)) # y
-        push!(lsqfit_main_args, theta0)
-
-        mynames = []
-        myvalues = []
-        if opts.optim_algo_bounds
-            push!(mynames, :lower)
-            push!(myvalues, opts.lower_bound)
-
-            push!(mynames, :upper)
-            push!(myvalues, opts.upper_bound)
-        end
-    
-        if opts.optim_autodiff != :none
-            push!(mynames, :autodiff)
-            push!(myvalues, :forwarddiff)
-        end
-
-        # always store the trace (to know how many iterations were done)
-        push!(mynames, :store_trace)
-        push!(myvalues, true)
-
-        lsqfit_kwargs = NamedTuple{Tuple(mynames)}(myvalues)
-    
-        time_it_took = @elapsed raw_opt_results = curve_fit(lsqfit_main_args...; lsqfit_kwargs...)
-
-        model_fit = GMMFit(
-            converged = raw_opt_results.converged,
-            theta_hat = raw_opt_results.param,
-            theta_names = opts.theta_names,
-            weights=weights,
-            W=W,
-            obj_value = sum(raw_opt_results.resid .* raw_opt_results.resid),
-            iterations = length(raw_opt_results.trace),  
-            iteration_limit_reached = length(raw_opt_results.trace) >= 1000,
-            theta0 = theta0,
-            time_it_took = time_it_took,
-            idx=idx
-        )
     else
         error("Optimizer " * string(opts.optimizer) * " not supported. Stopping.")
     end
@@ -541,7 +448,7 @@ function fit_onerun(
     # write intermediate results to file
     if opts.write_iter 
         (opts.trace > 0) && println(" Done and done writing to file.")
-        write(model_fit, opts, "results_" * string(idx) * ".csv", subpath="__iter__")
+        write(model_fit, opts, "results_" * string(idx) * ".csv", subpath="__iter__/")
     else
         (opts.trace > 0) && println(" Done. ")
     end

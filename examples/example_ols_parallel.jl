@@ -1,24 +1,36 @@
+using Distributed
+
 using Pkg
 Pkg.activate(".")
 Pkg.resolve()
 Pkg.instantiate()
 
-using Revise
-using LinearAlgebra # for identity matrix "I"
-using CSV
-using DataFrames
-using FixedEffectModels # for benchmarking
-using RegressionTables
+rmprocs(workers())
+display(workers())
+addprocs(2)
+display(workers())
 
-using GMMTools
-using Optim # need for NewtonTrustRegion()
+@everywhere using Pkg
+@everywhere Pkg.activate(".")
 
-using Random
+@everywhere begin
+
+    using Revise
+    using LinearAlgebra # for identity matrix "I"
+    using CSV
+    using DataFrames
+    using FixedEffectModels # for benchmarking
+    using RegressionTables
+
+    using GMMTools
+    using Optim # need for NewtonTrustRegion()
+
+    using Random
+end
 
 # load data, originally from: https://www.kaggle.com/datasets/uciml/autompg-dataset/?select=auto-mpg.csv 
     df = CSV.read("examples/auto-mpg.csv", DataFrame)
     df[!, :constant] .= 1.0
-
 
 # Run plain OLS for comparison
     r = reg(df, term(:mpg) ~ term(:acceleration))
@@ -27,7 +39,7 @@ using Random
 # define moments for OLS regression
 # residuals orthogonal to the constant and to the variable (acceleration)
 # this must always return a Matrix (rows = observations, columns = moments)
-function ols_moments_fn(data, theta)
+@everywhere function ols_moments_fn(data, theta)
     
     resids = @. data.mpg - theta[1] - theta[2] * data.acceleration
     
@@ -57,7 +69,9 @@ end
                     trace=1)
 
     # estimate model
-    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts, run_parallel=true)
+
+    fsdfd
 
 # ### using Optim.jl
     # estimation options

@@ -27,6 +27,8 @@ using LsqFit
 using FiniteDiff
 using ForwardDiff
 
+using ProgressMeter
+
 using Vcov # needed for regression table
 using RegressionTables
 # import ..RegressionTables: regtable, asciiOutput
@@ -40,6 +42,7 @@ export GMMFit, table,
         regtable
 
 include("functions_estimation.jl")
+include("optimization_backends.jl")
 include("functions_inference.jl")
 include("functions_regtable.jl")
 include("utilities.jl")
