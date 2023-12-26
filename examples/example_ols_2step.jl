@@ -39,44 +39,44 @@ end
 
 # initial parameter guess
     Random.seed!(123)
-    theta0 = randn(20,2)
+    theta0 = random_initial_conditions([0.0, 0.0], 200)
 
 ### using Optim.jl
     # estimation options
     myopts = GMMTools.GMMOptions(
                     path="C:/git-repos/GMMTools.jl/examples/temp/", 
                     optimizer=:lsqfit,
-                    optim_algo_bounds=true,
-                    lower_bound=[-Inf, -Inf],
-                    upper_bound=[Inf, Inf],
+                    theta_lower=[-Inf, -Inf],
+                    theta_upper=[Inf, Inf],
                     optim_autodiff=:forward,
                     # write_moms=false,
                     write_iter=false,
                     clean_iter=true,
                     overwrite=false,
-                    optim_opts=(show_trace=false,), # additional options for LsqFit in a NamedTuple
-                    trace=1)
+                    # optim_opts=(show_trace=false,), # additional options for LsqFit in a NamedTuple
+                    trace=0)
 
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
+    sdfd
     # myopts.path *= "step1/"
-    # a = GMMTools.load_from_file(myopts)
+    # a = GMMTools.read_fit(myopts)
    
-#= ### using Optim.jl
+### using Optim.jl
     # estimation options
     myopts = GMMTools.GMMOptions(
                     path="C:/git-repos/GMMTools.jl/examples/temp/", 
+                    optimizer=:optim,
                     optim_algo=LBFGS(), 
                     optim_autodiff=:forward,
                     write_iter=true,
                     clean_iter=true,
                     overwrite=true,
-                    trace=1)
+                    trace=0)
 
     # estimate model
-    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
-=#
+    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts);
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(df, ols_moments_fn, myfit)

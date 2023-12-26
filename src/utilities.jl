@@ -16,15 +16,19 @@ function random_initial_conditions(theta0::Vector, nic::Int; theta_lower=nothing
             θL = theta_lower[j]
             θH = theta_upper[j]
 
-            if (θL == -Inf) & (θH == Inf)
-                theta0_mat[i,j] = (-1.5 + 3.0 * rand()) * theta0[j]
-            elseif (θL > -Inf) & (θH == Inf)
+            if (θL == -Inf) & (θH == Inf) # without bounds, use the initial value * 1.5. If the initial value is zero, default to uniform over [-1.5, 1.5]
+                theta0_mat[i,j] = (-1.5 + 3.0 * rand()) * (theta0[j] + (theta0[j] ≈ 0.0))
+
+            elseif (θL > -Inf) & (θH == Inf) # lower bound + 50-150% of (initial value minus lower bound)
                 theta0_mat[i,j] = θL + (theta0[j] - θL) * (0.5 + rand())
+
             elseif (θL == -Inf) & (θH < Inf)
                 theta0_mat[i,j] = θH - (θH - theta0[j]) * (0.5 + rand())
-            else
+
+            else # uniform between lower and upper bound
                 @assert (θL > -Inf) & (θH < Inf)
                 theta0_mat[i,j] = θL + (θH - θL) * rand()
+
             end
         end
     end

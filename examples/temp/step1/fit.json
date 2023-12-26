@@ -4,25 +4,25 @@
   "all_model_fits": null,
   "converged": true,
   "theta0": [
-    -1.1046361023292959,
-    0.18025374632691527
+    -0.6702076614751001,
+    1.4503071333595194
   ],
   "vcov": null,
-  "time_it_took": 0.0002169,
+  "time_it_took": 0.0001786,
   "n_moms": 2,
   "theta_hat": [
-    4.96979300425391,
-    1.1912045293502274
+    4.9697930042539245,
+    1.1912045293502265
   ],
   "mode": "unassigned",
   "n_obs": 398,
   "iteration_limit_reached": false,
-  "obj_value": 1.60726271011644e-28,
+  "obj_value": 1.1785921763072725e-28,
   "moms_at_theta_hat": null,
   "weights": null,
   "W": {
     "λ": true
   },
-  "iterations": 14,
-  "idx": 3
+  "iterations": 3,
+  "idx": 11
 }

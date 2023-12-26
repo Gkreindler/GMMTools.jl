@@ -37,14 +37,21 @@ function backend_optimjl(
     # Optim.jl optimize
     optim_main_args = []
     push!(optim_main_args, gmm_objective_loaded)
-    if opts.optim_algo_bounds
-        push!(optim_main_args, opts.lower_bound)
-        push!(optim_main_args, opts.upper_bound)
+
+    if !isnothing(opts.theta_lower) 
+        @assert !isnothing(opts.theta_upper) "if theta_lower is specified, theta_upper must be specified as well"
+        push!(optim_main_args, opts.theta_lower)
+        push!(optim_main_args, opts.theta_upper)
     end
     push!(optim_main_args, theta0)
     
+    # algorithm
     push!(optim_main_args, opts.optim_algo) # defalut = LBFGS()
+
+    # options -- must be a Optim.Options object
     !isnothing(opts.optim_opts) && push!(optim_main_args, opts.optim_opts)
+
+    # autodiff
     if opts.optim_autodiff != :none
         kwargs = (autodiff = :forward, )
     else
@@ -141,12 +148,14 @@ function backend_lsqfit(
 
     mynames = []
     myvalues = []
-    if opts.optim_algo_bounds
+    if !isnothing(opts.theta_lower)
+        @assert !isnothing(opts.theta_upper) "if theta_lower is specified, theta_upper must be specified as well"
+
         push!(mynames, :lower)
-        push!(myvalues, opts.lower_bound)
+        push!(myvalues, opts.theta_lower)
 
         push!(mynames, :upper)
-        push!(myvalues, opts.upper_bound)
+        push!(myvalues, opts.theta_upper)
     end
 
     if opts.optim_autodiff != :none

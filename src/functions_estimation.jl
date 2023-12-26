@@ -1,18 +1,21 @@
 
 
 Base.@kwdef mutable struct GMMOptions
-    path::String = ""
-    theta_names::Union{Vector{String}, Nothing} = nothing
-    optimizer::Symbol = :optim # optimizer backend: :optim or :lsqfit (LM)
-    optim_autodiff::Symbol = :none
-    optim_algo = LBFGS()
-    optim_opts = nothing
-    optim_algo_bounds::Bool = false
-    lower_bound = nothing
-    upper_bound = nothing
+    path::String = ""                       # path to save results
     write_iter::Bool = false    # write to file each result (each initial run)
-    clean_iter::Bool = false    # 
-    overwrite::Bool = false
+    clean_iter::Bool = false    # delete individual run files at the end of the estimation
+    overwrite::Bool = false     # overwrite existing results file and individual run files
+
+    optimizer::Symbol = :optim              # optimizer backend: :optim or :lsqfit (LM)
+    optim_algo = LBFGS()                    # Optim.jl algorithm
+    optim_opts = nothing                    # additional options. For Optim.jl, this is an Optim.options() object. For LsqFit.jl, this is a NamedTuple
+    optim_autodiff::Symbol = :none          # :none or :forward
+    theta_lower = nothing                   # nothing or vector of lower bounds
+    theta_upper = nothing                   # nothing or vector of upper bounds
+    
+
+    theta_names::Union{Vector{String}, Nothing} = nothing  # names of parameters 
+
     trace::Integer = 0
 end
 
@@ -23,36 +26,36 @@ function default_optim_opts()
         iterations=5000)
 end
 
-function default_gmm_opts(;
-    path = "",
-    theta_names = nothing,
-    optim_opts = default_optim_opts(), # ! replace with nothing (should work with any backend)
-    optim_autodiff = :none,
-    optim_algo = LBFGS(),
-    write_iter = false,    # write to file each result (each initial run)
-    clean_iter = false,    # 
-    overwrite = false,
-    trace = 0)
+# function default_gmm_opts(;
+#     path = "",
+#     theta_names = nothing,
+#     optim_opts = nothing,
+#     optim_autodiff = :none,
+#     optim_algo = LBFGS(),
+#     write_iter = false,
+#     clean_iter = false,
+#     overwrite = false,
+#     trace = 0)
 
-    return GMMOptions(
-        path=path,
-        theta_names=theta_names,
-        optim_autodiff=optim_autodiff,
-        optim_algo=optim_algo,
-        optim_opts=optim_opts,
-        write_iter=write_iter,
-        clean_iter=clean_iter,
-        overwrite=overwrite,
-        trace=trace)
-end
+#     return GMMOptions(
+#         path=path,
+#         theta_names=theta_names,
+#         optim_autodiff=optim_autodiff,
+#         optim_algo=optim_algo,
+#         optim_opts=optim_opts,
+#         write_iter=write_iter,
+#         clean_iter=clean_iter,
+#         overwrite=overwrite,
+#         trace=trace)
+# end
 
 
 
 
 
 Base.@kwdef mutable struct GMMFit
-    theta0::Vector
-    theta_hat::Vector
+    theta0::Vector         # initial conditions (vector of size P or K x P matrix for K sets of initial conditions)
+    theta_hat::Vector      # estimated parameters
     theta_names::Union{Vector{String}, Nothing}
 
     moms_at_theta_hat = nothing # moments at theta_hat
@@ -166,7 +169,7 @@ function fit(
     weights=nothing,
     mode=:onestep,
     run_parallel=true, 
-    opts=default_gmm_opts())
+    opts=GMMTools.GMMOptions())
 
     if mode == :onestep
         return fit_onestep(
@@ -200,7 +203,7 @@ function fit_twostep(
     W=I,    
     weights=nothing,
     run_parallel=true, 
-    opts=default_gmm_opts())
+    opts=nothing)
 
     # avoid modifying the original (change paths)
     opts = deepcopy(opts)
@@ -278,7 +281,7 @@ function fit_onestep(
     W=I,    
     weights=nothing,
     run_parallel=true, 
-    opts=default_gmm_opts())
+    opts=nothing)
 
 
     ### initial conditions
@@ -344,10 +347,7 @@ function fit_onerun(
             W=I,    
             weights=nothing, 
             opts::GMMOptions)
-
-    # default optimizer options (if missing)
-    isnothing(opts.optim_opts) && (opts.optim_opts = default_optim_opts())
-
+            
     (opts.trace > 0) && print("...estimation run ", idx, ". ")
 
     # skip if output file already exists
