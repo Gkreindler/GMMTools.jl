@@ -26,7 +26,7 @@ end
 function default_gmm_opts(;
     path = "",
     theta_names = nothing,
-    optim_opts = default_optim_opts(),
+    optim_opts = default_optim_opts(), # ! replace with nothing (should work with any backend)
     optim_autodiff = :none,
     optim_algo = LBFGS(),
     write_iter = false,    # write to file each result (each initial run)

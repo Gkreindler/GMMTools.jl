@@ -6,48 +6,97 @@
 # Summary 
 *Preliminary/In progress.*
 
-A toolbox for generalized method of moments (GMM) with functionality aimed at streamlining estimating models that have long runtime and estimation launched on a computer cluster.
+A toolbox for generalized method of moments (GMM) with functionality aimed at streamlining estimating models that have long runtime, using parallel computing.
 
-For broadly related projects, see [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl), [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl), [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl). [SMM.jl](https://github.com/floswald/SMM.jl)
+This package takes care of several `menial' tasks: saving and loading estimation results from files, seamlessly continuing long-running jobs that failed mid-estimation, creating publication-ready tables using RegressionTables.jl. The package gives special attention to the optimizer "backend" used to minimize the GMM objective function, and several options are available.
 
-# Basic Usage
-See an example and basic usage in
+## Key Features
+Core estimation features:
+1. one- and two-step GMM estimation
+1. nonlinear optimizer: support for Optim.jl and LsqFit.jl backends, multiple initial conditions, box constraints, automatic differentiation (AD)
+1. inference: (1) asymptotic i.i.d. and (2) Bayesian (weighted) bootstrap
+
+Convenience features:
+1. integrated with RegressionTables.jl
+1. efficiently resume estimation based on incomplete results (e.g. when bootstrap run #63, or initial condition #35, fails or runs out of time or out of memory after many hours)
+1. parallel over initial conditions (embarrassingly parallel using `Distributed.jl`)
+1. parallel bootstrap
+1. suitable for running on computer clusters (e.g. using slurm)
+1. easily select subset of parameters to estimate
+
+# Example
+See a fully worked out example in
 ```
 examples/example_ols.jl
 ```
-And the associated readme [docs/src/tutorials/gmm.md](https://github.com/Gkreindler/GMMTools.jl/blob/main/docs/src/tutorials/gmm.md).
 
-## Features
-Core estimation features:
-1. run one-step GMM estimation
-1. multiple initial conditions
-1. estimate asymptotic variance-covariance matrix
-1. Bayesian (weighted) bootstrap inference
+The following tutorial covers how to install Julia and this package and explains the above example script line by line: [docs/src/tutorials/gmm.md](https://github.com/Gkreindler/GMMTools.jl/blob/main/docs/src/tutorials/gmm.md). It aims to be accessible to first-time Julia users who are familiar with the econometrics of GMM.
 
-Convenience features:
-1. efficiently resume estimation based on incomplete results (e.g. when bootstrap run #63, or initial condition #35, fails or runs out of time after many hours)
-1. parallel initial conditions (embarrassingly parallel using `Distributed.jl`)
-1. parallel bootstrap (embarrassingly parallel using `Distributed.jl`)
-1. suitable for running on computer clusters (e.g. using slurm)
+# Basic usage
+The user must provide a moment function `mom_fn(data, theta)` that takes a `data` object (it can be a DataFrame or any other object) and a parameter vector `theta`. The function must returns an $N\times M$ matrix, where $N$ is the number of observations and $M$ is the number of moments.
 
-### Dev to-do list
-1. two-step GMM, CUE, classical minimum distance (CMD)
-1. more general estimation of the covariance of the moments, cluster, HAC, Newey-West, etc.
-1. parameter box constraints
-1. automatic differentiation (AD)
-1. other optimization backends (`curve_fit` from `LsqFit.jl`, suboptions in `Optim.jl`, [`GalacticOptim.jl`](`https://github.com/SciML/GalacticOptim.jl`), etc.)
-1. tests
-1. integrate with RegressionTables.jl
+To estimate a model using two-step optimal GMM, compute the asymptotic variance-covariance matrix, and display a table with the results, run
+```julia
+myfit = GMMTools.fit(MYDATA, mom_fn, theta0, mode=:twostep)
+GMMTools.vcov_simple(MYDATA, mom_fn, myfit)
+regtable(myfit)
+```
+
+The parameter `theta0` is either a vector of size $P$, or a $K\times P$ matrix with $K$ sets of initial conditions. The convenience function `GMMTools.random_initial_conditions(theta0::Vector, K::Int; theta_lower=nothing, theta_upper=nothing)` generates `K` random initial conditions around `theta0` (and between `theta_lower` and `theta_upper`, if provided).
+
+For inference using Bayesian (weighted) bootstrap, replace the second line by `GMMTools.vcov_bboot(MYDATA, mom_fn, theta0, myfit, nboot=500)`. 
+
+# Options
+`fit()` accepts detailed options that control (1) whether and how results are saved to file, and (2) the optimization backend and options.
+
+```julia
+# estimation options
+myopts = GMMTools.GMMOptions(
+                path="C:/temp/",          # path where to save estimation results (path = "" by default, in which case no files are created)
+                write_iter=false,         # write results for each individual run (corresponding to initial conditions)
+                clean_iter=true,          # delete individual run results after estimation is finished
+                overwrite=false,          # if false, read existing results (or individual runs) and do not re-estimate existing results. It is the user's responsibility to ensure that the model and theta0 have not changed since the last run
+                optimizer=:lsqfit,        # optimization backend to use. LsqFit.jl uses the Levenberg-Marquardt algorithm (see discussion below)
+                optim_autodiff=:forward,  # use automatic differentiation (AD) to compute gradients. Currently, only forward AD using ForwardDiff.jl is supported
+                lower_bound=[0.0, -Inf],  # box constraints
+                upper_bound=[Inf,  10.0],
+                optim_opts=(show_trace=true,), # additional options for curve_fit() from LsqFit.jl in a NamedTuple. (For Optim.jl, this should be an Optim.options() object)
+                trace=1)                  # 0, 1, or 2
+
+myfit = GMMTools.fit(MYDATA, mom_fn, theta0, mode=:twostep, opts=myopts)
+```
+
+## Writing and reading results
+`GMMTools.fit(...)` saves the estimation results in two files: `fit.csv` contains a table with one row per set of initial conditions, and `fit.json` contains several estimation parameters and results. `GMMTools.write(myfit::GMMFit, opts::GMMOptions, filename)` is the lower level function to write `GMMFit` objects to files.
+
+`GMMTools.vcov_simple(...)` saves a `vcov.json` file that includes, among other objects, the variance-covariance matrix `myfit.vcov.V`. `GMMTools.vcov_bboot(...)` also saves two files `vcov_boot_fits_df.csv` (all individual runs for all bootstrap runs) and `vcov_boot_weights.csv` (rows are bootstrap runs, columns are data observations). The lower level function is `GMMTools.write(myvcov::GMMvcov, opts::GMMOptions)`.
+
+`GMMTools.read_fit(opts::GMMOptions; filepath="")` reads estimation results and loads them into a `GMMFit` object. `GMMTools.read_vcov(opts::GMMOptions; filepath="")` reads vcov results and loads them into a `GMMvcov` object.
+
+# Package To-do list
+
+## Dev to-do list
 1. compute sensitivity measure (Andrews et al 2017)
-1. easily select subset of parameters to estimate
-1. easily select subset of moments used in estimation
+1. classical minimum distance (CMD), CUE
+1. more general estimation of the covariance of the moments, cluster, HAC, Newey-West, etc.
+1. other optimization backends
+1. tests
 1. (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
 1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
 
-### Documentation to-do list
-1. Example with `Distributed.jl` for parallel runs or parallel bootstrap
+## Documentation to-do list
+1. docs
+1. Bootstrap options, including custom weihts function and an example
+1. walkthrough for re-running failed estimation, stability of the random initial condition and bootstrap weights
+1. (easy) example with subset parameters
+1. Optimization discussion: finite vs AD, discontinuities in the objective function (e.g. due to iterated value function), (anecdotal) advantages of using the Levenberg-Marquardt algorithm over Optiml.jl
 1. Non-linear estimation example
 1. Example with AD including cache data and implicit function differentiation
+
+For related projects, see 
+- [DrWatson.jl](https://github.com/JuliaDynamics/DrWatson.jl) and [DrWatsonSim.jl](https://github.com/sebastianpech/DrWatsonSim.jl) 
+- [GMMInference.jl](https://github.com/schrimpf/GMMInference.jl) 
+- [SMM.jl](https://github.com/floswald/SMM.jl)
 
 
 <!---
@@ -86,14 +135,10 @@ Convenience features:
 1. Decide whether to check or reuse existing initial conditions, bootstrap samples, when resuming estimation with incomplete results
 1. (lower priority) implement "proper" package tests
 
-easy:
-1. boot cleanup: compile boot misc files into single large files, delete folders
 
 ### Wish-list
 1. integrate optimization backends other than `curve_fit` from `LsqFit.jl`, e.g. `Optim.jl`, [`GalacticOptim.jl`](`https://github.com/SciML/GalacticOptim.jl`), etc.
-1. automatic differentiation 
 1. more general estimation of the covariance of the moments, e.g. Newey-West, etc.
-1. integrate with RegressionTables.jl
 1. compute sensitivity measure (Andrews et al 2017)
 1. (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
 1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
@@ -101,11 +146,6 @@ easy:
 # Install
 To install this package:
 `] add https://github.com/Gkreindler/GMMTools.jl`
-
-Note: as of January 2023, this packages requires `LsqFit.jl#master` (for the `maxTime` option). After the step above, run:
-1. `] remove LsqFit`
-1. `] add LsqFit#master  # or ] https://github.com/JuliaNLSolvers/LsqFit.jl#master`
-1. `] update # this should be optional`
 
 # Basic Usage
 The user must provide two objects:
@@ -152,6 +192,6 @@ It is the user's responsibility to ensure that the existing results and the new 
 We save the results from each initial condition run in a separate file (one-row dataframe) in `"SUBFOLDER/results_df_run_<iter_n>.csv"` where `SUBFOLDER` is one of `"results", "step1", "step2"`. After all runs are finished, we combine all results into a single dataframe in `"estimation_SUBFOLDER_df.csv"`. To avoid a large number of files (thousands in the case of bootstrap with multiple initial conditions), we clean up and delete the individual run output files (the entire `"SUBFOLDER"` subfolder) after the combined dataframe is generated.
 -->
 
-## Acknowledgements
+# Acknowledgements
 Contributor: Peter Deffebach.
 For useful suggestions and conversations: Michael Creel, Jeff Gortmaker.

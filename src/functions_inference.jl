@@ -251,17 +251,6 @@ function vcov_bboot(
     # collect and process all bootstrap results
     boot_fits = process_boot_fits(all_boot_fits)
 
-    # ! later
-    # # save results to file?
-    # (opts.path != "") && write(boot_fits, opts)
-
-    # delete all intermediate files with individual iteration results
-    if opts.clean_iter 
-        (opts.trace > 0) && print("Deleting individual boot files...")
-        rm(opts.path * "__boot__/", force=true, recursive=true)
-        (opts.trace > 0) && println(" Done.")
-    end
-
     # store results
     myfit.vcov = GMMvcov(
         method = :bayesian_bootstrap,
@@ -271,6 +260,17 @@ function vcov_bboot(
 
     # save results to file?
     (opts.path != "") && write(myfit.vcov, opts)
+
+    # delete all intermediate files with individual iteration results
+    if opts.clean_iter 
+        try
+            (opts.trace > 0) && print("Deleting individual boot files and __boot__ subfolder...")
+            rm(opts.path * "__boot__/", force=true, recursive=true)
+            (opts.trace > 0) && println(" Done.")
+        catch e
+            @warn "Could not delete individual boot files and __boot__ subfolder."
+        end
+    end
 
     return boot_fits
 end
