@@ -21,8 +21,8 @@ using Random
 
 
 # Run plain OLS for comparison
-    r = reg(df, term(:mpg) ~ term(:acceleration))
-    regtable(r)
+    reg_ols = reg(df, term(:mpg) ~ term(:acceleration))
+    regtable(reg_ols)
 
 # define moments for OLS regression
 # residuals orthogonal to the constant and to the variable (acceleration)
@@ -50,16 +50,20 @@ end
                     lower_bound=[-Inf, -Inf],
                     upper_bound=[Inf, Inf],
                     optim_autodiff=:forward,
-                    write_iter=true,
+                    # write_moms=false,
+                    write_iter=false,
                     clean_iter=true,
-                    overwrite=true,
+                    overwrite=false,
                     optim_opts=(show_trace=false,), # additional options for LsqFit in a NamedTuple
                     trace=1)
 
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
-# ### using Optim.jl
+    # myopts.path *= "step1/"
+    # a = GMMTools.load_from_file(myopts)
+   
+#= ### using Optim.jl
     # estimation options
     myopts = GMMTools.GMMOptions(
                     path="C:/git-repos/GMMTools.jl/examples/temp/", 
@@ -72,19 +76,29 @@ end
 
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+=#
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(df, ols_moments_fn, myfit)
 
+
+    GMMTools.write(myfit.vcov, myopts)
+
 # print table with results
     regtable(myfit)
 
+    regtable(reg_ols, myfit) # works
+    # regtable(reg_ols, myfit; render   = AsciiTable())
 
+# read vcov with bootstrop from file
+    myfit.vcov = GMMTools.read_vcov(myopts)
+    regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
     myopts.trace = 1
+    myopts.write_iter = false # time consuming to write individual iterations to file (500 x 20)
     vcov_bboot(df, ols_moments_fn, theta0, myfit, nboot=500, opts=myopts)
-    GMMTools.regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
+    regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
 
     sdfsd
     # using Plots

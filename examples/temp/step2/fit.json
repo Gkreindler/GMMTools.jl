@@ -1,0 +1,35 @@
+{
+  "theta_names": null,
+  "fit_step1": null,
+  "all_model_fits": null,
+  "converged": true,
+  "theta0": [
+    0.8542424475591821,
+    0.9370573773608326
+  ],
+  "vcov": null,
+  "time_it_took": 0.0002517,
+  "n_moms": 2,
+  "theta_hat": [
+    4.969793004253402,
+    1.1912045293502604
+  ],
+  "mode": "unassigned",
+  "n_obs": 398,
+  "iteration_limit_reached": false,
+  "obj_value": 1.6911202565815004e-28,
+  "moms_at_theta_hat": null,
+  "weights": null,
+  "W": [
+    [
+      0.7160381402040416,
+      -0.043487516296842874
+    ],
+    [
+      -0.043487516296842874,
+      0.0027167729488171157
+    ]
+  ],
+  "iterations": 9,
+  "idx": 17
+}

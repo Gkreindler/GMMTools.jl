@@ -38,14 +38,14 @@ export GMMFit, table,
         random_initial_conditions,theta_add_fixed_values,
         default_gmm_opts, default_optim_opts,
         fit, 
-        vcov_simple, vcov_bboot,
-        regtable
+        vcov_simple, vcov_bboot
 
 include("functions_estimation.jl")
 include("optimization_backends.jl")
 include("functions_inference.jl")
 include("functions_regtable.jl")
 include("utilities.jl")
+include("io.jl")
 
 end
 

@@ -1,4 +1,28 @@
 
+"""
+variance covariance objects
+"""
+
+Base.@kwdef mutable struct GMMBootFits
+    boot_fits                   # vector of all GMMFit objects
+    boot_weights::Matrix        # nboot x n_obs matrix with bootstrap weights
+    boot_fits_df::DataFrame     # df with all iterations for all bootstrap runs
+end
+
+# extent the "copy" method to the GMMOptions type
+# Base.copy(x::GMMBootFits) = GMMBootFits([getfield(x, k) for k ∈ fieldnames(GMMBootFits)]...)
+
+Base.@kwdef mutable struct GMMvcov
+    method::Symbol
+    V  = nothing
+    ses = nothing
+    W = nothing
+    J = nothing
+    Σ = nothing
+    boot_fits::Union{GMMBootFits, Nothing} = nothing
+    boot_fits_dict = nothing
+end
+
 ### Asymptotic variance-covariance matrix
 
 function jacobian(data, mom_fn::Function, myfit::GMMFit)
@@ -8,7 +32,8 @@ function jacobian(data, mom_fn::Function, myfit::GMMFit)
     try
         # try automatic differentiation
         return ForwardDiff.jacobian(moment_loaded, myfit.theta_hat)
-    catch
+    catch e
+        throw(e)
         # fall back on finite differences
         println("jacobian: AD failed, falling back on finite differences")
         return FiniteDiff.finite_difference_jacobian(moment_loaded, myfit.theta_hat)
@@ -28,7 +53,7 @@ function vcov_simple(data, mom_fn::Function, myfit::GMMFit)
 
     # estimate Σ
     m = mom_fn(data, myfit.theta_hat)
-    N = size(m, 1)
+    N = myfit.n_obs
     Σ = Transpose(m) * m / N
     # display(Σ)
 
@@ -36,79 +61,65 @@ function vcov_simple(data, mom_fn::Function, myfit::GMMFit)
     
     V = invJWJ * J * W * Σ * W' * J * invJWJ ./ N
 
-    myfit.vcov = Dict(
-        :method => Vcov.simple(), #"plain",
-        :V => V,
-        :J => J,
-        :W => W,
-        :Σ => Σ,
-        :N => N, # TODO : should really move this up to main fit object
-        :ses => sqrt.(diag(V))
-    )
+    myfit.vcov = GMMvcov(
+        method = :simple,
+        V = V,
+        J = J,
+        W = W,
+        Σ = Σ,
+        ses = sqrt.(diag(V)))
 
     return
 end
 
 ### Bayesian bootstrap
 
-struct bayesian_bootstrap <: CovarianceEstimator
-end
+function boot_table(boot_fits::Vector{GMMFit})
 
-Base.@kwdef mutable struct GMMBootFits
-    all_theta_hat  # nboot x nparams matrix with result for each bootstrap run
-    all_model_fits # df with results (one per bootstrap run)
-    all_boot_fits  # df with all iterations for all bootstrap runs
-end
+    nboot = length(boot_fits)
+    nparams = length(boot_fits[1].theta_hat)
 
-function Base.show(io::IO, r::GMMBootFits)
-    println("Baysian bootstrap results struct with the following fields:")
-    for f in fieldnames(GMMBootFits)
-        # println("  ", f, ": ", getfield(r, ))
-        println("...field ", f, " is a ", typeof(getfield(r, f)))
-    end
-    # display(r.all_model_fits)
-    # display(r.all_boot_fits)
-end
-
-function write(boot_fits::GMMBootFits, opts::GMMOptions)
-    if opts.path == ""
-        return
-    end
-
-    # temp_df = DataFrame(boot_results.table, :auto)
-
-    CSV.write(opts.path * "fits_boot.csv", boot_fits.all_model_fits)
-    CSV.write(opts.path * "fits_boot_all.csv", boot_fits.all_boot_fits)
-end
-
-function process_boot_fits(lb::Vector{GMMFit})
-
-    all_boot_fits = []
-    nboot = length(lb)
+    theta_hat_table = Matrix{Float64}(undef, nboot, nparams)
     for i=1:nboot
-        temp_df = copy(lb[i].all_model_fits)
+        theta_hat_table[i, :] = boot_fits[i].theta_hat
+    end
+
+    return theta_hat_table
+end
+
+function process_boot_fits(boot_fits::Vector{GMMFit})
+
+    ### matrix with weights (row = bootstrap run, column = observation)
+    all_boot_weights = hcat([boot_fits[i].weights for i=1:length(boot_fits)]...)
+    for i=1:length(boot_fits)
+        boot_fits[i].weights = nothing
+    end
+
+    ### full table of theta_hat's
+    all_boot_fits = []
+    nboot = length(boot_fits)
+    for i=1:nboot
+        temp_df = copy(boot_fits[i].all_model_fits)
         temp_df[!, :boot_idx] .= i
         push!(all_boot_fits, temp_df)
+
+        boot_fits[i].all_model_fits = nothing
     end
     all_boot_fits = vcat(all_boot_fits...)
 
-    mysample = all_boot_fits.is_optimum .== 1
-    all_fits = copy(all_boot_fits[mysample, :])
-
-    nparams = length(lb[1].theta_hat)
-    # nboot = length(lb)
-
-    fit_table = Matrix{Float64}(undef, nboot, nparams)
-    for i=1:nboot
-        fit_table[i, :] = lb[i].theta_hat
-    end
+    # only keep the optimal iterations
+    # mysample = all_boot_fits.is_optimum .== 1
+    # all_fits = copy(all_boot_fits[mysample, :])
 
     return GMMBootFits(
-        all_theta_hat = fit_table,
-        all_model_fits = all_fits,
-        all_boot_fits = all_boot_fits
+        boot_fits = boot_fits,          # vector of GMMFit objects
+        boot_weights = all_boot_weights,# nboot x n_obs matrix with bootstrap weights
+        boot_fits_df = all_boot_fits    # df with all iterations for all bootstrap runs
     )
 end
+
+
+
 
 
 
@@ -147,7 +158,7 @@ function vcov_bboot(
     opts::GMMOptions=default_gmm_opts())
 
     # copy options so we can modify them (trace and path)
-    opts = copy(opts)
+    opts = deepcopy(opts)
 
     if !isnothing(cluster_var) && (boot_weights != :cluster)
         @error "cluster_var is specified but boot_weights is not :cluster. Proceeding without clustering."
@@ -163,11 +174,14 @@ function vcov_bboot(
      ### bootstrap moment function 
     # need recenter so that it equal zero at theta_hat
     # see Hall and Horowitz (1996) for details
+    
+    # ! maybe load directly from fit
     m = mom_fn(data, myfit.theta_hat)
+    
     mom_fn_boot = (data, theta) -> mom_fn(data, theta) .- mean(m, dims=1)
 
-    n_obs = size(m, 1)
-    n_moms = size(m, 2)
+    n_obs = myfit.n_obs
+    n_moms = myfit.n_moms
 
     # random number generator
     main_rng = MersenneTwister(rng_initial_seed)
@@ -237,8 +251,9 @@ function vcov_bboot(
     # collect and process all bootstrap results
     boot_fits = process_boot_fits(all_boot_fits)
 
-    # save results to file?
-    (opts.path != "") && write(boot_fits, opts)
+    # ! later
+    # # save results to file?
+    # (opts.path != "") && write(boot_fits, opts)
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
@@ -248,12 +263,14 @@ function vcov_bboot(
     end
 
     # store results
-    myfit.vcov = Dict(
-        :method => bayesian_bootstrap(),
-        :boot_fits => boot_fits,
-        :V => cov(boot_fits.all_theta_hat),
-        :N => size(m, 1) # TODO : should really move this up to main fit object
+    myfit.vcov = GMMvcov(
+        method = :bayesian_bootstrap,
+        boot_fits = boot_fits,
+        V = cov(boot_table(boot_fits.boot_fits))
     )
+
+    # save results to file?
+    (opts.path != "") && write(myfit.vcov, opts)
 
     return boot_fits
 end
@@ -270,7 +287,7 @@ function bboot(
     (opts.trace > 0) && println("bootstrap run ", idx)
 
     # path for saving results
-    new_opts = copy(opts)
+    new_opts = deepcopy(opts)
     (new_opts.path != "") && (new_opts.path *= "__boot__/boot_" * string(idx) * "_")
     new_opts.trace = 0
 

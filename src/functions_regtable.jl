@@ -1,5 +1,8 @@
 
-Base.@kwdef struct GMMModel <: RegressionModel
+struct bayesian_bootstrap <: CovarianceEstimator
+end
+
+Base.@kwdef struct GMMRegModel <: RegressionModel
     coef::Vector{Float64}   # Vector of coefficients
     vcov::Matrix{Float64}   # Covariance matrix
     vcov_type::CovarianceEstimator
@@ -38,63 +41,65 @@ Base.@kwdef struct GMMModel <: RegressionModel
 end
 
 
-has_iv(m::GMMModel) = m.F_kp !== nothing
-has_fe(m::GMMModel) = false
+has_iv(m::GMMRegModel) = m.F_kp !== nothing
+has_fe(m::GMMRegModel) = false
 
 # RegressionTables.get_coefname(x::Tuple{Vararg{Term}}) = RegressionTables.get_coefname.(x)
 # RegressionTables.replace_name(x::Tuple{Vararg{Any}}, a::Dict{String, String}, b::Dict{String, String}) = [RegressionTables.replace_name(x[i], a, b) for i=1:length(x)]
 # RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
 
-RegressionTables._responsename(x::GMMModel) = string(responsename(x))
-RegressionTables._coefnames(x::GMMModel) = string.(coefnames(x))
+RegressionTables._responsename(x::GMMRegModel) = string(responsename(x))
+RegressionTables._coefnames(x::GMMRegModel) = string.(coefnames(x))
 
-StatsAPI.coef(m::GMMModel) = m.coef
-StatsAPI.coefnames(m::GMMModel) = m.coefnames
-StatsAPI.responsename(m::GMMModel) = m.responsename
-StatsAPI.vcov(m::GMMModel) = m.vcov
-StatsAPI.nobs(m::GMMModel) = m.nobs
-StatsAPI.dof(m::GMMModel) = m.dof
-StatsAPI.dof_residual(m::GMMModel) = m.dof_residual
-StatsAPI.r2(m::GMMModel) = r2(m, :devianceratio)
-StatsAPI.islinear(m::GMMModel) = true
-StatsAPI.deviance(m::GMMModel) = rss(m)
-StatsAPI.nulldeviance(m::GMMModel) = m.tss
-StatsAPI.rss(m::GMMModel) = m.rss
-StatsAPI.mss(m::GMMModel) = nulldeviance(m) - rss(m)
+StatsAPI.coef(m::GMMRegModel) = m.coef
+StatsAPI.coefnames(m::GMMRegModel) = m.coefnames
+StatsAPI.responsename(m::GMMRegModel) = m.responsename
+StatsAPI.vcov(m::GMMRegModel) = m.vcov
+StatsAPI.nobs(m::GMMRegModel) = m.nobs
+StatsAPI.dof(m::GMMRegModel) = m.dof
+StatsAPI.dof_residual(m::GMMRegModel) = m.dof_residual
+StatsAPI.r2(m::GMMRegModel) = r2(m, :devianceratio)
+StatsAPI.islinear(m::GMMRegModel) = true
+StatsAPI.deviance(m::GMMRegModel) = rss(m)
+StatsAPI.nulldeviance(m::GMMRegModel) = m.tss
+StatsAPI.rss(m::GMMRegModel) = m.rss
+StatsAPI.mss(m::GMMRegModel) = nulldeviance(m) - rss(m)
 # StatsModels.formula(m::GMMResultTable) = m.formula_schema
-dof_fes(m::GMMModel) = m.dof_fes
+dof_fes(m::GMMRegModel) = m.dof_fes
 
 function vcov(r::GMMFit)
     if isnothing(r.vcov)
         nparams = length(r.theta_hat)
         return zeros(nparams, nparams)
     else
-        return r.vcov[:V]
+        return r.vcov.V
     end
 end
 
 function vcov_method(r::GMMFit)
-    if isnothing(r.vcov)
+    if isnothing(r.vcov) || (r.vcov.method == :simple)
         return Vcov.simple()
-    else
-        return r.vcov[:method]
+        
+    elseif r.vcov.method == :bayesian_bootstrap
+        return bayesian_bootstrap()
     end
 end
 
-function GMMModel(r::GMMFit)
+function GMMRegModel(r::GMMFit)
     
-    nobs = r.N
+    nobs = r.n_obs
 
     if isnothing(r.vcov)
         @error "Cannot print table. No vcov estimated yet"
         error("Cannot print table. No vcov estimated yet")
+        # TODO: warning + just print pt estimates
     end
 
     if isnothing(r.theta_names)
         r.theta_names = ["theta_$i" for i=1:length(r.theta_hat)]
     end
 
-    GMMModel(
+    GMMRegModel(
         coef = r.theta_hat,
         vcov = vcov(r),
         vcov_type=vcov_method(r),
@@ -119,7 +124,16 @@ function GMMModel(r::GMMFit)
 end
 
 # TODO: integrate better with RegressionModels, allow mixed inputs etc. Should be easy.
-RegressionTables.regtable(r::GMMFit) = RegressionTables.regtable(GMMModel(r), render = AsciiTable())
+RegressionTables.regtable(r::GMMFit) = RegressionTables.regtable(GMMRegModel(r), render = AsciiTable())
+
+# function gmm_regtable  
+function RegressionTables.regtable(rrs::Vararg{Union{RegressionModel, GMMFit}}; kwargs...)
+
+    rrs_converted = [isa(r, GMMFit) ? GMMRegModel(r) : r for r=rrs]
+
+    return RegressionTables.regtable(rrs_converted..., kwargs...)
+end
+
 
         # labels = Dict("__LABEL_ESTIMATOR_OLS__" => "GMM"), 
 
