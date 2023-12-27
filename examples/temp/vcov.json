@@ -1,0 +1,2720 @@
+{
+  "method": "bayesian_bootstrap",
+  "J": null,
+  "W": null,
+  "boot_fits": null,
+  "V": [
+    [
+      3.639560317941223,
+      -0.2314032263590386
+    ],
+    [
+      -0.2314032263590386,
+      0.015212180377172108
+    ]
+  ],
+  "boot_fits_dict": [
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002484,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.4575423579558575,
+        1.2643202521720551
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.429217895467617e-28,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003772,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.70084565580227,
+        1.203643975176948
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.093846039521776e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1426924724474192,
+        -0.7979495826778349
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004546,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.814478420415146,
+        1.2482046796446935
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.494104773637912e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 12
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.08098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004383,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.211927377972515,
+        1.0145423137278207
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.682960369121921e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005043,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.415055269727449,
+        1.2241277710811944
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.511940611307028e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.000408,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.521847655959445,
+        1.162745679952211
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.403555300272665e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.1365574384456192,
+        -0.8864105480389216
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006601,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.169819747474502,
+        1.222289558978196
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.3930134985920364e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 18
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004429,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.120258436189118,
+        0.9702792493306329
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.0840711977019063e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.35715186214167405,
+        -1.1041688023815013
+      ],
+      "vcov": null,
+      "time_it_took": 0.000562,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.5600544148481275,
+        1.2186737276840467
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.035293333849378e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 13
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003625,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.257204092237043,
+        1.2253055246757156
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.9455167997921926e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004451,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        1.4690286640340249,
+        1.4188314060313099
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.5615246739546833e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.06364138660614915,
+        0.2604202723600453
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004503,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.033349567278583,
+        1.0363183542649408
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.307993458686747e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 1
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24573702716293688,
+        -0.5656574978848413
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003598,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.58833682928981,
+        1.1280179222853783
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.6729430002890238e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 17
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005089,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.802248856429438,
+        1.1206328756831783
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.2622641295479591e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.1365574384456192,
+        -0.8864105480389216
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004526,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.209086555027454,
+        1.2702697687971718
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.1225578541945738e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 18
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004107,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.1720893125217575,
+        1.110911192203908
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.8979199076578414e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.6603076784709887,
+        0.22085772740591736
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004223,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.434913604846681,
+        1.185328277823453
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.108671298262454e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 9
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.08098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.000464,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.194012381010365,
+        1.2291856645580863
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.305129185820713e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004353,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.50419162579339,
+        1.1182595542685108
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.580834716019204e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2351269426031646,
+        -0.5594852564768137
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003556,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.916001583993742,
+        1.079968014578678
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.4843108695841706e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 14
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004638,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.526181776061839,
+        1.0995127334224697
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 8.083758799989323e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.35715186214167405,
+        -1.1041688023815013
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004527,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.227574655413816,
+        1.0742067602695042
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 9.46688862900517e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 13
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006587,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.502008408368604,
+        1.2426106679542472
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.6303409074319526e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004012,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.5925400755864825,
+        1.0841281717206361
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.933501926101772e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.10917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003383,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.355926272297707,
+        1.2296978528331028
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 9.00444056166581e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004368,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.214823850825282,
+        1.2447571214568118
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.158154582437153e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2351269426031646,
+        -0.5594852564768137
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002911,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.086663541870652,
+        1.2074350815485027
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 9.81992485013038e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 14
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006804,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        -0.7549404892911813,
+        1.5821747398339314
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.8713722845500716e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.06364138660614915,
+        0.2604202723600453
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006185,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.47086378369207,
+        1.2271902535110897
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.156504002841118e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 1
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005502,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.77471082416713,
+        1.0672605570241216
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 7.739137940966103e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3772815919169223,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003743,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.8295127181522015,
+        1.2540057366340134
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.4846126872334136e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.10917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003814,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.4794507882887316,
+        1.3735568008783712
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.229820010902539e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005526,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.805821219430367,
+        1.1692979975004691
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.1909850007755408e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.000501,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.6960130496610955,
+        1.0191611800621971
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.3034476730472734e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004277,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.705902897246277,
+        1.1676047634722595
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.9160348639893843e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.000333,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.035188541737402,
+        1.099480147716644
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.3055350015721954e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.8822252715398702,
+        -1.2283465073466582
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004353,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.684612890290521,
+        1.159970460960535
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.5217459728704713e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 16
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003946,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.099806714057795,
+        1.1863246459594747
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 9.76171197107865e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.6603076784709887,
+        0.22085772740591736
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005383,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.4956381795483336,
+        1.272585624503978
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.0005531564213268e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 9
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.35715186214167405,
+        -1.1041688023815013
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005099,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.682861117839706,
+        1.348320098996161
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.7572189909365946e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 13
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.005728,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.483841396649422,
+        1.107561504878757
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.724682191584326e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006375,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.85610562496222,
+        1.091071842514303
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.852785283448209e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004677,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.958857593412875,
+        1.2246174525244418
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.9952528786713304e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.49340543618078625,
+        -0.6139004857356011
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004648,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.415172166865377,
+        0.9558683503227636
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.156900930970409e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 10
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004305,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.4377621752823995,
+        1.2642992928885737
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.881261617917909e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0057081,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.227775345458883,
+        1.1702247823141039
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.778154523515646e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.06364138660614915,
+        0.2604202723600453
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004655,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.576034511045892,
+        1.1828803826933947
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.6088027145780843e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 1
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.41205202074467273,
+        -1.1933861805337216
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005637,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.379606584958972,
+        1.2509038618493054
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.491309346676856e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 8
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005164,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.467268196314491,
+        1.234513839337771
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.1765337909828243e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004427,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.02214747457493,
+        1.0371483066288953
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 7.058205758816287e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2351269426031646,
+        -0.5594852564768137
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004523,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.258931133578907,
+        1.3446603520318057
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.1831794061563742e-28,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 14
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004396,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.231481550195367,
+        1.1791802018616149
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.409577025856655e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.8822252715398702,
+        -1.2283465073466582
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003268,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.46709576020932,
+        1.2661830217561556
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.5530219741079037e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 16
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004175,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.252563451463519,
+        1.267752566478669
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.2201985582089883e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.3399295112731391,
+        -1.4442840012301845
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002652,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.530614832712928,
+        1.1583840785139554
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.6497147554503644e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 19
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003833,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.43805885900913,
+        1.186943808718863
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.5690152327646675e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24573702716293688,
+        -0.5656574978848413
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004797,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        0.2658572580317001,
+        1.5180432806749116
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.0901859311697722e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 17
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004522,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.5843280585151653,
+        1.264210747848129
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.0395584012498958e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004548,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.687570027692686,
+        1.1698582110709304
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.2140183078151909e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0057595,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.8941395661265887,
+        1.3545970507432559
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.1664245870877682e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2351269426031646,
+        -0.5594852564768137
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004448,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.046498216365455,
+        1.0956650745216343
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.4828143794349188e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 14
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24573702716293688,
+        -0.5656574978848413
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002308,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.287169542831476,
+        1.257857746221626
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.0576352669059618e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 17
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.41205202074467273,
+        -1.1933861805337216
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005151,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.483721894573395,
+        1.194312450976891
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.461873863419911e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 8
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.000444,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.4273119352581545,
+        1.2853819126032302
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.033815695527285e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.10917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005008,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.303379558863329,
+        1.3162079416325863
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.2209073414029224e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.35715186214167405,
+        -1.1041688023815013
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004819,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.062980422647728,
+        0.9995703637208219
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.9138511091161526e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 13
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0045345,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.029572740554787,
+        1.3723540087235686
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.0904503411568574e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3772815919169223,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002495,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.4703004925282936,
+        1.353732925995186
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.1461408749246468e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.000528,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.234955293662466,
+        1.2110732285772052
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.277511157830072e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3772815919169223,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004761,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.410382921852782,
+        1.2132568139874433
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.998962711722512e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.1365574384456192,
+        -0.8864105480389216
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004376,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.308203309654859,
+        1.3212466688132427
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.565328804646614e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 18
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3772815919169223,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004492,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.089606109802581,
+        1.27205546594658
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.1782185306554474e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002509,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        9.179807486353882,
+        0.9410972489965573
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 6.2638954265256406e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.6603076784709887,
+        0.22085772740591736
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004887,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.110172254828412,
+        1.2721549279289557
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.022338272186998e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 9
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2351269426031646,
+        -0.5594852564768137
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005262,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.164092775252974,
+        1.1519401603822894
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 5.0501958423407556e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 14
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.07698717462614191,
+        -0.32823517370596766
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005067,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.489791683204993,
+        1.2938526677312396
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.323662778170572e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 3
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004943,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.435383572464618,
+        1.0960712148290777
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.4267364507005354e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1426924724474192,
+        -0.7979495826778349
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002343,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.4712177747117368,
+        1.3457457148074952
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.937979611821905e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 12
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.35715186214167405,
+        -1.1041688023815013
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004612,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.3683658033673054,
+        1.3207575546043469
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 8.524462694659927e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 13
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002156,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.378901000203619,
+        1.276618331953476
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.1566181740207318e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0059957,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.141794200211387,
+        1.3266703692445927
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.395353300941604e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.1365574384456192,
+        -0.8864105480389216
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004408,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        1.889300705044367,
+        1.376224358304169
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.553158673285733e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 18
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004291,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.038833693033705,
+        1.3218099656974318
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.8789866068844512e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006596,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.9456778474796446,
+        1.2800462136817914
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.0604689591111752e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3772815919169223,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002245,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.196524481805282,
+        1.3435082298534857
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.416721926754707e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1426924724474192,
+        -0.7979495826778349
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004959,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.6410457766580127,
+        1.3120708731547424
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.240300422534075e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 12
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.1365574384456192,
+        -0.8864105480389216
+      ],
+      "vcov": null,
+      "time_it_took": 0.000493,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.441220070795742,
+        0.9443179774573686
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.3258903020507205e-31,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 18
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.10917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003332,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.523848557321059,
+        0.9898186066258372
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 3.598090982690971e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.6702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004176,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.525742864781452,
+        1.2873941648705276
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.3345123953782123e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005169,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.107674060398635,
+        1.2552440490432697
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.802932422238907e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004933,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.7377262378376415,
+        1.1904288153506273
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.5025951647404521e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -0.8822252715398702,
+        -1.2283465073466582
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003931,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.402873683234433,
+        1.1139745698124663
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.38649484762946e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 16
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0007066,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.7903043624005326,
+        1.2668794347794168
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.5995593591743417e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        1.1726360942783431,
+        -0.9272799029227115
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004765,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.4731209116824475,
+        1.2191600723719305
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 9.689915489308052e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 2
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.24167994562362338,
+        -0.5182863622311493
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006061,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        10.440023695576167,
+        0.8671201879068994
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.35553597667166e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 5
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.3772815919169223,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.00026,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.26386774139948,
+        1.1452622730045847
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 4.88238785098746e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.08098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002667,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.551277548746089,
+        1.0572226196668686
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.5158037691880536e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.000495,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        1.8964328258788827,
+        1.3850022227426313
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.1606547734183454e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        -1.2834578288957794,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0009698,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.183641409645132,
+        1.2388786282329227
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 2.242410312027482e-30,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "all_model_fits": null,
+      "converged": true,
+      "theta0": [
+        0.08098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006297,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.7775702828549242,
+        1.2931903094839063
+      ],
+      "mode": "unassigned",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "obj_value": 1.6050237575395e-29,
+      "iterations": 3,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    }
+  ],
+  "ses": null,
+  "Σ": null
+}

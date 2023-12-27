@@ -43,13 +43,15 @@ end
 Write GMMFit object to files: JSON for most fields + CSV for all_model_fits table
 All paths should exist.
 """
-function write(myfit::GMMFit, opts::GMMOptions, filename; small=false) # TODO: think / add small write
+function write(myfit::GMMFit, opts::GMMOptions; subpath="fit")
     
     # paths
-    if opts.path == "" # ? do we need this?
+    if opts.path == "" 
         return
     end
     full_path = opts.path
+    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    full_path *= subpath
 
     myfit = deepcopy(myfit)
 
@@ -59,18 +61,21 @@ function write(myfit::GMMFit, opts::GMMOptions, filename; small=false) # TODO: t
             myfit.vcov = nothing
         end
     
-    # write table, then remove
+    # write table(s), then remove
         if isnothing(myfit.all_model_fits)
             myfit.all_model_fits = table(myfit)
         end
-        CSV.write(full_path * filename * ".csv", myfit.all_model_fits)
+        CSV.write(full_path * ".csv", myfit.all_model_fits)
         myfit.all_model_fits = nothing
 
-    # TODO: write fit_step1
-        myfit.fit_step1 = nothing
+        # moments at theta_hat (if computed)
+        if !isnothing(myfit.moms_hat)
+            writedlm(full_path * "_moms_hat.csv", myfit.moms_hat, ',')
+            myfit.moms_hat = nothing
+        end
 
     # write JSON file (in the process, parse GMMFit object and var-covar to dict)
-        fpath = full_path * filename * ".json"
+        fpath = full_path * ".json"
         open(fpath, "w") do file
             Base.write(file, parse_json(myfit))
         end
@@ -80,22 +85,23 @@ end
 
 ### Variance-covariance results
 
-function write(myvcov::GMMvcov, opts::GMMOptions)
+function write(myvcov::GMMvcov, opts::GMMOptions; subpath="vcov")
     
     if opts.path == ""
         return
     end
     full_path = opts.path
+    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    full_path *= subpath
 
     myvcov = deepcopy(myvcov)
 
     # deal with tables
     if myvcov.method == :bayesian_bootstrap
 
-        writedlm(full_path * "vcov_boot_weights.csv", myvcov.boot_fits.boot_weights, ',')
-        CSV.write(full_path * "vcov_boot_fits_df.csv", myvcov.boot_fits.boot_fits_df)
-
-        # TODO: write moments?
+        writedlm(full_path * "_boot_weights.csv", myvcov.boot_fits.boot_weights, ',')
+        CSV.write(full_path * "_boot_fits_df.csv", myvcov.boot_fits.boot_fits_df)
+        CSV.write(full_path * "_boot_moms_hat_df.csv", myvcov.boot_fits.boot_moms_hat_df)        
 
         # boot fit objects (vector of GMMFit objects)
         boot_fits_dict = to_dict(myvcov.boot_fits.boot_fits)
@@ -106,7 +112,7 @@ function write(myvcov::GMMvcov, opts::GMMOptions)
     end
 
     # the rest
-    fpath = full_path * "vcov.json"
+    fpath = full_path * ".json"
     open(fpath, "w") do file
         Base.write(file, parse_json(myvcov))
     end
@@ -148,7 +154,7 @@ function dict2fit(myfit_dict)
             theta_hat       =convert.(Float64, myfit_dict["theta_hat"]),
             theta_names     =myfit_dict["theta_names"],
 
-            moms_at_theta_hat = myfit_dict["moms_at_theta_hat"],
+            moms_hat        = myfit_dict["moms_hat"],
             n_obs           =myfit_dict["n_obs"],
             n_moms          =myfit_dict["n_moms"],
 
@@ -170,46 +176,42 @@ end
 """
 filepath should not include the extension (.csv or .json)
 """
-function read_fit(opts::GMMOptions; filepath="")
+function read_fit(opts::GMMOptions; subpath="fit")
 
-    if filepath == ""
-        full_path = opts.path * "fit"
-    else
-        full_path = opts.path * filepath
-    end
-
-    # files exits?
+    full_path = opts.path
+    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    full_path *= subpath
+    
+    # files exist?
     files_exist = isfile(full_path * ".csv") && isfile(full_path * ".json")
 
     if !files_exist
+        println("files `fit.csv` and/or `fit.json` do not exist in ", full_path)
         return nothing
     end
 
-    # read JSON file
+    # read and parse JSON file
     myfit_dict = JSON.parsefile(full_path * ".json")
-
     myfit = dict2fit(myfit_dict)
 
-    # read CSV file
+    # read CSV file with estimates
     df = CSV.read(full_path * ".csv", DataFrame)
     myfit.all_model_fits = df
 
-    # TODO: ADD READ VCOV
-    # if !isnothing(myfit_dict["vcov"])
-    #     # myfit.vcov = load_from_file(opts, filepath * "_vcov")
-    #     @error "read VCOV object not implemented yet"
-    # end
+    # read CSV file with moments at theta_hat
+    if isfile(full_path * "_moms_hat.csv")
+        myfit.moms_hat = readdlm(full_path * "_moms_hat.csv", ',', Float64)
+    end
 
     return myfit
 end
 
 
-function read_vcov(opts::GMMOptions; filepath="")
-    if filepath == ""
-        full_path = opts.path * "vcov"
-    else
-        full_path = opts.path * filepath
-    end
+function read_vcov(opts::GMMOptions; subpath="vcov")
+    
+    full_path = opts.path
+    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    full_path *= subpath
 
     # files exits?
     if !isfile(full_path * ".json")
@@ -227,10 +229,16 @@ function read_vcov(opts::GMMOptions; filepath="")
         end
     end
 
+    if isnothing(myvcov_dict["ses"])
+        ses = nothing
+    else
+        ses = convert.(Float64, myvcov_dict["ses"])
+    end
+
     myvcov = GMMvcov(
             method          = Symbol(myvcov_dict["method"]),
             V               = myvcov_dict["V"],
-            ses             = convert.(Float64, myvcov_dict["ses"]),
+            ses             = ses,
 
             W               = myvcov_dict["W"],
             J               = myvcov_dict["J"],
@@ -241,11 +249,13 @@ function read_vcov(opts::GMMOptions; filepath="")
         # read CSV files
         weights_df = readdlm(full_path * "_boot_weights.csv",  ',', Float64)
         boot_fits_df = CSV.read(full_path * "_boot_fits_df.csv", DataFrame)
+        boot_moms_hat_df = CSV.read(full_path * "_boot_moms_hat_df.csv", DataFrame)    
                 
         myvcov.boot_fits = GMMBootFits(
             boot_fits = [dict2fit(mybootfit_dict) for mybootfit_dict in myvcov_dict["boot_fits_dict"]],
             boot_weights    = weights_df,
-            boot_fits_df    = boot_fits_df)
+            boot_fits_df    = boot_fits_df,
+            boot_moms_hat_df = boot_moms_hat_df)
     end
 
     return myvcov

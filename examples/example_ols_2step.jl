@@ -39,7 +39,7 @@ end
 
 # initial parameter guess
     Random.seed!(123)
-    theta0 = random_initial_conditions([0.0, 0.0], 200)
+    theta0 = random_initial_conditions([0.0, 0.0], 20)
 
 ### using Optim.jl
     # estimation options
@@ -59,9 +59,8 @@ end
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
-    sdfd
-    # myopts.path *= "step1/"
-    # a = GMMTools.read_fit(myopts)
+    myopts.path *= "step1/"
+    myfit2 = GMMTools.read_fit(myopts)
    
 ### using Optim.jl
     # estimation options
@@ -85,29 +84,33 @@ end
     GMMTools.write(myfit.vcov, myopts)
 
 # print table with results
-    regtable(myfit)
+    regtable(myfit) |> display
 
-    regtable(reg_ols, myfit) # works
-    # regtable(reg_ols, myfit; render   = AsciiTable())
+    regtable(reg_ols, myfit) |> display # works
+    # regtable(reg_ols, myfit; render   = AsciiTable()) # doesn't work. why?
+
+# compute Bayesian (weighted) bootstrap inference and save in myfit.vcov (this will overwrite existing vcov files)
+    myopts.trace = 1
+    myopts.write_iter = false # time consuming to write individual iterations to file (500 x 20)
+
+    # first generate bootstrap weights. In case estimation is interrupted, running this code again generates exactly the same weights, so we can continue where we left off.
+    bweights_matrix = boot_weights(df, myfit, nboot=100, method=:simple, rng_initial_seed=1234) 
+
+    vcov_bboot(df, ols_moments_fn, theta0, myfit, bweights_matrix, opts=myopts)
+    regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
+
 
 # read vcov with bootstrop from file
     myfit.vcov = GMMTools.read_vcov(myopts)
-    regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
+    regtable(myfit) |> display
 
-# compute Bayesian (weighted) bootstrap inference and save in myfit.vcov
-    myopts.trace = 1
-    myopts.write_iter = false # time consuming to write individual iterations to file (500 x 20)
-    vcov_bboot(df, ols_moments_fn, theta0, myfit, nboot=500, opts=myopts)
-    regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
-
-    sdfsd
     # using Plots
     # histogram(myfit.vcov[:boot_fits].all_theta_hat[:, 1])
 
 # bootstrap with weightes drawn at the level of clusters defined by the variable df.cylinders
-    myopts.trace = 0
-    vcov_bboot(df, ols_moments_fn, theta0, myfit, boot_weights=:cluster, cluster_var=:cylinders, nboot=500, opts=myopts)
-    myfit.vcov
+    # myopts.trace = 0
+    # vcov_bboot(df, ols_moments_fn, theta0, myfit, boot_weights=:cluster, cluster_var=:cylinders, nboot=500, opts=myopts)
+    # myfit.vcov
 
-    GMMTools.regtable(myfit)
+    # GMMTools.regtable(myfit)
 

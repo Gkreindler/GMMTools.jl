@@ -7,6 +7,7 @@ Base.@kwdef mutable struct GMMBootFits
     boot_fits                   # vector of all GMMFit objects
     boot_weights::Matrix        # nboot x n_obs matrix with bootstrap weights
     boot_fits_df::DataFrame     # df with all iterations for all bootstrap runs
+    boot_moms_hat_df::Union{DataFrame, Nothing} = nothing # df with moment values at theta_hat for all bootstrap runs
 end
 
 # extent the "copy" method to the GMMOptions type
@@ -89,7 +90,7 @@ end
 
 function process_boot_fits(boot_fits::Vector{GMMFit})
 
-    ### matrix with weights (row = bootstrap run, column = observation)
+    ### matrix with weights (col = bootstrap run, row = observation)
     all_boot_weights = hcat([boot_fits[i].weights for i=1:length(boot_fits)]...)
     for i=1:length(boot_fits)
         boot_fits[i].weights = nothing
@@ -107,14 +108,27 @@ function process_boot_fits(boot_fits::Vector{GMMFit})
     end
     all_boot_fits = vcat(all_boot_fits...)
 
-    # only keep the optimal iterations
-    # mysample = all_boot_fits.is_optimum .== 1
-    # all_fits = copy(all_boot_fits[mysample, :])
+    # full table with mom_hat's
+    if !isnothing(boot_fits[1].moms_hat)
+        all_boot_moms_hat = []
+        for i=1:nboot
+            temp_df = DataFrame(boot_fits[i].moms_hat, :auto) # convert to dataframe
+            temp_df[!, :boot_idx] .= i
+            temp_df[!, :obs] = 1:nrow(temp_df)
+            push!(all_boot_moms_hat, temp_df)
+
+            boot_fits[i].moms_hat = nothing
+        end
+        all_boot_moms_hat = vcat(all_boot_moms_hat...)
+    else
+        all_boot_moms_hat = nothing
+    end
 
     return GMMBootFits(
         boot_fits = boot_fits,          # vector of GMMFit objects
         boot_weights = all_boot_weights,# nboot x n_obs matrix with bootstrap weights
-        boot_fits_df = all_boot_fits    # df with all iterations for all bootstrap runs
+        boot_fits_df = all_boot_fits,    # df with all iterations for all bootstrap runs
+        boot_moms_hat_df = all_boot_moms_hat
     )
 end
 
@@ -143,22 +157,83 @@ function boot_weights_cluster(rng, idx_cluster_crosswalk, n_clusters)
     return cluster_level_weights[idx_cluster_crosswalk]
 end
 
+# generate bayesian bootstrap weight vectors (one per bootstrap run)
+function boot_weights(
+    data,
+    myfit::GMMFit;
+    method::Symbol=:simple, # accepts :simple, :cluster, or :user
+    boot_weights_fn::Union{Function, Nothing} = nothing, # user-provided function(rng, data, n_obs)
+    nboot=100, 
+    cluster_var=nothing,
+    rng_initial_seed=1234,
+    show_trace=false
+)
+    # random number generator
+    main_rng = MersenneTwister(rng_initial_seed)
+
+    n_obs = myfit.n_obs
+    n_moms = myfit.n_moms 
+
+    # prepare the function to generate random weights
+    if method == :simple
+        my_boot_weights_fn = boot_weights_simple
+
+    elseif method == :cluster
+        # prep cluster
+
+        @assert !isnothing(cluster_var) "cluster_var must be specified if method=:cluster"
+
+        try
+            cluster_values = unique(data[:, cluster_var])
+
+            ### ___idx_cluster___ has the index in the cluster_values vector of this row's value        
+            # join to original data (must be a DataFrame)
+            temp_df = DataFrame(string(cluster_var) => cluster_values, "___idx_cluster___" => 1:length(cluster_values))
+            crosswalk_df = leftjoin(data[:,[cluster_var]], temp_df, on=cluster_var)
+
+            # draw random weights for each cluster and fill in a vector as large as the original data
+            my_boot_weights_fn = (rng, data, n_obs) -> boot_weights_cluster(rng, crosswalk_df.___idx_cluster___, length(cluster_values))
+        catch e
+            @error "Could not generate cluster weights. Make sure data is a DataFrame."
+            throw(e)
+        end
+
+    else
+        @assert method == :user "method must be :simple, :cluster, or :user"
+        @assert isa(boot_weights_fn, Function) "if method == :user, then a boot_weights_fn Function should be provided"
+        
+        my_boot_weights_fn = boot_weights_fn
+    end
+
+    boot_weights_mat = zeros(n_obs, nboot)
+    for i=1:nboot
+        show_trace && println("generating bootstrap weights for run ", i)
+
+        # the output is a vector of weights same size as the number of rows from the moment
+        boot_weights_vec = my_boot_weights_fn(main_rng, data, n_obs)
+
+        # normalizing weights is important for numerical precision
+        boot_weights_mat[:, i] .= boot_weights_vec ./ mean(boot_weights_vec)
+    end
+
+    return boot_weights_mat
+end
 
 function vcov_bboot(
     data, 
     mom_fn::Function, 
     theta0, 
-    myfit::GMMFit; 
-    W=I, 
-    boot_weights::Union{Function, Symbol}=:simple, # accepts :simple, :cluster, or a user-provided function(rng, data, n_obs)
-    nboot=100, 
-    rng_initial_seed=1234,
+    myfit::GMMFit,
+    boot_weights::Matrix{Float64}; 
+    W=I,     
     cluster_var=nothing, 
     run_parallel=true,
     opts::GMMOptions=default_gmm_opts())
 
     # copy options so we can modify them (trace and path)
     opts = deepcopy(opts)
+
+    nboot = size(boot_weights, 2)
 
     if !isnothing(cluster_var) && (boot_weights != :cluster)
         @error "cluster_var is specified but boot_weights is not :cluster. Proceeding without clustering."
@@ -175,52 +250,13 @@ function vcov_bboot(
     # need recenter so that it equal zero at theta_hat
     # see Hall and Horowitz (1996) for details
     
-    # ! maybe load directly from fit
-    m = mom_fn(data, myfit.theta_hat)
-    
-    mom_fn_boot = (data, theta) -> mom_fn(data, theta) .- mean(m, dims=1)
-
-    n_obs = myfit.n_obs
-    n_moms = myfit.n_moms
-
-    # random number generator
-    main_rng = MersenneTwister(rng_initial_seed)
-
-    # generate bayesian bootstrap weight vectors (one per bootstrap run)
-    if boot_weights == :simple
-        boot_weights_fn = boot_weights_simple
-
-    elseif boot_weights == :cluster
-        # prep cluster
-
-        @assert !isnothing(cluster_var) "cluster_var must be specified if boot_weights=:cluster"
-
-        cluster_values = unique(data[:, cluster_var])
-
-        ### ___idx_cluster___ has the index in the cluster_values vector of this row's value        
-        # join to original data (must be a DataFrame)
-        temp_df = DataFrame(string(cluster_var) => cluster_values, "___idx_cluster___" => 1:length(cluster_values))
-        crosswalk_df = leftjoin(data[:,[cluster_var]], temp_df, on=cluster_var)
-
-        # draw random weights for each cluster and fill in a vector as large as the original data
-        boot_weights_fn = (rng, data, n_obs) -> boot_weights_cluster(rng, crosswalk_df.___idx_cluster___, length(cluster_values))
+    if isnothing(myfit.moms_hat)
+        m = mom_fn(data, myfit.theta_hat)
     else
-        @assert isa(boot_weights, Function) "boot_weights must be :simple, :cluster, or a function(rng, data)"
-        boot_weights_fn = boot_weights
+        m = myfit.moms_hat
     end
-
-    all_boot_weights = []
-    for i=1:nboot
-        (opts.trace > 0) && println("generating bootstrap weights for run ", i)
-
-        # the output is a vector of weights same size as the number of rows from the moment
-        boot_weights = boot_weights_fn(main_rng, data, n_obs)
-
-        # normalizing weights is important for numerical precision
-        boot_weights ./= mean(boot_weights)
-
-        push!(all_boot_weights, boot_weights)
-    end
+    
+    mom_fn_boot = (data, theta) -> mom_fn(data, theta) .- mean(m, dims=1)   
 
     # run bootstrap (serial or parallel)
     if !run_parallel
@@ -231,7 +267,7 @@ function vcov_bboot(
                 data, 
                 mom_fn_boot, # using the boot mom function (zero at theta_hat)
                 theta0,
-                all_boot_weights[i],
+                boot_weights[:, i],
                 W=W,
                 opts=opts)
         end
@@ -242,7 +278,7 @@ function vcov_bboot(
                     data, 
                     mom_fn_boot, # using the boot mom function (zero at theta_hat)
                     theta0,
-                    all_boot_weights[i],
+                    boot_weights[:, i],
                     W=W,
                     opts=opts), 
             1:nboot)

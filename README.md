@@ -44,7 +44,13 @@ regtable(myfit)
 
 The parameter `theta0` is either a vector of size $P$, or a $K\times P$ matrix with $K$ sets of initial conditions. The convenience function `GMMTools.random_initial_conditions(theta0::Vector, K::Int; theta_lower=nothing, theta_upper=nothing)` generates `K` random initial conditions around `theta0` (and between `theta_lower` and `theta_upper`, if provided).
 
-For inference using Bayesian (weighted) bootstrap, replace the second line by `GMMTools.vcov_bboot(MYDATA, mom_fn, theta0, myfit, nboot=500)`. 
+For inference using Bayesian (weighted) bootstrap, replace the second line by 
+```julia
+# generate bootstrap weights first and separately. In case the estimation is interrupted, running this code again generates exactly the same weights, so we can continue where we left off.
+bweights_matrix = boot_weights(MYDATA, myfit, nboot=500, method=:simple, rng_initial_seed=1234) 
+vcov_bboot(MYDATA, mom_fn, theta0, myfit, bweights_matrix, opts=myopts)
+```
+
 
 # Options
 `fit()` accepts detailed options that control (1) whether and how results are saved to file, and (2) the optimization backend and options.

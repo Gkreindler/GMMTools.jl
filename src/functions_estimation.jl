@@ -26,48 +26,22 @@ function default_optim_opts()
         iterations=5000)
 end
 
-# function default_gmm_opts(;
-#     path = "",
-#     theta_names = nothing,
-#     optim_opts = nothing,
-#     optim_autodiff = :none,
-#     optim_algo = LBFGS(),
-#     write_iter = false,
-#     clean_iter = false,
-#     overwrite = false,
-#     trace = 0)
-
-#     return GMMOptions(
-#         path=path,
-#         theta_names=theta_names,
-#         optim_autodiff=optim_autodiff,
-#         optim_algo=optim_algo,
-#         optim_opts=optim_opts,
-#         write_iter=write_iter,
-#         clean_iter=clean_iter,
-#         overwrite=overwrite,
-#         trace=trace)
-# end
-
-
-
-
 
 Base.@kwdef mutable struct GMMFit
-    theta0::Vector         # initial conditions (vector of size P or K x P matrix for K sets of initial conditions)
-    theta_hat::Vector      # estimated parameters
+    theta0::Vector         # initial conditions   (vector of size P or K x P matrix for K sets of initial conditions)
+    theta_hat::Vector      # estimated parameters (vector of size P)
     theta_names::Union{Vector{String}, Nothing}
 
-    moms_at_theta_hat = nothing # moments at theta_hat
-    n_obs = nothing # number of observations
-    n_moms = nothing # number of moments
+    moms_hat = nothing # value of moments at theta_hat (N x M matrix)
+    n_obs = nothing # number of observations (N)
+    n_moms = nothing # number of moments (M)
 
     # estimation parameters
     mode::Symbol = :unassigned # onestep, twostep, etc.
-    weights=nothing
-    W=I
+    weights=nothing # Vector of size N or nothing
+    W=I             # weight matrix (N x N) or uniform scaling identity (I)
     
-    fit_step1=nothing
+    # fit_step1=nothing # for two-step estimation, save results from step 1 # ? need this?
 
     # optimization results
     obj_value::Number
@@ -150,8 +124,8 @@ function stats_at_theta_hat(myfit::GMMFit, data, mom_fn::Function)
     myfit.n_obs = size(m, 1)
     myfit.n_moms = size(m, 2)
     
-    # TODO: save this optionally? It's important, but it's also a lot of data   
-    # myfit.moms_at_theta_hat = m
+    # TODO: make this optional
+    myfit.moms_hat = m
 end
 
 
@@ -257,12 +231,12 @@ function fit_twostep(
         data, 
         mom_fn,
         theta0;
-        W=Wstep2,    
+        W=Wstep2, # use optimal weighting matrix from step 1
         weights=weights,
         run_parallel=run_parallel,
         opts=opts)
 
-    fit_step2.fit_step1 = fit_step1
+    # fit_step2.fit_step1 = fit_step1
 
     # revert
     # opts.path = main_path
@@ -328,7 +302,7 @@ function fit_onestep(
     stats_at_theta_hat(best_model_fit, data, mom_fn)
 
     # save results to file?
-    (opts.path != "") && write(best_model_fit, opts, "fit")
+    (opts.path != "") && write(best_model_fit, opts)
 
     # delete all intermediate files with individual iteration results
     opts.clean_iter && clean_iter(opts)
@@ -353,7 +327,7 @@ function fit_onerun(
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = read_fit(opts, filepath="__iter__/results_" * string(idx) * ".csv")
+        opt_results_from_file = read_fit(opts, subpath="__iter__/results_" * string(idx) * ".csv")
         
         if !isnothing(opt_results_from_file)
             (opts.trace > 0) && println(" Reading from file.")
@@ -395,7 +369,7 @@ function fit_onerun(
     # write intermediate results to file
     if opts.write_iter 
         (opts.trace > 0) && println(" Done and done writing to file.")
-        write(model_fit, opts, "__iter__/results_" * string(idx), small=true)
+        write(model_fit, opts, subpath="__iter__/results_" * string(idx)) # this does not contain moms_hat (good, saves space)
     else
         (opts.trace > 0) && println(" Done. ")
     end
