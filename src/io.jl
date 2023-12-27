@@ -15,7 +15,6 @@ end
 function Base.show(io::IO, r::GMMBootFits)
     println("Baysian bootstrap results struct with the following fields:")
     for f in fieldnames(GMMBootFits)
-        # println("  ", f, ": ", getfield(r, ))
         println("...field ", f, " is a ", typeof(getfield(r, f)))
     end
     # display(r.all_model_fits)
@@ -176,7 +175,7 @@ end
 """
 filepath should not include the extension (.csv or .json)
 """
-function read_fit(opts::GMMOptions; subpath="fit")
+function read_fit(opts::GMMOptions; subpath="fit", show_trace=false)
 
     full_path = opts.path
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
@@ -186,7 +185,7 @@ function read_fit(opts::GMMOptions; subpath="fit")
     files_exist = isfile(full_path * ".csv") && isfile(full_path * ".json")
 
     if !files_exist
-        println("files `fit.csv` and/or `fit.json` do not exist in ", full_path)
+        show_trace && println("files `fit.csv` and/or `fit.json` do not exist in ", full_path)
         return nothing
     end
 
@@ -207,7 +206,7 @@ function read_fit(opts::GMMOptions; subpath="fit")
 end
 
 
-function read_vcov(opts::GMMOptions; subpath="vcov")
+function read_vcov(opts::GMMOptions; subpath="vcov", show_trace=false)
     
     full_path = opts.path
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
@@ -215,7 +214,7 @@ function read_vcov(opts::GMMOptions; subpath="vcov")
 
     # files exits?
     if !isfile(full_path * ".json")
-        println("file `vcov.json` does not exist in ", full_path)
+        show_trace && println("file `vcov.json` does not exist in ", full_path)
         return nothing
     end
 
