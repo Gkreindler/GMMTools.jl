@@ -8,3 +8,4 @@ Manifest.toml
 .DS_Store
 .vscode
 examples/temp/
+examples\temp\
