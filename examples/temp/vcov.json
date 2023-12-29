@@ -23,7 +23,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0004051,
+      "time_it_took": 0.0004313,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -52,7 +52,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0005459,
+      "time_it_took": 0.000459,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -81,7 +81,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004949,
+      "time_it_took": 0.0005141,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -110,7 +110,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0005337,
+      "time_it_took": 0.0007655,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -139,7 +139,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0005354,
+      "time_it_took": 0.0003472,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -168,7 +168,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0004539,
+      "time_it_took": 0.0006006,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -197,7 +197,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004189,
+      "time_it_took": 0.0004492,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -226,7 +226,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0006045,
+      "time_it_took": 0.0005706,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -255,7 +255,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004734,
+      "time_it_took": 0.0002815,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -284,7 +284,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0003734,
+      "time_it_took": 0.0004696,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -313,7 +313,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0003817,
+      "time_it_took": 0.0006341,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -342,7 +342,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0006202,
+      "time_it_took": 0.0004934,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -371,7 +371,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004098,
+      "time_it_took": 0.0004481,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -400,7 +400,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0005317,
+      "time_it_took": 0.0004076,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -429,7 +429,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.000501,
+      "time_it_took": 0.0006188,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -458,7 +458,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0003722,
+      "time_it_took": 0.0004908,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -487,7 +487,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0004809,
+      "time_it_took": 0.0006175,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -516,7 +516,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0005117,
+      "time_it_took": 0.0004306,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -545,7 +545,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004374,
+      "time_it_took": 0.000362,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -574,7 +574,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0005276,
+      "time_it_took": 0.0003726,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -603,7 +603,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004466,
+      "time_it_took": 0.0004682,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -632,7 +632,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004557,
+      "time_it_took": 0.0006103,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -661,7 +661,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0004887,
+      "time_it_took": 0.0004146,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -690,7 +690,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004022,
+      "time_it_took": 0.0003887,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -719,7 +719,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0005578,
+      "time_it_took": 0.0003621,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -748,7 +748,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004987,
+      "time_it_took": 0.0004743,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -777,7 +777,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0005378,
+      "time_it_took": 0.0002873,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -806,7 +806,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.000488,
+      "time_it_took": 0.0003824,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -835,7 +835,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0002997,
+      "time_it_took": 0.0003496,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -864,7 +864,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0004408,
+      "time_it_took": 0.0006236,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -893,7 +893,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0004459,
+      "time_it_took": 0.0003963,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -922,7 +922,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004618,
+      "time_it_took": 0.0003832,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -951,7 +951,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003217,
+      "time_it_took": 0.000335,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -980,7 +980,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0004028,
+      "time_it_took": 0.0004754,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1009,7 +1009,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0005391,
+      "time_it_took": 0.0006124,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1038,7 +1038,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0008837,
+      "time_it_took": 0.0003148,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1067,7 +1067,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003503,
+      "time_it_took": 0.000316,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1096,7 +1096,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0004489,
+      "time_it_took": 0.000329,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1125,7 +1125,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004389,
+      "time_it_took": 0.0003561,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1154,7 +1154,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004468,
+      "time_it_took": 0.0005205,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1183,7 +1183,7 @@
         0.2604202723600453
       ],
       "vcov": null,
-      "time_it_took": 0.0005695,
+      "time_it_took": 0.000342,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1212,7 +1212,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004323,
+      "time_it_took": 0.0003317,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1241,7 +1241,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0003533,
+      "time_it_took": 0.0002936,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1270,7 +1270,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0003779,
+      "time_it_took": 0.0004621,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1299,7 +1299,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0008206,
+      "time_it_took": 0.000302,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1328,7 +1328,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.000443,
+      "time_it_took": 0.0004822,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1357,7 +1357,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0003353,
+      "time_it_took": 0.0003558,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1386,7 +1386,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0003577,
+      "time_it_took": 0.0004279,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1415,7 +1415,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004793,
+      "time_it_took": 0.0004359,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1444,7 +1444,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0003467,
+      "time_it_took": 0.0003569,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1473,7 +1473,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003378,
+      "time_it_took": 0.000345,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1502,7 +1502,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0003836,
+      "time_it_took": 0.0003588,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1531,7 +1531,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003877,
+      "time_it_took": 0.0051232,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1560,7 +1560,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0003519,
+      "time_it_took": 0.0003315,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1589,7 +1589,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0003888,
+      "time_it_took": 0.0003716,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1618,7 +1618,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0003606,
+      "time_it_took": 0.000407,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1647,7 +1647,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004399,
+      "time_it_took": 0.0003737,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1676,7 +1676,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0007106,
+      "time_it_took": 0.0005097,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1705,7 +1705,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004195,
+      "time_it_took": 0.0003556,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1734,7 +1734,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0003879,
+      "time_it_took": 0.0003917,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1763,7 +1763,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003529,
+      "time_it_took": 0.0004104,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1792,7 +1792,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004507,
+      "time_it_took": 0.0003243,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1821,7 +1821,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0003919,
+      "time_it_took": 0.0003376,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1850,7 +1850,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003725,
+      "time_it_took": 0.0004385,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1879,7 +1879,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0004927,
+      "time_it_took": 0.0004045,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1908,7 +1908,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004461,
+      "time_it_took": 0.0004768,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1937,7 +1937,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0004899,
+      "time_it_took": 0.0004017,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1966,7 +1966,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003565,
+      "time_it_took": 0.0003056,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -1995,7 +1995,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003316,
+      "time_it_took": 0.0003337,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2024,7 +2024,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0003662,
+      "time_it_took": 0.0004059,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2053,7 +2053,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0058137,
+      "time_it_took": 0.0003061,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2082,7 +2082,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0003243,
+      "time_it_took": 0.0007064,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2111,7 +2111,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0003953,
+      "time_it_took": 0.0004188,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2140,7 +2140,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0002492,
+      "time_it_took": 0.0003556,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2169,7 +2169,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0003721,
+      "time_it_took": 0.0003559,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2198,7 +2198,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0002699,
+      "time_it_took": 0.0003601,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2227,7 +2227,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0004666,
+      "time_it_took": 0.0003732,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2256,7 +2256,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003946,
+      "time_it_took": 0.0003589,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2285,7 +2285,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004775,
+      "time_it_took": 0.0004724,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2314,7 +2314,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0003628,
+      "time_it_took": 0.0002914,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2343,7 +2343,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0002624,
+      "time_it_took": 0.0003219,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2372,7 +2372,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0003439,
+      "time_it_took": 0.0003394,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2401,7 +2401,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.000309,
+      "time_it_took": 0.0003149,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2430,7 +2430,7 @@
         -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0003412,
+      "time_it_took": 0.0002363,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2459,7 +2459,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.000274,
+      "time_it_took": 0.0003324,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2488,7 +2488,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0002826,
+      "time_it_took": 0.0005197,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2517,7 +2517,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0003499,
+      "time_it_took": 0.0003288,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2546,7 +2546,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0003494,
+      "time_it_took": 0.0002619,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2575,7 +2575,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0002887,
+      "time_it_took": 0.0006503,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2604,7 +2604,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0002823,
+      "time_it_took": 0.0005088,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2633,7 +2633,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.000374,
+      "time_it_took": 0.0003622,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2662,7 +2662,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0004033,
+      "time_it_took": 0.0002998,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2691,7 +2691,7 @@
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0003303,
+      "time_it_took": 0.0002675,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -2720,7 +2720,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0002617,
+      "time_it_took": 0.0004162,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -3119,7 +3119,7 @@
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004326,
+      "time_it_took": 0.0003437,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -3148,7 +3148,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004197,
+      "time_it_took": 0.0003376,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -3177,7 +3177,7 @@
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0003606,
+      "time_it_took": 0.0002447,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -3206,7 +3206,7 @@
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0002583,
+      "time_it_took": 0.0003227,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
@@ -3235,7 +3235,7 @@
         0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0003823,
+      "time_it_took": 0.0004276,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [

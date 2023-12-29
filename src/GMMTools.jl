@@ -38,7 +38,8 @@ export GMMOptions,
         random_initial_conditions, theta_add_fixed_values,
         default_gmm_opts, default_optim_opts,
         fit, 
-        vcov_simple, vcov_bboot, boot_weights
+        vcov_simple, vcov_bboot, boot_weights,
+        regtable
 
 include("functions_estimation.jl")
 include("optimization_backends.jl")

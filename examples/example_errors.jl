@@ -22,7 +22,7 @@ using Random
 
 # Run plain OLS for comparison
     reg_ols = reg(df, term(:mpg) ~ term(:acceleration))
-    regtable(reg_ols)
+    RegressionTables.regtable(reg_ols)
 
 # define moments for OLS regression
 # residuals orthogonal to the constant and to the variable (acceleration)
@@ -35,7 +35,7 @@ end
 
 # initial parameter guess
     Random.seed!(123)
-    theta0 = random_initial_conditions([10.0, 0.0], 20)
+    theta0 = GMMTools.random_initial_conditions([10.0, 0.0], 20)
 
 ### using Optim.jl
     # estimation options
@@ -89,20 +89,9 @@ end
     myfit.vcov.boot_fits
     myfit.vcov.boot_fits.boot_fits_df
 
-    regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
+    GMMTools.regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
 
-dsfsdf
 # read vcov with bootstrop from file
     myfit.vcov = GMMTools.read_vcov(myopts)
-    regtable(myfit) |> display
-
-    # using Plots
-    # histogram(myfit.vcov[:boot_fits].all_theta_hat[:, 1])
-
-# bootstrap with weightes drawn at the level of clusters defined by the variable df.cylinders
-    # myopts.trace = 0
-    # vcov_bboot(df, ols_moments_fn, theta0, myfit, boot_weights=:cluster, cluster_var=:cylinders, nboot=500, opts=myopts)
-    # myfit.vcov
-
-    # GMMTools.regtable(myfit)
+    GMMTools.regtable(myfit) |> display
 
