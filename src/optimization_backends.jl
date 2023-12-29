@@ -1,4 +1,68 @@
 
+function backend_optimizer(
+    idx,
+    data, 
+    mom_fn::Function,
+    theta0;
+    W,    
+    weights=nothing, 
+    opts::GMMOptions)
+
+    @assert in(opts.optimizer, [:optim, :lsqfit]) "Optimizer " * string(opts.optimizer) * " not supported. Stopping."
+
+    try
+        if opts.optimizer == :optim
+            # Use the general purpose Optim.jl package for optimization (default)
+
+            return backend_optimjl( 
+                data, 
+                mom_fn,
+                theta0;
+                W=W,    
+                weights=weights, 
+                opts=opts)
+
+        elseif opts.optimizer == :lsqfit
+            # use the Levenberg Marquardt algorithm from LsqFit.jl for optimization
+            # this relies on the fact that the GMM objective function is a sum of squares
+
+            return backend_lsqfit( 
+                data, 
+                mom_fn,
+                theta0;
+                W=W,    
+                weights=weights, 
+                opts=opts)
+        end
+
+    catch e
+        # save error to file
+        if opts.path != ""
+            # write string S to file F
+            error_path = opts.path * "__iter__/"
+            isdir(error_path) || mkdir(error_path)
+            error_path *= "error_" * string(idx) * ".txt"
+            
+            open(error_path, "w") do io
+                Base.write(io, string(e))
+            end            
+        end
+
+        # do NOT clean iteration files
+        opts.clean_iter = false
+
+        # throw?
+        if opts.throw_errors 
+
+            throw(e)
+        else
+
+            @error "Error in estimation run " * string(idx) * " with theta0=" * string(theta0) *  ". Error: " * string(e)
+        end
+
+        return error_fit(e, theta0, W, weights, opts)
+    end
+end
 
 
 function gmm_objective(theta::Vector, data, mom_fn::Function, W, weights; trace=0)
@@ -191,3 +255,4 @@ function backend_lsqfit(
     )
     return model_fit
 end
+

@@ -100,11 +100,11 @@ function process_boot_fits(boot_fits::Vector{GMMFit})
     all_boot_fits = []
     nboot = length(boot_fits)
     for i=1:nboot
-        temp_df = copy(boot_fits[i].all_model_fits)
+        temp_df = copy(boot_fits[i].fits_df)
         temp_df[!, :boot_idx] .= i
         push!(all_boot_fits, temp_df)
 
-        boot_fits[i].all_model_fits = nothing
+        boot_fits[i].fits_df = nothing
     end
     all_boot_fits = vcat(all_boot_fits...)
 

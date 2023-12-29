@@ -5,6 +5,7 @@ Base.@kwdef mutable struct GMMOptions
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # delete individual run files at the end of the estimation
     overwrite::Bool = false     # overwrite existing results file and individual run files
+    throw_errors::Bool = false  # throw optimization errors (if false, save them to file but continue with the other runs)
 
     optimizer::Symbol = :optim              # optimizer backend: :optim or :lsqfit (LM)
     optim_algo = LBFGS()                    # Optim.jl algorithm
@@ -45,31 +46,65 @@ Base.@kwdef mutable struct GMMFit
 
     # optimization results
     obj_value::Number
+    errored::Bool = false
+    error_message::String = ""
     converged::Bool
-    iterations::Integer
-    iteration_limit_reached::Bool
-    time_it_took::Float64
+    iterations::Union{Integer, Missing}
+    iteration_limit_reached::Union{Bool, Missing}
+    time_it_took::Union{Float64, Missing}
 
     # results from multiple initial conditions (DataFrame)
-    all_model_fits = nothing # TODO: switch to PrettyTables.jl and OrderedDict
+    fits_df = nothing # TODO: switch to PrettyTables.jl and OrderedDict
     idx = nothing # aware of which iteration number this is
 
     # variance covariance matrix
     vcov = nothing
 end
 
+"""
+The model fit object when the optimization gives an error
+"""
+function error_fit(e, theta0, W, weights, opts)
+    return GMMFit(
+        errored = true,
+        error_message = string(e),
+        converged = false,
+        theta_hat = missing .* theta0,
+        theta_names = opts.theta_names,
+        weights=weights,
+        W=W,
+        obj_value = Inf, # pick Inf so we never pick this as the best iteration (unless all iterations errored)
+        iterations = missing,
+        iteration_limit_reached = missing,
+        theta0 = theta0,
+        time_it_took = missing
+    )
+end
 
 """
 Select best results from multiple initial conditions
+    - errored runs have obj_value = Inf. Hence, if all runs errored, we (arbitrarily) pick idx=1 as the best run, and it will have errored = true
 """
 function process_model_fits(model_fits::Vector{GMMFit})
-    obj_values = [er.obj_value for er = model_fits]
+
+    # # vector of errors
+    # errors = [er.errored for er = model_fits]
+    
+    # # smallest objective value among non-error runs
+    # obj_values = [model_fits[i].obj_value for i=1:length(model_fits) if !errors[i]]
+    # if isempty(obj_values)
+    #     idx = 1
+    # else
+    #     idx = argmin(obj_values)
+    # end    
+
+    obj_values = [model_fits[i].obj_value for i=1:length(model_fits)]    
     idx = argmin(obj_values)
 
     best_model_fit = model_fits[idx]
 
-    best_model_fit.all_model_fits = vcat([table(er) for er = model_fits]...)
-    best_model_fit.all_model_fits[!, :is_optimum] = ((1:length(model_fits)) .== idx) .+ 0
+    best_model_fit.fits_df = vcat([table_fit(er) for er = model_fits]...)
+    best_model_fit.fits_df[!, :is_optimum] = ((1:length(model_fits)) .== idx) .+ 0
     
     return best_model_fit
 end
@@ -77,16 +112,17 @@ end
 """
 Convert GMMFit object to table
 """
-function table(r::GMMFit)
+function table_fit(r::GMMFit)
 
-    if !isnothing(r.all_model_fits)
-        return r.all_model_fits
+    if !isnothing(r.fits_df)
+        return r.fits_df
     end
 
-    all_model_fits = DataFrame(
+    fits_df = DataFrame(
         "idx" => [isnothing(r.idx) ? 1 : r.idx],
         "obj_value" => [r.obj_value],
         "converged" => [r.converged],
+        "errored" => [r.errored],
         "iterations" => [r.iterations],
         "iteration_limit_reached" => [r.iteration_limit_reached],
         "time_it_took" => [r.time_it_took],
@@ -94,12 +130,12 @@ function table(r::GMMFit)
     
     # estimated parameters
     nparams = length(r.theta_hat)
-    all_model_fits[!, "theta_hat"] = [r.theta_hat]
+    fits_df[!, "theta_hat"] = [r.theta_hat]
 
     # initial conditions
-    all_model_fits[!, "theta0"] = [r.theta0]
+    fits_df[!, "theta0"] = [r.theta0]
 
-    return all_model_fits
+    return fits_df
 end
 
 function clean_iter(opts)
@@ -119,13 +155,15 @@ end
 function stats_at_theta_hat(myfit::GMMFit, data, mom_fn::Function)
     
     theta_hat = myfit.theta_hat
-    m = mom_fn(data, theta_hat)
-    
-    myfit.n_obs = size(m, 1)
-    myfit.n_moms = size(m, 2)
-    
-    # TODO: make this optional
-    myfit.moms_hat = m
+
+    if !myfit.errored
+        m = mom_fn(data, theta_hat)
+        myfit.n_obs = size(m, 1)
+        myfit.n_moms = size(m, 2)
+        
+        # TODO: make this optional
+        myfit.moms_hat = m
+    end
 end
 
 
@@ -289,16 +327,16 @@ function fit_onestep(
     end
         
     if (nic == 1) || !run_parallel
-        all_model_fits = Vector{GMMFit}(undef, nic)
+        fits_df = Vector{GMMFit}(undef, nic)
         for i=1:nic
-            all_model_fits[i] = fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts)
+            fits_df[i] = fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts)
         end
 
     else
-        all_model_fits = @showprogress pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts), 1:nic)
+        fits_df = @showprogress pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts), 1:nic)
     end
     
-    best_model_fit = process_model_fits(all_model_fits)
+    best_model_fit = process_model_fits(fits_df)
     stats_at_theta_hat(best_model_fit, data, mom_fn)
 
     # save results to file?
@@ -335,36 +373,17 @@ function fit_onerun(
         end
     end
 
-    if opts.optimizer == :optim
-        # Use the general purpose Optim.jl package for optimization (default)
-
-        model_fit = backend_optimjl( 
-            data, 
-            mom_fn,
-            theta0;
-            W=W,    
-            weights=weights, 
-            opts=opts)
-        
-        model_fit.idx = idx
-
-    elseif opts.optimizer == :lsqfit
-        # use the Levenberg Marquardt algorithm from LsqFit.jl for optimization
-        # this relies on the fact that the GMM objective function is a sum of squares
-
-        model_fit = backend_lsqfit( 
-            data, 
-            mom_fn,
-            theta0;
-            W=W,    
-            weights=weights, 
-            opts=opts)
-        
-        model_fit.idx = idx
-
-    else
-        error("Optimizer " * string(opts.optimizer) * " not supported. Stopping.")
-    end
+    # try/catch block and select optimizer
+    model_fit = backend_optimizer(
+        idx,
+        data, 
+        mom_fn,
+        theta0;
+        W=W,    
+        weights=weights, 
+        opts=opts)
+    
+    model_fit.idx = idx
 
     # write intermediate results to file
     if opts.write_iter 

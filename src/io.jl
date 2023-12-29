@@ -2,7 +2,7 @@
 
 
 function Base.show(io::IO, r::GMMFit)
-    println("GMMResult object with fields: thata0, W, weights, N, all_model_fits, vcov, fit_step1, etc.")
+    println("GMMResult object with fields: thata0, W, weights, N, fits_df, vcov, fit_step1, etc.")
     println("  theta_names:", r.theta_names)
     println("  thata_hat:  ", r.theta_hat)
     println("Optimization results:")
@@ -17,7 +17,7 @@ function Base.show(io::IO, r::GMMBootFits)
     for f in fieldnames(GMMBootFits)
         println("...field ", f, " is a ", typeof(getfield(r, f)))
     end
-    # display(r.all_model_fits)
+    # display(r.fits_df)
     # display(r.all_boot_fits)
 end
 
@@ -39,7 +39,7 @@ end
 
 
 """
-Write GMMFit object to files: JSON for most fields + CSV for all_model_fits table
+Write GMMFit object to files: JSON for most fields + CSV for fits_df table
 All paths should exist.
 """
 function write(myfit::GMMFit, opts::GMMOptions; subpath="fit")
@@ -61,11 +61,11 @@ function write(myfit::GMMFit, opts::GMMOptions; subpath="fit")
         end
     
     # write table(s), then remove
-        if isnothing(myfit.all_model_fits)
-            myfit.all_model_fits = table(myfit)
+        if isnothing(myfit.fits_df)
+            myfit.fits_df = table_fit(myfit)
         end
-        CSV.write(full_path * ".csv", myfit.all_model_fits)
-        myfit.all_model_fits = nothing
+        CSV.write(full_path * ".csv", myfit.fits_df)
+        myfit.fits_df = nothing
 
         # moments at theta_hat (if computed)
         if !isnothing(myfit.moms_hat)
@@ -195,7 +195,7 @@ function read_fit(opts::GMMOptions; subpath="fit", show_trace=false)
 
     # read CSV file with estimates
     df = CSV.read(full_path * ".csv", DataFrame)
-    myfit.all_model_fits = df
+    myfit.fits_df = df
 
     # read CSV file with moments at theta_hat
     if isfile(full_path * "_moms_hat.csv")

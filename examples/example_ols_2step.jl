@@ -28,18 +28,23 @@ using Random
 # residuals orthogonal to the constant and to the variable (acceleration)
 # this must always return a Matrix (rows = observations, columns = moments)
 function ols_moments_fn(data, theta)
+    # println("theta = ", theta)
     
     resids = @. data.mpg - theta[1] - theta[2] * data.acceleration
     
     # n by 2 matrix of moments
     moms = hcat(resids, resids .* data.acceleration)
+
+    if theta[1] > 0.0
+        error("boo")
+    end
     
     return moms
 end
 
 # initial parameter guess
     Random.seed!(123)
-    theta0 = random_initial_conditions([0.0, 0.0], 20)
+    theta0 = random_initial_conditions([10.0, 0.0], 20)
 
 ### using Optim.jl
     # estimation options
@@ -52,12 +57,18 @@ end
                     # write_moms=false,
                     write_iter=false,
                     clean_iter=true,
-                    overwrite=false,
+                    overwrite=true,
+                    throw_errors=false,
                     # optim_opts=(show_trace=false,), # additional options for LsqFit in a NamedTuple
                     trace=0)
 
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+
+    myfit.theta_hat
+    myfit.fits_df
+    # ols_moments_fn(df, [0.06364138660614915, 0.2604202723600453])
+sdfd
 
     myopts.path *= "step1/"
     myfit2 = GMMTools.read_fit(myopts)
