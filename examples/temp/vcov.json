@@ -5,900 +5,38 @@
   "boot_fits": null,
   "V": [
     [
-      3.639560317941223,
-      -0.2314032263590386
+      3.346755539394594,
+      -0.21400510384117935
     ],
     [
-      -0.2314032263590386,
-      0.015212180377172108
+      -0.21400510384117935,
+      0.014184072256674464
     ]
   ],
   "boot_fits_dict": [
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -1.3655459849475267,
-        1.3000598618314951
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002484,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.4575423579558575,
-        1.2643202521720551
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.429217895467617e-28,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 4
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003772,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.70084565580227,
-        1.203643975176948
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.093846039521776e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 20
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1426924724474192,
-        -0.7979495826778349
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004546,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.814478420415146,
-        1.2482046796446935
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.494104773637912e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 12
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.08098775639095956,
-        1.0086857251564538
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004383,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        8.211927377972515,
-        1.0145423137278207
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.682960369121921e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 6
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005043,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.415055269727449,
-        1.2241277710811944
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.511940611307028e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 20
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
-      ],
-      "vcov": null,
-      "time_it_took": 0.000408,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.521847655959445,
-        1.162745679952211
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.403555300272665e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 10
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.1365574384456192,
-        -0.8864105480389216
-      ],
-      "vcov": null,
-      "time_it_took": 0.0006601,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.169819747474502,
-        1.222289558978196
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.3930134985920364e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 18
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004429,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        8.120258436189118,
-        0.9702792493306329
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.0840711977019063e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 3
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.35715186214167405,
-        -1.1041688023815013
-      ],
-      "vcov": null,
-      "time_it_took": 0.000562,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.5600544148481275,
-        1.2186737276840467
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.035293333849378e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 13
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003625,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.257204092237043,
-        1.2253055246757156
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.9455167997921926e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 3
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004451,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        1.4690286640340249,
-        1.4188314060313099
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.5615246739546833e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 5
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.06364138660614915,
-        0.2604202723600453
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004503,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        7.033349567278583,
-        1.0363183542649408
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.307993458686747e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 1
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24573702716293688,
-        -0.5656574978848413
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003598,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.58833682928981,
-        1.1280179222853783
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.6729430002890238e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 17
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005089,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.802248856429438,
-        1.1206328756831783
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.2622641295479591e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.1365574384456192,
-        -0.8864105480389216
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004526,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.209086555027454,
-        1.2702697687971718
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.1225578541945738e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 18
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004107,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.1720893125217575,
-        1.110911192203908
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.8979199076578414e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 10
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.6603076784709887,
-        0.22085772740591736
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004223,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.434913604846681,
-        1.185328277823453
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.108671298262454e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 9
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.08098775639095956,
-        1.0086857251564538
-      ],
-      "vcov": null,
-      "time_it_took": 0.000464,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.194012381010365,
-        1.2291856645580863
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.305129185820713e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 6
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004353,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.50419162579339,
-        1.1182595542685108
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.580834716019204e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 5
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2351269426031646,
-        -0.5594852564768137
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003556,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.916001583993742,
-        1.079968014578678
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.4843108695841706e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 14
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004638,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.526181776061839,
-        1.0995127334224697
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 8.083758799989323e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 5
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.35715186214167405,
-        -1.1041688023815013
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004527,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.227574655413816,
-        1.0742067602695042
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 9.46688862900517e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 13
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
-      ],
-      "vcov": null,
-      "time_it_took": 0.0006587,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.502008408368604,
-        1.2426106679542472
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.6303409074319526e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 10
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004012,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.5925400755864825,
-        1.0841281717206361
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.933501926101772e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 3
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.10917076702525708,
-        0.6409077674586237
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003383,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.355926272297707,
-        1.2296978528331028
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 9.00444056166581e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 15
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004368,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.214823850825282,
-        1.2447571214568118
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.158154582437153e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 10
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2351269426031646,
-        -0.5594852564768137
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002911,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.086663541870652,
-        1.2074350815485027
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 9.81992485013038e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 14
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3655459849475267,
-        1.3000598618314951
-      ],
-      "vcov": null,
-      "time_it_took": 0.0006804,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        -0.7549404892911813,
-        1.5821747398339314
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.8713722845500716e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 4
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.06364138660614915,
-        0.2604202723600453
-      ],
-      "vcov": null,
-      "time_it_took": 0.0006185,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.47086378369207,
-        1.2271902535110897
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.156504002841118e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 1
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005502,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.77471082416713,
-        1.0672605570241216
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 7.739137940966103e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 5
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3772815919169223,
-        -0.1043954838563328
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003743,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.8295127181522015,
-        1.2540057366340134
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.4846126872334136e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 7
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.10917076702525708,
-        0.6409077674586237
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003814,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.4794507882887316,
-        1.3735568008783712
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.229820010902539e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 15
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
+        -6.702076614751001,
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0005526,
+      "time_it_took": 0.0004051,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        5.805821219430367,
-        1.1692979975004691
+        3.4575423579634705,
+        1.2643202521707808
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 1.1909850007755408e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 2.961077762045935e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -907,133 +45,723 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005459,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.700845655803461,
+        1.2036439751761034
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 3.1367712468034534e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004949,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.8144784204209756,
+        1.2482046796435347
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.662305085855747e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005337,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.211927377971172,
+        1.0145423137271459
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 8.786464723894692e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005354,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.415055269733873,
+        1.2241277710799963
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.6905259841451901e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004539,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.52184765596108,
+        1.162745679951339
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.6070455326885705e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004189,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.169819747475304,
+        1.222289558977373
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.6746267422009025e-28,
+      "iterations": 13,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006045,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.120258436188116,
+        0.9702792493299315
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.0020824039604484e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004734,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.5600544148570465,
+        1.2186737276826847
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.543247973384895e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003734,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.257204092237232,
+        1.2253055246749383
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.3055368102219878e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003817,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        1.469028664037393,
+        1.4188314060303195
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.1598552108909735e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0006202,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.033349567278594,
+        1.036318354264173
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.823465569613937e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004098,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.5883368292899736,
+        1.1280179222845996
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.900776807727471e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005317,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.802248856436129,
+        1.1206328756819697
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 5.528799142102654e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
       ],
       "vcov": null,
       "time_it_took": 0.000501,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        7.6960130496610955,
-        1.0191611800621971
+        4.209086555029919,
+        1.2702697687962445
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.3034476730472734e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 8.995975710250131e-30,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 3
+      "idx": 20
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
+        0.8098775639095956,
+        1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004277,
+      "time_it_took": 0.0003722,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        5.705902897246277,
-        1.1676047634722595
+        6.1720893125294625,
+        1.1109111922026307
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.9160348639893843e-31,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 2.075604475385725e-29,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 10
+      "idx": 6
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
+        -1.0917076702525708,
+        0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.000333,
+      "time_it_took": 0.0004809,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        7.035188541737402,
-        1.099480147716644
+        4.43491360484431,
+        1.1853282778228422
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.3055350015721954e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 8.405464239253143e-30,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 5
+      "idx": 15
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -0.8822252715398702,
-        -1.2283465073466582
+        -13.772815919169224,
+        -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0004353,
+      "time_it_took": 0.0005117,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        5.684612890290521,
-        1.159970460960535
+        4.19401238101534,
+        1.2291856645569903
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 1.5217459728704713e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 1.1417133155650925e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 16
+      "idx": 7
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -1.3655459849475267,
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004374,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.504191625786587,
+        1.1182595542681855
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 7.895344080922912e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005276,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.916001583998136,
+        1.0799680145776227
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.701168360917195e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004466,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.526181776064125,
+        1.0995127334215555
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.121744629606848e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004557,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.227574655412509,
+        1.0742067602688243
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.6524425815206337e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004887,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.5020084083723635,
+        1.242610667953233
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.6572317231007833e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004022,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.592540075591129,
+        1.084128171719564
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.261440272077901e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005578,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.355926272291463,
+        1.2296978528327416
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 3.2235907170877046e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
         1.3000598618314951
       ],
       "vcov": null,
-      "time_it_took": 0.0003946,
+      "time_it_took": 0.0004987,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        5.099806714057795,
-        1.1863246459594747
+        4.2148238508317935,
+        1.2447571214556181
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 9.76171197107865e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 1.0878601874870837e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -1042,106 +770,27 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.6603076784709887,
-        0.22085772740591736
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005383,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.4956381795483336,
-        1.272585624503978
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.0005531564213268e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 9
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.35715186214167405,
-        -1.1041688023815013
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005099,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.682861117839706,
-        1.348320098996161
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.7572189909365946e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 13
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
-      ],
-      "vcov": null,
-      "time_it_took": 0.005728,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.483841396649422,
-        1.107561504878757
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.724682191584326e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 5
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
+        -6.702076614751001,
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0006375,
+      "time_it_took": 0.0005378,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        6.85610562496222,
-        1.091071842514303
+        5.086663541866749,
+        1.2074350815479886
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 1.852785283448209e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 5.997926657609234e-29,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -1150,106 +799,201 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
+        0.8098775639095956,
+        1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0004677,
+      "time_it_took": 0.000488,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        3.958857593412875,
-        1.2246174525244418
+        -0.7549404892841699,
+        1.5821747398326962
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 1.9952528786713304e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 9.478318589901802e-30,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 10
+      "idx": 6
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.49340543618078625,
-        -0.6139004857356011
+        -13.772815919169224,
+        -0.1043954838563328
       ],
       "vcov": null,
-      "time_it_took": 0.0004648,
+      "time_it_took": 0.0002997,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        8.415172166865377,
-        0.9558683503227636
+        4.470863783689627,
+        1.2271902535104837
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 6.156900930970409e-31,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 2.924370794186637e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 10
+      "idx": 7
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
+        -1.0917076702525708,
+        0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0004305,
+      "time_it_took": 0.0004408,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        4.4377621752823995,
-        1.2642992928885737
+        6.774710824173771,
+        1.0672605570229226
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.881261617917909e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 1.2504882592123424e-29,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
-      "idx": 2
+      "idx": 15
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -0.6702076614751001,
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004459,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.829512718154346,
+        1.2540057366331048
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.399029975151682e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004618,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.4794507882996526,
+        1.3735568008768715
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.38856815856312e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003217,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.805821219435849,
+        1.169297997499334
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.908283018678166e-29,
+      "iterations": 13,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
         1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.0057081,
+      "time_it_took": 0.0004028,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        5.227775345458883,
-        1.1702247823141039
+        7.6960130496617705,
+        1.0191611800613851
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.778154523515646e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 1.0971264164024257e-30,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -1258,25 +1002,201 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.06364138660614915,
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0005391,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.705902897247436,
+        1.167604763471415
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.8350346182659908e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0008837,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.035188541739892,
+        1.0994801477157121
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.7798997161852938e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003503,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.684612890290747,
+        1.159970460959759
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 3.215921429733596e-31,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004489,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.099806714054018,
+        1.186324645958955
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.346795940772512e-31,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004389,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.495638179548939,
+        1.2725856245031713
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 3.0668126051660692e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004468,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.682861117845289,
+        1.3483200989950181
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.0544531784698994e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.6364138660614915,
         0.2604202723600453
       ],
       "vcov": null,
-      "time_it_took": 0.0004655,
+      "time_it_took": 0.0005695,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        5.576034511045892,
-        1.1828803826933947
+        5.483841396652536,
+        1.107561504877787
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.6088027145780843e-31,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 3.6817409954747235e-30,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -1285,79 +1205,27 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -0.41205202074467273,
-        -1.1933861805337216
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005637,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.379606584958972,
-        1.2509038618493054
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.491309346676856e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 8
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3655459849475267,
-        1.3000598618314951
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005164,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.467268196314491,
-        1.234513839337771
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.1765337909828243e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 4
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
+        -12.834578288957793,
         1.2427397578313797
       ],
       "vcov": null,
-      "time_it_took": 0.0004427,
+      "time_it_took": 0.0004323,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        7.02214747457493,
-        1.0371483066288953
+        6.856105624960661,
+        1.0910718425136403
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 7.058205758816287e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 7.796654296834336e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -1366,1267 +1234,27 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -1.2351269426031646,
-        -0.5594852564768137
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004523,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.258931133578907,
-        1.3446603520318057
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.1831794061563742e-28,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 14
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004396,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.231481550195367,
-        1.1791802018616149
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.409577025856655e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 20
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.8822252715398702,
-        -1.2283465073466582
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003268,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.46709576020932,
-        1.2661830217561556
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.5530219741079037e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 16
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004175,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.252563451463519,
-        1.267752566478669
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.2201985582089883e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.3399295112731391,
-        -1.4442840012301845
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002652,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.530614832712928,
-        1.1583840785139554
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.6497147554503644e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 19
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003833,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.43805885900913,
-        1.186943808718863
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.5690152327646675e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24573702716293688,
-        -0.5656574978848413
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004797,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        0.2658572580317001,
-        1.5180432806749116
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.0901859311697722e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 17
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004522,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.5843280585151653,
-        1.264210747848129
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.0395584012498958e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 3
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004548,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.687570027692686,
-        1.1698582110709304
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.2140183078151909e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 20
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0057595,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.8941395661265887,
-        1.3545970507432559
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.1664245870877682e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2351269426031646,
-        -0.5594852564768137
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004448,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.046498216365455,
-        1.0956650745216343
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.4828143794349188e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 14
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24573702716293688,
-        -0.5656574978848413
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002308,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.287169542831476,
-        1.257857746221626
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.0576352669059618e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 17
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.41205202074467273,
-        -1.1933861805337216
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005151,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.483721894573395,
-        1.194312450976891
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.461873863419911e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 8
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.000444,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.4273119352581545,
-        1.2853819126032302
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.033815695527285e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.10917076702525708,
-        0.6409077674586237
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005008,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.303379558863329,
-        1.3162079416325863
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.2209073414029224e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 15
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.35715186214167405,
-        -1.1041688023815013
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004819,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        8.062980422647728,
-        0.9995703637208219
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.9138511091161526e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 13
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0045345,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.029572740554787,
-        1.3723540087235686
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.0904503411568574e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3772815919169223,
-        -0.1043954838563328
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002495,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.4703004925282936,
-        1.353732925995186
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.1461408749246468e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 7
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
-      ],
-      "vcov": null,
-      "time_it_took": 0.000528,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.234955293662466,
-        1.2110732285772052
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.277511157830072e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 3
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3772815919169223,
-        -0.1043954838563328
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004761,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.410382921852782,
-        1.2132568139874433
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.998962711722512e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 7
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.1365574384456192,
-        -0.8864105480389216
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004376,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.308203309654859,
-        1.3212466688132427
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.565328804646614e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 18
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3772815919169223,
-        -0.1043954838563328
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004492,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.089606109802581,
-        1.27205546594658
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.1782185306554474e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 7
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002509,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        9.179807486353882,
-        0.9410972489965573
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 6.2638954265256406e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.6603076784709887,
-        0.22085772740591736
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004887,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.110172254828412,
-        1.2721549279289557
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.022338272186998e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 9
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2351269426031646,
-        -0.5594852564768137
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005262,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.164092775252974,
-        1.1519401603822894
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 5.0501958423407556e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 14
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.07698717462614191,
-        -0.32823517370596766
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005067,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.489791683204993,
-        1.2938526677312396
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.323662778170572e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 3
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004943,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.435383572464618,
-        1.0960712148290777
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.4267364507005354e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1426924724474192,
-        -0.7979495826778349
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002343,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.4712177747117368,
-        1.3457457148074952
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.937979611821905e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 12
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.35715186214167405,
-        -1.1041688023815013
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004612,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.3683658033673054,
-        1.3207575546043469
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 8.524462694659927e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 13
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002156,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.378901000203619,
-        1.276618331953476
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.1566181740207318e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0059957,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.141794200211387,
-        1.3266703692445927
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.395353300941604e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.1365574384456192,
-        -0.8864105480389216
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004408,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        1.889300705044367,
-        1.376224358304169
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.553158673285733e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 18
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004291,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.038833693033705,
-        1.3218099656974318
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.8789866068844512e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
-      ],
-      "vcov": null,
-      "time_it_took": 0.0006596,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.9456778474796446,
-        1.2800462136817914
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.0604689591111752e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 20
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3772815919169223,
-        -0.1043954838563328
-      ],
-      "vcov": null,
-      "time_it_took": 0.0002245,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.196524481805282,
-        1.3435082298534857
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.416721926754707e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 7
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1426924724474192,
-        -0.7979495826778349
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004959,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        2.6410457766580127,
-        1.3120708731547424
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.240300422534075e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 12
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.1365574384456192,
-        -0.8864105480389216
-      ],
-      "vcov": null,
-      "time_it_took": 0.000493,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        8.441220070795742,
-        0.9443179774573686
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.3258903020507205e-31,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 18
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.10917076702525708,
-        0.6409077674586237
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003332,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        7.523848557321059,
-        0.9898186066258372
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 3.598090982690971e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 15
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.6702076614751001,
-        1.4503071333595194
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004176,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.525742864781452,
-        1.2873941648705276
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.3345123953782123e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 11
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.0005169,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.107674060398635,
-        1.2552440490432697
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 2.802932422238907e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3655459849475267,
-        1.3000598618314951
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004933,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.7377262378376415,
-        1.1904288153506273
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.5025951647404521e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 4
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -0.8822252715398702,
-        -1.2283465073466582
-      ],
-      "vcov": null,
-      "time_it_took": 0.0003931,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        6.402873683234433,
-        1.1139745698124663
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.38649484762946e-29,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 16
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
-      ],
-      "vcov": null,
-      "time_it_took": 0.0007066,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        3.7903043624005326,
-        1.2668794347794168
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.5995593591743417e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 20
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        1.1726360942783431,
-        -0.9272799029227115
-      ],
-      "vcov": null,
-      "time_it_took": 0.0004765,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        4.4731209116824475,
-        1.2191600723719305
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 9.689915489308052e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 2
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.24167994562362338,
-        -0.5182863622311493
-      ],
-      "vcov": null,
-      "time_it_took": 0.0006061,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        10.440023695576167,
-        0.8671201879068994
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 1.35553597667166e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 5
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        -1.3772815919169223,
-        -0.1043954838563328
-      ],
-      "vcov": null,
-      "time_it_took": 0.00026,
-      "n_moms": 2,
-      "moms_hat": null,
-      "theta_hat": [
-        5.26386774139948,
-        1.1452622730045847
-      ],
-      "mode": "unassigned",
-      "n_obs": 398,
-      "iteration_limit_reached": false,
-      "obj_value": 4.88238785098746e-30,
-      "iterations": 3,
-      "weights": null,
-      "W": {
-        "λ": true
-      },
-      "idx": 7
-    },
-    {
-      "theta_names": null,
-      "all_model_fits": null,
-      "converged": true,
-      "theta0": [
-        0.08098775639095956,
+        0.8098775639095956,
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0002667,
+      "time_it_took": 0.0003533,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        7.551277548746089,
-        1.0572226196668686
+        3.95885759341937,
+        1.2246174525232476
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 1.5158037691880536e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 2.39198598500934e-28,
+      "iterations": 13,
       "weights": null,
       "W": {
         "λ": true
@@ -2635,25 +1263,85 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
+        -6.702076614751001,
+        1.4503071333595194
       ],
       "vcov": null,
-      "time_it_took": 0.000495,
+      "time_it_took": 0.0003779,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        1.8964328258788827,
-        1.3850022227426313
+        8.415172166871773,
+        0.9558683503215718
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.1606547734183454e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 8.561055606770108e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0008206,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.437762175283038,
+        1.264299292887766
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 8.961363071007987e-31,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.000443,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.22777534546545,
+        1.1702247823128982
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.1461125576104906e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -2662,25 +1350,114 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        -1.2834578288957794,
-        1.2427397578313797
+        -1.0917076702525708,
+        0.6409077674586237
       ],
       "vcov": null,
-      "time_it_took": 0.0009698,
+      "time_it_took": 0.0003353,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        4.183641409645132,
-        1.2388786282329227
+        5.576034511049312,
+        1.1828803826924046
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 2.242410312027482e-30,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 2.8647168734712717e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003577,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.379606584958163,
+        1.2509038618485917
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.2731176369636883e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004793,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.467268196316307,
+        1.2345138393368869
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.804777536634175e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003467,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.02214747457468,
+        1.0371483066281464
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.587256129039064e-29,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
@@ -2689,30 +1466,1794 @@
     },
     {
       "theta_names": null,
-      "all_model_fits": null,
+      "errored": false,
       "converged": true,
       "theta0": [
-        0.08098775639095956,
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003378,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.2589311335849165,
+        1.3446603520306353
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.3884748740965557e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003836,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.231481550194885,
+        1.1791802018608808
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.8743531621089542e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003877,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.4670957602206083,
+        1.2661830217546224
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.1771406596283664e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003519,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.252563451466687,
+        1.267752566477697
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.2722844700946254e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003888,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.530614832724217,
+        1.158384078512444
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 3.032269387914652e-31,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003606,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.438058859009132,
+        1.1869438087180968
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.4800274647249306e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004399,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        0.26585725803621874,
+        1.5180432806738446
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.4013696174723651e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0007106,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.584328058516268,
+        1.2642107478472917
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.9396050151854444e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004195,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.687570027698964,
+        1.169858211069745
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.7276175337724223e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003879,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.894139566128746,
+        1.3545970507423468
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.7366219743340856e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003529,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.046498216367518,
+        1.0956650745207301
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.682454765483843e-28,
+      "iterations": 13,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004507,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.287169542830884,
+        1.257857746220897
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.123978865359109e-31,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003919,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.483721894576337,
+        1.1943124509759329
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.9229328995630323e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003725,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.427311935256164,
+        1.285381912602594
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 4.285239209392293e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004927,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.303379558860772,
+        1.3162079416319874
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.227896712995942e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
         1.0086857251564538
       ],
       "vcov": null,
-      "time_it_took": 0.0006297,
+      "time_it_took": 0.0004461,
       "n_moms": 2,
       "moms_hat": null,
       "theta_hat": [
-        3.7775702828549242,
-        1.2931903094839063
+        8.062980422641761,
+        0.9995703637204427
       ],
-      "mode": "unassigned",
+      "mode": "onestep",
+      "error_message": "",
       "n_obs": 398,
       "iteration_limit_reached": false,
-      "obj_value": 1.6050237575395e-29,
-      "iterations": 3,
+      "fits_df": null,
+      "obj_value": 3.2819978183516465e-28,
+      "iterations": 14,
       "weights": null,
       "W": {
         "λ": true
       },
       "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004899,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.0295727405549613,
+        1.3723540087227937
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 5.112323543982779e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003565,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.4703004925259857,
+        1.3537329259945712
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.7281394437170383e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003316,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.234955293670344,
+        1.2110732285759171
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.4179107192076977e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003662,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.4103829218560495,
+        1.21325681398646
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.2251457465580612e-28,
+      "iterations": 13,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0058137,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.308203309660813,
+        1.3212466688120754
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.6380435567640008e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003243,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.089606109806651,
+        1.272055465945546
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.1223883359095493e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003953,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        9.17980748636281,
+        0.9410972489951991
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 3.131828191901457e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002492,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.110172254824893,
+        1.2721549279284188
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 4.263417398417353e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003721,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.164092775257891,
+        1.1519401603811954
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.5149075797011576e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002699,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.4897916832077533,
+        1.2938526677302924
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 5.285573243317787e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004666,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.435383572469124,
+        1.096071214828014
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.5519230963123608e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003946,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.471217774712639,
+        1.3457457148066736
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.6944144995858514e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004775,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.3683658033701267,
+        1.3207575546033947
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.84042378664927e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003628,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.378901000200778,
+        1.2766183319528959
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.9491991816141585e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002624,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.141794200216552,
+        1.3266703692434805
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.5473756602290172e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003439,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        1.8893007050514246,
+        1.3762243583029283
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.8627482570484934e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.000309,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.0388336930432187,
+        1.321809965696031
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.3648826521782987e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.772815919169224,
+        -0.1043954838563328
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003412,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.9456778474776946,
+        1.2800462136811515
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 5.157550925128113e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 7
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.000274,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.1965244818082894,
+        1.343508229852519
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 4.017909764477616e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002826,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        2.6410457766635553,
+        1.3120708731536104
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.7891118933214116e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003499,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        8.441220070798895,
+        0.9443179774563921
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 4.2155794209588864e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003494,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.523848557325523,
+        0.9898186066247778
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 5.478585301748443e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002887,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.525742864788427,
+        1.2873941648692893
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.370272567570085e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002823,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.107674060406116,
+        1.2552440490420074
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.1067129973155482e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.000374,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.737726237840265,
+        1.190428815349687
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 5.47934227037041e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004033,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        6.402873683240651,
+        1.1139745698112866
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.9589874286347255e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -6.702076614751001,
+        1.4503071333595194
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003303,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.7903043624004624,
+        1.2668794347786543
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.8580794538702607e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 11
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002617,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.473120911683241,
+        1.219160072371116
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 8.032003311488058e-29,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
+    },
+    {
+      "theta_names": null,
+      "errored": true,
+      "converged": false,
+      "theta0": [
+        0.6364138660614915,
+        0.2604202723600453
+      ],
+      "vcov": null,
+      "time_it_took": null,
+      "n_moms": null,
+      "moms_hat": null,
+      "theta_hat": [
+        null,
+        null
+      ],
+      "mode": "onestep",
+      "error_message": "ErrorException(\"boo\")",
+      "n_obs": null,
+      "iteration_limit_reached": null,
+      "fits_df": {
+        "idx": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20
+        ],
+        "obj_value": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "converged": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "errored": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "iterations": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "iteration_limit_reached": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "time_it_took": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "theta_hat": [
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ],
+          [
+            null,
+            null
+          ]
+        ],
+        "theta0": [
+          [
+            0.6364138660614915,
+            0.2604202723600453
+          ],
+          [
+            11.726360942783431,
+            -0.9272799029227115
+          ],
+          [
+            0.7698717462614191,
+            -0.32823517370596766
+          ],
+          [
+            -13.655459849475267,
+            1.3000598618314951
+          ],
+          [
+            2.416799456236234,
+            -0.5182863622311493
+          ],
+          [
+            0.8098775639095956,
+            1.0086857251564538
+          ],
+          [
+            -13.772815919169224,
+            -0.1043954838563328
+          ],
+          [
+            -4.120520207446727,
+            -1.1933861805337216
+          ],
+          [
+            6.603076784709887,
+            0.22085772740591736
+          ],
+          [
+            4.9340543618078625,
+            -0.6139004857356011
+          ],
+          [
+            -6.702076614751001,
+            1.4503071333595194
+          ],
+          [
+            11.426924724474192,
+            -0.7979495826778349
+          ],
+          [
+            -3.5715186214167405,
+            -1.1041688023815013
+          ],
+          [
+            -12.351269426031646,
+            -0.5594852564768137
+          ],
+          [
+            -1.0917076702525708,
+            0.6409077674586237
+          ],
+          [
+            -8.822252715398701,
+            -1.2283465073466582
+          ],
+          [
+            2.457370271629369,
+            -0.5656574978848413
+          ],
+          [
+            -11.365574384456192,
+            -0.8864105480389216
+          ],
+          [
+            -3.399295112731391,
+            -1.4442840012301845
+          ],
+          [
+            -12.834578288957793,
+            1.2427397578313797
+          ]
+        ],
+        "is_optimum": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "obj_value": null,
+      "iterations": null,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 1
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -12.834578288957793,
+        1.2427397578313797
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004326,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        5.263867741400933,
+        1.1452622730037216
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.541981935360529e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 20
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0004197,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        7.551277548752154,
+        1.0572226196657
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 2.2160023465844403e-28,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -13.655459849475267,
+        1.3000598618314951
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003606,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        1.8964328258755292,
+        1.3850022227420857
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 6.319491306195211e-30,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 4
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        0.8098775639095956,
+        1.0086857251564538
+      ],
+      "vcov": null,
+      "time_it_took": 0.0002583,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        4.183641409648622,
+        1.2388786282319229
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.1604023207007445e-28,
+      "iterations": 13,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 6
+    },
+    {
+      "theta_names": null,
+      "errored": false,
+      "converged": true,
+      "theta0": [
+        -1.0917076702525708,
+        0.6409077674586237
+      ],
+      "vcov": null,
+      "time_it_took": 0.0003823,
+      "n_moms": 2,
+      "moms_hat": null,
+      "theta_hat": [
+        3.7775702828673103,
+        1.293190309482295
+      ],
+      "mode": "onestep",
+      "error_message": "",
+      "n_obs": 398,
+      "iteration_limit_reached": false,
+      "fits_df": null,
+      "obj_value": 1.0897484623666377e-31,
+      "iterations": 14,
+      "weights": null,
+      "W": {
+        "λ": true
+      },
+      "idx": 15
     }
   ],
   "ses": null,

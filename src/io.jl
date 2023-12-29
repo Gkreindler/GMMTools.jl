@@ -2,28 +2,31 @@
 
 
 function Base.show(io::IO, r::GMMFit)
-    println("GMMResult object with fields: thata0, W, weights, N, fits_df, vcov, fit_step1, etc.")
-    println("  theta_names:", r.theta_names)
-    println("  thata_hat:  ", r.theta_hat)
-    println("Optimization results:")
-    println("  converged:  ", r.converged)
-    println("  obj_value:  ", r.obj_value)
-    println("  iterations:  ", r.iterations)
-    println("  iteration_limit_reached:  ", r.iteration_limit_reached)
+    println("GMMFit object. Dictionary version below:")
+
+    temp_dict = to_dict(r)
+    display(temp_dict)
+end
+
+function Base.show(io::IO, r::GMMvcov)
+    println("GMMvcov (Variance-covariance) object. Dictionary version below:")
+
+    temp_dict = to_dict(r)
+    (:boot_fits in keys(temp_dict)) && (temp_dict[:boot_fits] = "GMMBootFit object")
+    display(temp_dict)
 end
 
 function Base.show(io::IO, r::GMMBootFits)
-    println("Baysian bootstrap results struct with the following fields:")
-    for f in fieldnames(GMMBootFits)
-        println("...field ", f, " is a ", typeof(getfield(r, f)))
-    end
-    # display(r.fits_df)
-    # display(r.all_boot_fits)
+    println("GMMBootFits object. Dictionary version below:")
+
+    temp_dict = to_dict(r)
+    (:boot_fits in keys(temp_dict)) && (temp_dict[:boot_fits] = "vector of GMMFit objects")
+    display(temp_dict)
 end
 
 ### Writing and Reading GMMFit objects
 
-to_dict(myfit::Union{GMMFit, GMMvcov}) = Dict(k => getfield(myfit, k) for k ∈ fieldnames(typeof(myfit)))
+to_dict(myfit::Union{GMMFit, GMMvcov, GMMBootFits}) = Dict(k => getfield(myfit, k) for k ∈ fieldnames(typeof(myfit)))
 to_dict(boot_fits::Vector{GMMFit}) = [to_dict(boot_fits[i]) for i=1:length(boot_fits)]
 
 
@@ -115,6 +118,8 @@ function write(myvcov::GMMvcov, opts::GMMOptions; subpath="vcov")
     open(fpath, "w") do file
         Base.write(file, parse_json(myvcov))
     end
+
+    return
 end
 
 
@@ -124,9 +129,9 @@ end
 
 ### Reading GMMFit objects
 
-function parse_vector(s::AbstractString)
-    return parse.(Float64, split(s[2:(end-1)],","))
-end
+# function parse_vector(s::AbstractString)
+#     return parse.(Float64, split(s[2:(end-1)],","))
+# end
 
 function parse_weight_matrix(W)
     if isa(W, Dict) && ("λ" ∈ keys(W))
@@ -136,6 +141,20 @@ function parse_weight_matrix(W)
         # JSON writes the matrix as a vector of vectors
         return convert.(Float64, stack(W))
     end
+end
+
+"""
+replace nothing with missing (this happens when the fit has errored)
+"""
+function parse_vector(myvec)
+    mysample = isnothing.(myvec)
+    myvec[mysample] .= missing
+    myvec[.!mysample] .= convert.(Float64, myvec[.!mysample])
+    return myvec
+end
+
+function nothing2missing(x; mytype=Float64)
+    return isnothing(x) ? missing : convert(mytype, x)
 end
 
 function dict2fit(myfit_dict)
@@ -148,9 +167,13 @@ function dict2fit(myfit_dict)
         weights = convert.(Float64, myfit_dict["weights"])
     end
 
+    # handle fits that errored
+    isnothing(myfit_dict["obj_value"]) && (myfit_dict["obj_value"] = Inf)
+    isnothing(myfit_dict["converged"]) && (myfit_dict["converged"] = false)
+
     myfit = GMMFit(
-            theta0          =convert.(Float64, myfit_dict["theta0"]),
-            theta_hat       =convert.(Float64, myfit_dict["theta_hat"]),
+            theta0          =nothing2missing.(myfit_dict["theta0"]),
+            theta_hat       =nothing2missing.(myfit_dict["theta_hat"]),
             theta_names     =myfit_dict["theta_names"],
 
             moms_hat        = myfit_dict["moms_hat"],
@@ -163,9 +186,9 @@ function dict2fit(myfit_dict)
 
             obj_value       =convert.(Float64, myfit_dict["obj_value"]),
             converged       =myfit_dict["converged"],
-            iterations      =myfit_dict["iterations"],
-            iteration_limit_reached=myfit_dict["iteration_limit_reached"],
-            time_it_took    =myfit_dict["time_it_took"],
+            iterations      =nothing2missing(myfit_dict["iterations"], mytype=Int64),
+            iteration_limit_reached = nothing2missing(myfit_dict["iteration_limit_reached"], mytype=Bool),
+            time_it_took    =nothing2missing(myfit_dict["time_it_took"], mytype=Float64),
 
             idx             =myfit_dict["idx"])
 
@@ -249,9 +272,15 @@ function read_vcov(opts::GMMOptions; subpath="vcov", show_trace=false)
         weights_df = readdlm(full_path * "_boot_weights.csv",  ',', Float64)
         boot_fits_df = CSV.read(full_path * "_boot_fits_df.csv", DataFrame)
         boot_moms_hat_df = CSV.read(full_path * "_boot_moms_hat_df.csv", DataFrame)    
-                
+            
+        all_boot_fits = [dict2fit(mybootfit_dict) for mybootfit_dict in myvcov_dict["boot_fits_dict"]]
+        errored = [myfit.errored for myfit in all_boot_fits]
+        n_errored = sum(errored)
+
         myvcov.boot_fits = GMMBootFits(
-            boot_fits = [dict2fit(mybootfit_dict) for mybootfit_dict in myvcov_dict["boot_fits_dict"]],
+            errored = errored,
+            n_errored = n_errored,
+            boot_fits = all_boot_fits,
             boot_weights    = weights_df,
             boot_fits_df    = boot_fits_df,
             boot_moms_hat_df = boot_moms_hat_df)

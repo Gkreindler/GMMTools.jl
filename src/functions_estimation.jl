@@ -38,7 +38,7 @@ Base.@kwdef mutable struct GMMFit
     n_moms = nothing # number of moments (M)
 
     # estimation parameters
-    mode::Symbol = :unassigned # onestep, twostep, etc.
+    mode::Symbol = :unassigned # onestep, twostep1, twostep2,  etc.
     weights=nothing # Vector of size N or nothing
     W=I             # weight matrix (N x N) or uniform scaling identity (I)
     
@@ -64,8 +64,9 @@ end
 """
 The model fit object when the optimization gives an error
 """
-function error_fit(e, theta0, W, weights, opts)
+function error_fit(e, theta0, W, weights, mode, opts)
     return GMMFit(
+        mode=mode,
         errored = true,
         error_message = string(e),
         converged = false,
@@ -191,6 +192,7 @@ function fit(
                 W=W,    
                 weights=weights,
                 run_parallel=run_parallel,
+                mode=:onestep,
                 opts=opts)
     else
         @assert mode == :twostep "mode must be :onestep or :twostep"
@@ -202,6 +204,8 @@ function fit(
                 weights=weights,
                 run_parallel=run_parallel,
                 opts=opts)
+        myfit.mode = :twostep
+        return myfit
     end
 end
 
@@ -235,12 +239,24 @@ function fit_twostep(
         W=W,    
         weights=weights,
         run_parallel=run_parallel,
+        mode=:twostep1,
         opts=opts)
 
-    ### optimal weight matrix
+    # path for step 2
     opts.path = main_path * "step2/"
     isdir(opts.path) || mkdir(opts.path)
 
+    # if step1 errored
+    if fit_step1.errored
+        fit_step2 = deepcopy(fit_step1)
+        fit_step2.mode = :twostep2
+        # save results to file?
+        (opts.path != "") && write(fit_step2, opts)
+
+        return fit_step2
+    end
+
+    ### optimal weight matrix
     Wstep2_path = opts.path * "Wstep2.csv"
     if isfile(Wstep2_path)
         (opts.trace > 0) && print(">>> Starting GMM step 2. Reading optimal weight matrix from file... ")
@@ -272,6 +288,7 @@ function fit_twostep(
         W=Wstep2, # use optimal weighting matrix from step 1
         weights=weights,
         run_parallel=run_parallel,
+        mode=:twostep2,
         opts=opts)
 
     # fit_step2.fit_step1 = fit_step1
@@ -293,6 +310,7 @@ function fit_onestep(
     W=I,    
     weights=nothing,
     run_parallel=true, 
+    mode=nothing,
     opts=nothing)
 
 
@@ -329,11 +347,11 @@ function fit_onestep(
     if (nic == 1) || !run_parallel
         fits_df = Vector{GMMFit}(undef, nic)
         for i=1:nic
-            fits_df[i] = fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts)
+            fits_df[i] = fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, mode=mode, opts=opts)
         end
 
     else
-        fits_df = @showprogress pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, opts=opts), 1:nic)
+        fits_df = @showprogress pmap( i -> fit_onerun(i, data, mom_fn, theta0[i, :], W=W, weights=weights, mode=mode, opts=opts), 1:nic)
     end
     
     best_model_fit = process_model_fits(fits_df)
@@ -358,6 +376,7 @@ function fit_onerun(
             theta0;
             W=I,    
             weights=nothing, 
+            mode,
             opts::GMMOptions)
             
     (opts.trace > 0) && print("...estimation run ", idx, ". ")
@@ -381,6 +400,7 @@ function fit_onerun(
         theta0;
         W=W,    
         weights=weights, 
+        mode=mode,
         opts=opts)
     
     model_fit.idx = idx

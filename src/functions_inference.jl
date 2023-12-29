@@ -4,6 +4,8 @@ variance covariance objects
 """
 
 Base.@kwdef mutable struct GMMBootFits
+    errored::Vector{Bool}       # vector of booleans indicating whether estimation errored
+    n_errored::Int64            # number of boot runs that errored
     boot_fits                   # vector of all GMMFit objects
     boot_weights::Matrix        # nboot x n_obs matrix with bootstrap weights
     boot_fits_df::DataFrame     # df with all iterations for all bootstrap runs
@@ -44,6 +46,9 @@ end
 
 function vcov_simple(data, mom_fn::Function, myfit::GMMFit)
     
+    # cannot compute if estimation errored
+    myfit.errored && error("Cannot compute vcov_simple because estimation errored.") 
+
     # jacobian
     J = jacobian(data, mom_fn, myfit)
    
@@ -75,20 +80,38 @@ end
 
 ### Bayesian bootstrap
 
-function boot_table(boot_fits::Vector{GMMFit})
+function boot_table(gmmboot_fits::GMMBootFits)
 
-    nboot = length(boot_fits)
-    nparams = length(boot_fits[1].theta_hat)
-
-    theta_hat_table = Matrix{Float64}(undef, nboot, nparams)
-    for i=1:nboot
-        theta_hat_table[i, :] = boot_fits[i].theta_hat
+    if all(gmmboot_fits.errored)
+        error("All bootstrap runs errored. Cannot compute boot_table.")
+        return nothing
     end
+
+    sample_not_errored = .!gmmboot_fits.errored
+
+    nboot = length(gmmboot_fits.boot_fits)
+
+    idx_not_errored = findfirst(sample_not_errored)
+    nparams = length(gmmboot_fits.boot_fits[idx_not_errored].theta_hat)
+
+    theta_hat_table = Matrix{Union{Float64, Missing}}(undef, nboot, nparams)
+    for i=1:nboot
+        theta_hat_table[i, :] .= gmmboot_fits.boot_fits[i].theta_hat
+    end
+
+    # subset to non-errored runs
+    theta_hat_table = theta_hat_table[sample_not_errored, :]
 
     return theta_hat_table
 end
 
 function process_boot_fits(boot_fits::Vector{GMMFit})
+
+    # number of boot runs that errored
+    errored = [boot_fits[i].errored for i=1:length(boot_fits)]
+    n_errored = sum(errored)
+
+    (n_errored > 0) && @error string(n_errored) * " out of " * string(length(errored)) * " bootstrap runs errored completely (no estimation results). Dropping."
 
     ### matrix with weights (col = bootstrap run, row = observation)
     all_boot_weights = hcat([boot_fits[i].weights for i=1:length(boot_fits)]...)
@@ -100,6 +123,7 @@ function process_boot_fits(boot_fits::Vector{GMMFit})
     all_boot_fits = []
     nboot = length(boot_fits)
     for i=1:nboot
+        errored[i] && continue
         temp_df = copy(boot_fits[i].fits_df)
         temp_df[!, :boot_idx] .= i
         push!(all_boot_fits, temp_df)
@@ -109,9 +133,12 @@ function process_boot_fits(boot_fits::Vector{GMMFit})
     all_boot_fits = vcat(all_boot_fits...)
 
     # full table with mom_hat's
-    if !isnothing(boot_fits[1].moms_hat)
+    any_moms_hat = any([!isnothing(boot_fits[i].moms_hat) for i=1:nboot])
+    if any_moms_hat
         all_boot_moms_hat = []
         for i=1:nboot
+            errored[i] && continue
+
             temp_df = DataFrame(boot_fits[i].moms_hat, :auto) # convert to dataframe
             temp_df[!, :boot_idx] .= i
             temp_df[!, :obs] = 1:nrow(temp_df)
@@ -125,6 +152,8 @@ function process_boot_fits(boot_fits::Vector{GMMFit})
     end
 
     return GMMBootFits(
+        errored=errored,
+        n_errored=n_errored,
         boot_fits = boot_fits,          # vector of GMMFit objects
         boot_weights = all_boot_weights,# nboot x n_obs matrix with bootstrap weights
         boot_fits_df = all_boot_fits,    # df with all iterations for all bootstrap runs
@@ -291,7 +320,7 @@ function vcov_bboot(
     myfit.vcov = GMMvcov(
         method = :bayesian_bootstrap,
         boot_fits = boot_fits,
-        V = cov(boot_table(boot_fits.boot_fits))
+        V = cov(boot_table(boot_fits))
     )
 
     # save results to file?

@@ -6,6 +6,7 @@ function backend_optimizer(
     theta0;
     W,    
     weights=nothing, 
+    mode,
     opts::GMMOptions)
 
     @assert in(opts.optimizer, [:optim, :lsqfit]) "Optimizer " * string(opts.optimizer) * " not supported. Stopping."
@@ -20,6 +21,7 @@ function backend_optimizer(
                 theta0;
                 W=W,    
                 weights=weights, 
+                mode=mode,
                 opts=opts)
 
         elseif opts.optimizer == :lsqfit
@@ -32,6 +34,7 @@ function backend_optimizer(
                 theta0;
                 W=W,    
                 weights=weights, 
+                mode=mode,
                 opts=opts)
         end
 
@@ -39,9 +42,11 @@ function backend_optimizer(
         # save error to file
         if opts.path != ""
             # write string S to file F
-            error_path = opts.path * "__iter__/"
-            isdir(error_path) || mkdir(error_path)
-            error_path *= "error_" * string(idx) * ".txt"
+            # error_path = opts.path * "__iter__/"
+            # isdir(error_path) || mkdir(error_path)
+
+            # write to main folder
+            error_path = opts.path * "error_" * string(idx) * ".txt"
             
             open(error_path, "w") do io
                 Base.write(io, string(e))
@@ -60,7 +65,7 @@ function backend_optimizer(
             @error "Error in estimation run " * string(idx) * " with theta0=" * string(theta0) *  ". Error: " * string(e)
         end
 
-        return error_fit(e, theta0, W, weights, opts)
+        return error_fit(e, theta0, W, weights, mode, opts)
     end
 end
 
@@ -93,6 +98,7 @@ function backend_optimjl(
             theta0;
             W=I,    
             weights=nothing, 
+            mode,
             opts::GMMOptions)
 
     # load the data, W and weights in the moment function 
@@ -138,6 +144,7 @@ function backend_optimjl(
     =#
     
     model_fit = GMMFit(
+        mode=mode,
         converged = Optim.converged(raw_opt_results),
         theta_hat = Optim.minimizer(raw_opt_results),
         theta_names = opts.theta_names,
@@ -182,6 +189,7 @@ function backend_lsqfit(
             theta0;
             W=I,    
             weights=nothing, 
+            mode,
             opts::GMMOptions)
 
 
@@ -242,6 +250,7 @@ function backend_lsqfit(
     time_it_took = @elapsed raw_opt_results = curve_fit(lsqfit_main_args...; lsqfit_kwargs...)
 
     model_fit = GMMFit(
+        mode=mode,
         converged = raw_opt_results.converged,
         theta_hat = raw_opt_results.param,
         theta_names = opts.theta_names,

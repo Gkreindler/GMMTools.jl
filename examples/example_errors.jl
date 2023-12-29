@@ -28,6 +28,7 @@ using Random
 # residuals orthogonal to the constant and to the variable (acceleration)
 # this must always return a Matrix (rows = observations, columns = moments)
 function ols_moments_fn(data, theta)
+    (theta[1] > 0.0) && error("boo") # all runs will fail this way
     resids = @. data.mpg - theta[1] - theta[2] * data.acceleration
     return hcat(resids, resids .* data.acceleration)
 end
@@ -53,42 +54,28 @@ end
                     trace=0)
 
     # estimate model
-    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
+    myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts);
 
     myfit.theta_hat
     myfit.fits_df
     # ols_moments_fn(df, [0.06364138660614915, 0.2604202723600453])
-sdfd
 
-    myopts.path *= "step1/"
-    myfit2 = GMMTools.read_fit(myopts)
+    myopts.path = "C:/git-repos/GMMTools.jl/examples/temp/step2/"
+    myfit2 = GMMTools.read_fit(myopts, show_trace=true);
    
-### using Optim.jl
-    # estimation options
-    myopts = GMMTools.GMMOptions(
-                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
-                    optimizer=:optim,
-                    optim_algo=LBFGS(), 
-                    optim_autodiff=:forward,
-                    write_iter=true,
-                    clean_iter=true,
-                    overwrite=true,
-                    trace=0)
+### Bootstrap -- let's make this so that only a few fail fully
+    myopts.path = "C:/git-repos/GMMTools.jl/examples/temp/"
+    function ols_moments_fn(data, theta)
+        (theta[1] > 10.0) && error("boo") # not all runs will fail this way
+        resids = @. data.mpg - theta[1] - theta[2] * data.acceleration
+        return hcat(resids, resids .* data.acceleration)
+    end
 
-    # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts);
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     vcov_simple(df, ols_moments_fn, myfit)
-
-
     GMMTools.write(myfit.vcov, myopts)
-
-# print table with results
-    regtable(myfit) |> display
-
-    regtable(reg_ols, myfit) |> display # works
-    # regtable(reg_ols, myfit; render   = AsciiTable()) # doesn't work. why?
 
 # compute Bayesian (weighted) bootstrap inference and save in myfit.vcov (this will overwrite existing vcov files)
     myopts.trace = 1
@@ -97,10 +84,14 @@ sdfd
     # first generate bootstrap weights. In case estimation is interrupted, running this code again generates exactly the same weights, so we can continue where we left off.
     bweights_matrix = boot_weights(df, myfit, nboot=100, method=:simple, rng_initial_seed=1234) 
 
-    vcov_bboot(df, ols_moments_fn, theta0, myfit, bweights_matrix, opts=myopts)
+    vcov_bboot(df, ols_moments_fn, theta0, myfit, bweights_matrix, opts=myopts);
+
+    myfit.vcov.boot_fits
+    myfit.vcov.boot_fits.boot_fits_df
+
     regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
 
-
+dsfsdf
 # read vcov with bootstrop from file
     myfit.vcov = GMMTools.read_vcov(myopts)
     regtable(myfit) |> display

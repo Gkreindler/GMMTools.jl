@@ -72,6 +72,8 @@ function vcov(r::GMMFit)
         nparams = length(r.theta_hat)
         return zeros(nparams, nparams)
     else
+        # print warnings
+        (r.vcov.method == :bayesian_bootstrap) && (r.vcov.boot_fits.n_errored > 0) && @warn string(r.vcov.boot_fits.n_errored) * " out of " * string(length(r.vcov.boot_fits.errored)) * " bootstrap runs errored completely (no estimation results). Dropping."
         return r.vcov.V
     end
 end
