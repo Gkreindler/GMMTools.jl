@@ -59,7 +59,7 @@ function backend_optimizer(
         # throw?
         if opts.throw_errors 
 
-            throw(e)
+            rethrow(e)
         else
 
             @error "Error in estimation run " * string(idx) * " with theta0=" * string(theta0) *  ". Error: " * string(e)
