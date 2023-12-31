@@ -159,21 +159,35 @@ end
 #     return x
 # end
 
-# # Returns confidence intervals (95%)
-# function cis(rb::GMMBootResults; ci_levels=[2.5, 97.5])
+# Bootstrap confidence intervals (95%)
+cis(myfit::GMMFit; ci_levels=[2.5, 97.5]) = cis(myfit.vcov, ci_levels=ci_levels)
 
-#     nparams = length(rb.all_results[1, :theta_hat])
-
-#     theta_hat_boot = theta_hat_boot(rb)
-
-#     cis = []
-#     for i=1:nparams
-#         cil, cih = percentile(theta_hat_boot[:, i], ci_levels)
-#         push!(cis, (cil, cih))
-#     end
+function cis(myvcov::GMMvcov; ci_levels=[2.5, 97.5]) 
     
-#     return cis
-# end
+    if myvcov.method == :simple
+        error("CI not implemented yet for simple vcov")
+    elseif myvcov.method == :bayesian_bootstrap
+        return cis(myvcov.boot_fits, ci_levels=ci_levels)
+    else
+        error("Unknown vcov method ", myvcov.method)
+    end
+end
+
+function cis(b::GMMBootFits; ci_levels=[2.5, 97.5])
+
+    all(b.errored) && error("All bootstrap runs errored completely (no estimation results). Cannot compute CIs.")
+
+    theta_hat_boot = boot_table(b)
+    nparams = size(theta_hat_boot, 2)
+
+    cis = []
+    for i=1:nparams
+        cil, cih = percentile(theta_hat_boot[:, i], ci_levels)
+        push!(cis, (cil, cih))
+    end
+    
+    return cis
+end
 
 # Returns standard errors (SD of bootstrap estimates)
 # function stderr(rb::GMMBootResults)

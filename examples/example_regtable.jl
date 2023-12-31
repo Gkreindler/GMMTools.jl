@@ -39,3 +39,4 @@ using GMMTools
     regtable(reg_ols, myfit, render = AsciiTable(), below_statistic = ConfInt) |> display
     
     
+    GMMTools.cis(myfit)

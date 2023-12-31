@@ -96,6 +96,10 @@ end
 
 ### Bayesian bootstrap
 
+"""
+Returns a matrix with all bootstrap estimates (for computing CIs of other stats)
+# !! Attention: drops bootstrap runs that errored.
+"""
 function boot_table(gmmboot_fits::GMMBootFits)
 
     if all(gmmboot_fits.errored)
