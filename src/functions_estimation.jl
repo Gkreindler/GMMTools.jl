@@ -4,8 +4,8 @@ Base.@kwdef mutable struct GMMOptions
     path::String = ""                       # path to save results
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # delete individual run files at the end of the estimation
-    overwrite::Bool = false     # overwrite existing results file and individual run files
-    throw_errors::Bool = false  # throw optimization errors (if false, save them to file but continue with the other runs)
+    overwrite::Bool = true      # overwrite existing results file and individual run files
+    throw_errors::Bool = true   # throw optimization errors (if false, save them to file but continue with the other runs)
 
     optimizer::Symbol = :optim              # optimizer backend: :optim or :lsqfit (LM)
     optim_algo = LBFGS()                    # Optim.jl algorithm
@@ -14,7 +14,6 @@ Base.@kwdef mutable struct GMMOptions
     theta_lower = nothing                   # nothing or vector of lower bounds
     theta_upper = nothing                   # nothing or vector of upper bounds
     
-
     theta_names::Union{Vector{String}, Nothing} = nothing  # names of parameters 
 
     trace::Integer = 0
@@ -54,7 +53,7 @@ Base.@kwdef mutable struct GMMFit
     time_it_took::Union{Float64, Missing}
 
     # results from multiple initial conditions (DataFrame)
-    fits_df = nothing # TODO: switch to PrettyTables.jl and OrderedDict
+    fits_df = nothing
     idx = nothing # aware of which iteration number this is
 
     # variance covariance matrix
@@ -251,7 +250,7 @@ function fit_twostep(
         fit_step2 = deepcopy(fit_step1)
         fit_step2.mode = :twostep2
         # save results to file?
-        (opts.path != "") && write(fit_step2, opts)
+        (opts.path != "") && write(fit_step2, opts.path)
 
         return fit_step2
     end
@@ -358,7 +357,7 @@ function fit_onestep(
     stats_at_theta_hat(best_model_fit, data, mom_fn)
 
     # save results to file?
-    (opts.path != "") && write(best_model_fit, opts)
+    (opts.path != "") && write(best_model_fit, opts.path)
 
     # delete all intermediate files with individual iteration results
     opts.clean_iter && clean_iter(opts)
@@ -408,7 +407,7 @@ function fit_onerun(
     # write intermediate results to file
     if opts.write_iter 
         (opts.trace > 0) && println(" Done and done writing to file.")
-        write(model_fit, opts, subpath="__iter__/results_" * string(idx)) # this does not contain moms_hat (good, saves space)
+        write(model_fit, opts.path, subpath="__iter__/results_" * string(idx)) # this does not contain moms_hat (good, saves space)
     else
         (opts.trace > 0) && println(" Done. ")
     end

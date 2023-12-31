@@ -45,13 +45,12 @@ end
 Write GMMFit object to files: JSON for most fields + CSV for fits_df table
 All paths should exist.
 """
-function write(myfit::GMMFit, opts::GMMOptions; subpath="fit")
+function write(myfit::GMMFit, full_path; subpath="fit")
     
     # paths
-    if opts.path == "" 
+    if full_path == "" 
         return
-    end
-    full_path = opts.path
+    end    
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 
@@ -87,12 +86,11 @@ end
 
 ### Variance-covariance results
 
-function write(myvcov::GMMvcov, opts::GMMOptions; subpath="vcov")
+function write(myvcov::GMMvcov, full_path; subpath="vcov")
     
-    if opts.path == ""
+    if full_path == ""
         return
     end
-    full_path = opts.path
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 
@@ -196,11 +194,10 @@ function dict2fit(myfit_dict)
 end
 
 """
-filepath should not include the extension (.csv or .json)
+Example: fit object saved under "C:/temp/fit.json" and "C:/temp/fit.csv". Then call `read_fit("C:/temp/")`.
 """
-function read_fit(opts::GMMOptions; subpath="fit", show_trace=false)
+function read_fit(full_path; subpath="fit", show_trace=false)
 
-    full_path = opts.path
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
     
@@ -225,13 +222,19 @@ function read_fit(opts::GMMOptions; subpath="fit", show_trace=false)
         myfit.moms_hat = readdlm(full_path * "_moms_hat.csv", ',', Float64)
     end
 
+    @info "Read fit from file from " * full_path 
+
+    # try to automatically read vcov object (myfit.vcov = nothing if this fails)
+    myfit.vcov = read_vcov(full_path, show_trace=show_trace)
+
     return myfit
 end
 
-
-function read_vcov(opts::GMMOptions; subpath="vcov", show_trace=false)
+"""
+Example: vcov object saved under "C:/temp/vcov.json". Then call `read_vcov("C:/temp/")`.
+"""
+function read_vcov(full_path; subpath="vcov", show_trace=false)
     
-    full_path = opts.path
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 
@@ -285,6 +288,8 @@ function read_vcov(opts::GMMOptions; subpath="vcov", show_trace=false)
             boot_fits_df    = boot_fits_df,
             boot_moms_hat_df = boot_moms_hat_df)
     end
+
+    @info "Read vcov type [" * string(myvcov.method) * "] from file from " * full_path 
 
     return myvcov
 end

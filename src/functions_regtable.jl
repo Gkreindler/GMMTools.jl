@@ -48,8 +48,8 @@ has_fe(m::GMMRegModel) = false
 # RegressionTables.replace_name(x::Tuple{Vararg{Any}}, a::Dict{String, String}, b::Dict{String, String}) = [RegressionTables.replace_name(x[i], a, b) for i=1:length(x)]
 # RegressionTables.formula(m::GMMModel) = term(m.responsename) ~ sum(term.(String.(m.coefnames)))
 
-RegressionTables._responsename(x::GMMRegModel) = string(responsename(x))
-RegressionTables._coefnames(x::GMMRegModel) = string.(coefnames(x))
+RegressionTables._responsename(x::GMMRegModel) = RegressionTables.CoefName(string(responsename(x)))
+RegressionTables._coefnames(x::GMMRegModel) = RegressionTables.CoefName.(string.(coefnames(x)))
 
 StatsAPI.coef(m::GMMRegModel) = m.coef
 StatsAPI.coefnames(m::GMMRegModel) = m.coefnames
@@ -109,7 +109,7 @@ function GMMRegModel(r::GMMFit)
         fe=DataFrame(),
         fekeys=[],
         coefnames=r.theta_names,
-        responsename="a",
+        responsename="", # no column header
         # formula::FormulaTerm        # Original formula
         # formula_schema::FormulaTerm # Schema for predict
         contrasts=Dict(),
@@ -133,7 +133,7 @@ function RegressionTables.regtable(rrs::Vararg{Union{RegressionModel, GMMFit}}; 
 
     rrs_converted = [isa(r, GMMFit) ? GMMRegModel(r) : r for r=rrs]
 
-    return RegressionTables.regtable(rrs_converted..., kwargs...)
+    return RegressionTables.regtable(rrs_converted...; kwargs...)
 end
 
 

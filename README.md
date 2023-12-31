@@ -73,11 +73,23 @@ myfit = GMMTools.fit(MYDATA, mom_fn, theta0, mode=:twostep, opts=myopts)
 ```
 
 ## Writing and reading results
-`GMMTools.fit(...)` saves the estimation results in two files: `fit.csv` contains a table with one row per set of initial conditions, and `fit.json` contains several estimation parameters and results. `GMMTools.write(myfit::GMMFit, opts::GMMOptions, filename)` is the lower level function to write `GMMFit` objects to files.
+`GMMTools.fit(...)` saves the estimation results in two files: `fit.csv` contains a table with one row per set of initial conditions, and `fit.json` contains several estimation parameters and results. `GMMTools.write(myfit::GMMFit, opts::GMMOptions; subpath="fit")` is the lower level function to write `GMMFit` objects to files.
 
-`GMMTools.vcov_simple(...)` saves a `vcov.json` file that includes, among other objects, the variance-covariance matrix `myfit.vcov.V`. `GMMTools.vcov_bboot(...)` also saves two files `vcov_boot_fits_df.csv` (all individual runs for all bootstrap runs) and `vcov_boot_weights.csv` (rows are bootstrap runs, columns are data observations). The lower level function is `GMMTools.write(myvcov::GMMvcov, opts::GMMOptions)`.
+`GMMTools.vcov_simple(...)` saves a `vcov.json` file that includes, among other objects, the variance-covariance matrix `myfit.vcov.V`. `GMMTools.vcov_bboot(...)` also saves two files `vcov_boot_fits_df.csv` (all individual runs for all bootstrap runs) and `vcov_boot_weights.csv` (rows are bootstrap runs, columns are data observations). The lower level function is `GMMTools.write(myvcov::GMMvcov, opts::GMMOptions; subpath="vcov")`.
 
-`GMMTools.read_fit(opts::GMMOptions; filepath="")` reads estimation results and loads them into a `GMMFit` object. `GMMTools.read_vcov(opts::GMMOptions; filepath="")` reads vcov results and loads them into a `GMMvcov` object.
+`GMMTools.read_fit(full_path; subpath="fit", show_trace=false)` reads estimation results and loads them into a `GMMFit` object. `GMMTools.read_vcov(full_path; subpath="vcov", show_trace=false)` reads vcov results and loads them into a `GMMvcov` object. Note that `GMMTools.read_fit()` attempts to also read the vcov from the same folder. Otherwise, read the vcov separately and attach it using 
+```julia
+myfit = GMMTools.read_fit(mypath1)
+myfit.vcov = GMMTools.read_vcov(mypath2)
+```
+
+## Capturing errors
+By default, any error during optimization stops the entire estimation (or inference) command.
+
+Set the `GMMOptions` field `throw_errors=false` to capture these errors and write them to file, but not interrupt the rest of the estimation procedure.
+- when using multiple initial conditions, all iterations that error are recorded in `myfit.fits_df` with `errored=true` and `obj_value=Inf`. If all iterations error, we have `myfit.errored=true` and several other fields are recorded as `missing`
+- for bootstrap results, similar rules apply. Note that inference objects (SEs, vcov, etc.) are computed dropping the bootstrap runs that errored. `@warn` messages should be displayed to remind the user that this is happenening. It is the user's responsibility to ensure this behavior is ok for their use case.
+
 
 # Package To-do list
 

@@ -55,13 +55,9 @@ end
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
-    myfit.theta_hat
-    myfit.fits_df
-    # ols_moments_fn(df, [0.06364138660614915, 0.2604202723600453])
-sdfd
-
-    myopts.path *= "step1/"
-    myfit2 = GMMTools.read_fit(myopts)
+    # read fit from file
+    mypath = "C:/git-repos/GMMTools.jl/examples/temp/step2/"
+    myfit2 = GMMTools.read_fit(mypath)
    
 ### using Optim.jl
     # estimation options
@@ -78,11 +74,16 @@ sdfd
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts);
 
+
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
-    vcov_simple(df, ols_moments_fn, myfit)
+    vcov_simple(df, ols_moments_fn, myfit, opts=myopts)
 
+    GMMTools.write(myfit.vcov, myopts.path)
 
-    GMMTools.write(myfit.vcov, myopts)
+    # read vcov from file
+    mypath = "C:/git-repos/GMMTools.jl/examples/temp/"
+    myvcov2 = GMMTools.read_vcov(mypath)
+    myfit.vcov = myvcov2
 
 # print table with results
     regtable(myfit) |> display
@@ -102,7 +103,7 @@ sdfd
 
 
 # read vcov with bootstrop from file
-    myfit.vcov = GMMTools.read_vcov(myopts)
+    myfit.vcov = GMMTools.read_vcov(myopts.path);
     regtable(myfit) |> display
 
     # using Plots
@@ -114,4 +115,3 @@ sdfd
     # myfit.vcov
 
     # GMMTools.regtable(myfit)
-

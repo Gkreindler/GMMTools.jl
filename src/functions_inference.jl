@@ -44,10 +44,23 @@ function jacobian(data, mom_fn::Function, myfit::GMMFit)
 
 end
 
-function vcov_simple(data, mom_fn::Function, myfit::GMMFit)
+function vcov_simple(
+    data, 
+    mom_fn::Function, 
+    myfit::GMMFit; 
+    opts::GMMOptions=default_gmm_opts()
+    )
     
     # cannot compute if estimation errored
     myfit.errored && error("Cannot compute vcov_simple because estimation errored.") 
+
+    # try to read from file
+    myvcov = read_fit(opts.path)
+    if !isnothing(myvcov) && myvcov.method == :simple
+        # TODO: use opts.overwrite option to error if vcov already exists but is not :simple
+        myfit.vcov = myvcov
+        return
+    end
 
     # jacobian
     J = jacobian(data, mom_fn, myfit)
@@ -74,6 +87,9 @@ function vcov_simple(data, mom_fn::Function, myfit::GMMFit)
         W = W,
         Σ = Σ,
         ses = sqrt.(diag(V)))
+
+    # save results to file?
+    (opts.path != "") && write(myfit.vcov, opts.path)
 
     return
 end
@@ -259,6 +275,14 @@ function vcov_bboot(
     run_parallel=true,
     opts::GMMOptions=default_gmm_opts())
 
+    # try to read from file
+    myvcov = read_fit(opts.path)
+    if !isnothing(myvcov) && myvcov.method == :bayesian_bootstrap
+        # TODO: use opts.overwrite option to error if vcov already exists but is not bayesian_bootstrap
+        myfit.vcov = myvcov
+        return
+    end
+
     # copy options so we can modify them (trace and path)
     opts = deepcopy(opts)
 
@@ -324,7 +348,7 @@ function vcov_bboot(
     )
 
     # save results to file?
-    (opts.path != "") && write(myfit.vcov, opts)
+    (opts.path != "") && write(myfit.vcov, opts.path)
 
     # delete all intermediate files with individual iteration results
     if opts.clean_iter 
@@ -337,7 +361,7 @@ function vcov_bboot(
         end
     end
 
-    return boot_fits
+    return 
 end
 
 function bboot(
