@@ -1,12 +1,15 @@
 
 
 Base.@kwdef mutable struct GMMOptions
+
+    # files
     path::String = ""                       # path to save results
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # delete individual run files at the end of the estimation
     overwrite::Bool = true      # overwrite existing results file and individual run files
     throw_errors::Bool = true   # throw optimization errors (if false, save them to file but continue with the other runs)
 
+    # optimizer
     optimizer::Symbol = :optim              # optimizer backend: :optim or :lsqfit (LM)
     optim_algo = LBFGS()                    # Optim.jl algorithm
     optim_opts = nothing                    # additional options. For Optim.jl, this is an Optim.options() object. For LsqFit.jl, this is a NamedTuple
@@ -14,8 +17,11 @@ Base.@kwdef mutable struct GMMOptions
     theta_lower = nothing                   # nothing or vector of lower bounds
     theta_upper = nothing                   # nothing or vector of upper bounds
     
+    # parameter
+    theta_factors::Union{Vector{Float64}, Nothing} = nothing # options are nothing or a vector of length P with factors for each parameter. Parameter theta[i] will be replaced by theta[i] * theta_factors[i] before optimization
     theta_names::Union{Vector{String}, Nothing} = nothing  # names of parameters 
 
+    # display
     trace::Integer = 0
 end
 
@@ -31,6 +37,7 @@ Base.@kwdef mutable struct GMMFit
     theta0::Vector         # initial conditions   (vector of size P or K x P matrix for K sets of initial conditions)
     theta_hat::Vector      # estimated parameters (vector of size P)
     theta_names::Union{Vector{String}, Nothing}
+    theta_factors::Union{Vector{Float64}, Nothing} = nothing # nothing or a vector of length P with factors for each parameter. Parameter theta[i] was replaced by theta[i] * theta_factors[i] before optimization
 
     moms_hat = nothing # value of moments at theta_hat (N x M matrix)
     n_obs = nothing # number of observations (N)
@@ -138,19 +145,7 @@ function table_fit(r::GMMFit)
     return fits_df
 end
 
-function clean_iter(opts)
-    try
-        if isdir(opts.path * "__iter__/")
-            (opts.trace > 0) && print("Deleting intermediate files from: ", opts.path)
-            rm(opts.path * "__iter__/", force=true, recursive=true)
-            (opts.trace > 0) && println(" Done.")
-        else
-            (opts.trace > 0) && println("No intermediate files to delete.")
-        end
-    catch e
-        println(" Error while deleting intermediate files from : ", opts.path, ". Error: ", e)
-    end
-end
+
 
 function stats_at_theta_hat(myfit::GMMFit, data, mom_fn::Function)
     
@@ -167,11 +162,9 @@ function stats_at_theta_hat(myfit::GMMFit, data, mom_fn::Function)
 end
 
 
-
 ###### GMM
-
-
 """
+gateway function to estimate GMM model
 """
 function fit(
     data, 
@@ -183,6 +176,14 @@ function fit(
     run_parallel=true, 
     opts=GMMTools.GMMOptions())
 
+    # checks # TODO: add more
+    @assert isa(mom_fn, Function) "mom_fn must be a function"
+    @assert isa(theta0, Vector) || isa(theta0, Matrix) "theta0 must be a Vector (P) or a Matrix (K x P)"
+    @assert isa(W, Matrix) || isa(W, UniformScaling) "W must be a Matrix or UniformScaling (e.g. I)"
+    @assert isa(weights, Vector) || isnothing(weights) "weights must be a Vector or nothing"
+    @assert mode == :onestep || mode == :twostep "mode must be :onestep or :twostep"    
+
+    # one-step or two-step GMM
     if mode == :onestep
         return fit_onestep(
                 data, 

@@ -17,12 +17,13 @@ Core estimation features:
 1. inference: (1) asymptotic i.i.d. and (2) Bayesian (weighted) bootstrap
 
 Convenience features:
-1. integrated with RegressionTables.jl
+1. integrated with RegressionTables.jl for publication-quality tables
 1. efficiently resume estimation based on incomplete results (e.g. when bootstrap run #63, or initial condition #35, fails or runs out of time or out of memory after many hours)
 1. parallel over initial conditions (embarrassingly parallel using `Distributed.jl`)
 1. parallel bootstrap
 1. suitable for running on computer clusters (e.g. using slurm)
-1. easily select subset of parameters to estimate
+1. simple option to normalize parameters before they are fed to the optimizer
+1. simple option to estimate a subset of parameters and use fixed values for the others (also works with AD)
 
 # Example
 See a fully worked out example in
@@ -67,6 +68,7 @@ myopts = GMMTools.GMMOptions(
                 lower_bound=[0.0, -Inf],  # box constraints
                 upper_bound=[Inf,  10.0],
                 optim_opts=(show_trace=true,), # additional options for curve_fit() from LsqFit.jl in a NamedTuple. (For Optim.jl, this should be an Optim.options() object)
+                theta_factors::Union{Vector{Float64}, Nothing} = nothing, # options are nothing or a vector of length P with factors for each parameter. Parameter theta[i] will be replaced by theta[i] * theta_factors[i] before optimization. Rule of thumb: if theta[i] is on the order of 10^M, pick theta_factor[i] = 10^(-M).
                 trace=1)                  # 0, 1, or 2
 
 myfit = GMMTools.fit(MYDATA, mom_fn, theta0, mode=:twostep, opts=myopts)
@@ -90,6 +92,11 @@ Set the `GMMOptions` field `throw_errors=false` to capture these errors and writ
 - when using multiple initial conditions, all iterations that error are recorded in `myfit.fits_df` with `errored=true` and `obj_value=Inf`. If all iterations error, we have `myfit.errored=true` and several other fields are recorded as `missing`
 - for bootstrap results, similar rules apply. Note that inference objects (SEs, vcov, etc.) are computed dropping the bootstrap runs that errored. `@warn` messages should be displayed to remind the user that this is happenening. It is the user's responsibility to ensure this behavior is ok for their use case.
 
+## Misc convenience options
+
+__Scaling paarmeters__ The `theta_factors` option in `GMMOptions()` requests that the parameters be scaled before feeding them to the optimizer. Parameter theta[i] will be replaced by theta[i] * theta_factors[i] before optimization. Rule of thumb: if `theta[i]` is on the order of `10^M`, pick `theta_factor[i] = 10^(-M)`.
+
+Example. Suppose `theta = [alpha, beta]` and we expect `alpha` to be between 0 and 1 while `beta` to be on the order of 0 to 1000. In general (not always) it's a good idea to scale `beta` down to approximately 0 to 1, which will ensure that the optimizer "cares" similarly about `alpha` and `beta`. (This also helps to make sense of magnitude of the default optimizer tolerance for theta, typically called `x_tol`.) We achieve this simply by selecting `theta_factors=[1.0, 0.001]`. All other inputs and outputs should have the original magnitudes: initial conditions `theta0` and final estimates `myfit.theta_hat`.
 
 # Package To-do list
 

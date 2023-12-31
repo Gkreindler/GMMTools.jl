@@ -120,8 +120,22 @@ function write(myvcov::GMMvcov, full_path; subpath="vcov")
     return
 end
 
-
-
+"""
+Delete intermediate files
+"""
+function clean_iter(opts)
+    try
+        if isdir(opts.path * "__iter__/")
+            (opts.trace > 0) && print("Deleting intermediate files from: ", opts.path)
+            rm(opts.path * "__iter__/", force=true, recursive=true)
+            (opts.trace > 0) && println(" Done.")
+        else
+            (opts.trace > 0) && println("No intermediate files to delete.")
+        end
+    catch e
+        println(" Error while deleting intermediate files from : ", opts.path, ". Error: ", e)
+    end
+end
 
 
 
@@ -155,6 +169,10 @@ function nothing2missing(x; mytype=Float64)
     return isnothing(x) ? missing : convert(mytype, x)
 end
 
+function nothing_or_convert(x; mytype=Float64)
+    return isnothing(x) ? nothing : convert(mytype, x)
+end
+
 function dict2fit(myfit_dict)
 
     # JSON.print(myfit_dict, 2)
@@ -173,6 +191,7 @@ function dict2fit(myfit_dict)
             theta0          =nothing2missing.(myfit_dict["theta0"]),
             theta_hat       =nothing2missing.(myfit_dict["theta_hat"]),
             theta_names     =myfit_dict["theta_names"],
+            theta_factors   =nothing_or_convert.(myfit_dict["theta_factors"]), 
 
             moms_hat        = myfit_dict["moms_hat"],
             n_obs           =myfit_dict["n_obs"],

@@ -1,4 +1,14 @@
 
+
+function inverse_factors_theta(theta, theta_factors)
+
+    isnothing(theta_factors) && return theta
+
+    isa(theta, Vector) && return theta ./ theta_factors
+
+    error("theta_factors must be nothing or a Vector of Float64 same size as theta0")
+end
+
 function backend_optimizer(
     idx,
     data, 
@@ -11,13 +21,30 @@ function backend_optimizer(
 
     @assert in(opts.optimizer, [:optim, :lsqfit]) "Optimizer " * string(opts.optimizer) * " not supported. Stopping."
 
+    # * we could also have this block in the gateway fit() function, because we only need to do this once. But this seems a more logical place, and this cannot take much time at all.
+    # pre-processing: factors
+    if isa(opts.theta_factors, Vector)
+
+        @assert !any(opts.theta_factors .≈ 0.0) "theta_factors cannot be zero"
+
+        @assert isa(theta0, Vector)
+        theta0 = theta0 .* opts.theta_factors
+        
+        mom_fn_scaled = (data, theta) -> mom_fn(data, theta ./ opts.theta_factors)
+
+    else     
+        @assert isnothing(opts.theta_factors) "theta_factors must be nothing or a Vector of Float64 same size as theta0"
+    
+        mom_fn_scaled = mom_fn
+    end
+
     try
         if opts.optimizer == :optim
             # Use the general purpose Optim.jl package for optimization (default)
 
             return backend_optimjl( 
                 data, 
-                mom_fn,
+                mom_fn_scaled,
                 theta0;
                 W=W,    
                 weights=weights, 
@@ -30,7 +57,7 @@ function backend_optimizer(
 
             return backend_lsqfit( 
                 data, 
-                mom_fn,
+                mom_fn_scaled,
                 theta0;
                 W=W,    
                 weights=weights, 
@@ -69,6 +96,10 @@ function backend_optimizer(
     end
 end
 
+
+####################
+### OPTIM.JL BACKEND
+####################
 
 function gmm_objective(theta::Vector, data, mom_fn::Function, W, weights; trace=0)
 
@@ -146,23 +177,29 @@ function backend_optimjl(
     model_fit = GMMFit(
         mode=mode,
         converged = Optim.converged(raw_opt_results),
-        theta_hat = Optim.minimizer(raw_opt_results),
+        theta_hat = inverse_factors_theta(Optim.minimizer(raw_opt_results), opts.theta_factors),
         theta_names = opts.theta_names,
         weights=weights,
         W=W,
         obj_value = Optim.minimum(raw_opt_results),
         iterations = Optim.iterations(raw_opt_results),
         iteration_limit_reached = Optim.iteration_limit_reached(raw_opt_results),
-        theta0 = theta0,
-        time_it_took = time_it_took
+        theta0 = inverse_factors_theta(theta0, opts.theta_factors),
+        time_it_took = time_it_took,
+        theta_factors=opts.theta_factors
     )
 
     return model_fit
 end
 
 
-############### LSQFIT (write the objective as a sum of squares)
+####################
+### LSQFIT.JL BACKEND
+####################
 
+"""
+To write the objective g'Wg as a sum of squares, we need to "split" W into using its Cholesky decomposition Whalf that satisfies Whalf' * Whalf = W. Then g'Wg = (Whalf * g)' * (Whalf * g)
+"""
 function gmm_objective_half(theta::Vector, data, mom_fn::Function, Whalf, weights)
 
     m = mom_fn(data, theta)
@@ -252,15 +289,16 @@ function backend_lsqfit(
     model_fit = GMMFit(
         mode=mode,
         converged = raw_opt_results.converged,
-        theta_hat = raw_opt_results.param,
+        theta_hat = inverse_factors_theta(raw_opt_results.param, opts.theta_factors),
         theta_names = opts.theta_names,
         weights=weights,
         W=W,
         obj_value = sum(raw_opt_results.resid .* raw_opt_results.resid),
         iterations = length(raw_opt_results.trace),  
         iteration_limit_reached = length(raw_opt_results.trace) >= 1000,
-        theta0 = theta0,
-        time_it_took = time_it_took
+        theta0 = inverse_factors_theta(theta0, opts.theta_factors),
+        time_it_took = time_it_took,
+        theta_factors=opts.theta_factors
     )
     return model_fit
 end
