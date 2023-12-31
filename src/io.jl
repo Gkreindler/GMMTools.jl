@@ -217,6 +217,8 @@ Example: fit object saved under "C:/temp/fit.json" and "C:/temp/fit.csv". Then c
 """
 function read_fit(full_path; subpath="fit", show_trace=false)
 
+    (full_path == "") && return nothing
+
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
     
@@ -254,6 +256,8 @@ Example: vcov object saved under "C:/temp/vcov.json". Then call `read_vcov("C:/t
 """
 function read_vcov(full_path; subpath="vcov", show_trace=false)
     
+    (full_path == "") && return nothing
+
     (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 

@@ -48,7 +48,7 @@ function vcov_simple(
     data, 
     mom_fn::Function, 
     myfit::GMMFit; 
-    opts::GMMOptions=default_gmm_opts()
+    opts::GMMOptions=GMMOptions()
     )
     
     # cannot compute if estimation errored

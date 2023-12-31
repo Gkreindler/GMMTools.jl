@@ -167,14 +167,15 @@ end
 gateway function to estimate GMM model
 """
 function fit(
-    data, 
-    mom_fn::Function,
-    theta0;
-    W=I,    
-    weights=nothing,
-    mode=:onestep,
-    run_parallel=true, 
-    opts=GMMTools.GMMOptions())
+    data,               # any object that can be passed to mom_fn as the first argument
+    mom_fn::Function,   # mom_fn(data, theta) returns a matrix of moments (N x M)
+    theta0;             # initial conditions (vector of size P or K x P matrix for K sets of initial conditions)
+    W=I,                # weight matrix (N x N) or uniform scaling identity (I)
+    weights=nothing,    # Vector of size N or nothing
+    mode=:onestep,      # :onestep or :twostep
+    run_parallel=false, # run in parallel (pmap, embarasingly parallel) or not
+    opts=GMMTools.GMMOptions() # other options
+)
 
     # checks # TODO: add more
     @assert isa(mom_fn, Function) "mom_fn must be a function"

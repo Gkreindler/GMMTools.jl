@@ -38,9 +38,9 @@ The user must provide a moment function `mom_fn(data, theta)` that takes a `data
 
 To estimate a model using two-step optimal GMM, compute the asymptotic variance-covariance matrix, and display a table with the results, run
 ```julia
-myfit = GMMTools.fit(MYDATA, mom_fn, theta0, mode=:twostep)
+myfit = GMMTools.fit(MYDATA, mom_fn, theta0) # defaults: identify weights matrix, one-step GMM
 GMMTools.vcov_simple(MYDATA, mom_fn, myfit)
-regtable(myfit)
+GMMTools.regtable(myfit)
 ```
 
 The parameter `theta0` is either a vector of size $P$, or a $K\times P$ matrix with $K$ sets of initial conditions. The convenience function `GMMTools.random_initial_conditions(theta0::Vector, K::Int; theta_lower=nothing, theta_upper=nothing)` generates `K` random initial conditions around `theta0` (and between `theta_lower` and `theta_upper`, if provided).
@@ -48,12 +48,25 @@ The parameter `theta0` is either a vector of size $P$, or a $K\times P$ matrix w
 For inference using Bayesian (weighted) bootstrap, replace the second line by 
 ```julia
 # generate bootstrap weights first and separately. In case the estimation is interrupted, running this code again generates exactly the same weights, so we can continue where we left off.
-bweights_matrix = boot_weights(MYDATA, myfit, nboot=500, method=:simple, rng_initial_seed=1234) 
-vcov_bboot(MYDATA, mom_fn, theta0, myfit, bweights_matrix, opts=myopts)
+bweights_matrix = GMMTools.boot_weights(MYDATA, myfit, nboot=500, method=:simple, rng_initial_seed=1234) 
+GMMTools.vcov_bboot(MYDATA, mom_fn, theta0, myfit, bweights_matrix, opts=myopts)
 ```
 
-
 # Options
+The fit function accepts the following arguments:
+```julia
+function fit(
+    data,               # any object that can be passed to mom_fn as the first argument
+    mom_fn::Function,   # mom_fn(data, theta) returns a matrix of moments (N x M)
+    theta0;             # initial conditions (vector of size P or K x P matrix for K sets of initial conditions)
+    W=I,                # weight matrix (N x N) or uniform scaling identity (I)
+    weights=nothing,    # Vector of size N or nothing
+    mode=:onestep,      # :onestep or :twostep
+    run_parallel=false, # run in parallel (pmap, embarasingly parallel) or not
+    opts=GMMTools.GMMOptions() # other options
+)
+```
+
 `fit()` accepts detailed options that control (1) whether and how results are saved to file, and (2) the optimization backend and options.
 
 ```julia
@@ -85,6 +98,13 @@ myfit = GMMTools.read_fit(mypath1)
 myfit.vcov = GMMTools.read_vcov(mypath2)
 ```
 
+## Parallel 
+Embarassingly parallel using Distributed.jl.
+
+For an example, see [examples/example_ols_parallel.jl](https://github.com/Gkreindler/GMMTools.jl/blob/main/examples/example_ols_parallel.jl).
+
+Note, the `MYDATA` object is copied to all workers. Currently, no support exists for SharedArrays.jl or other options that are less memory intensive.
+
 ## Capturing errors
 By default, any error during optimization stops the entire estimation (or inference) command.
 
@@ -112,6 +132,7 @@ Example. Suppose `theta = [alpha, beta]` and we expect `alpha` to be between 0 a
 
 ## Documentation to-do list
 1. docs
+1. Metrics theory recap
 1. Bootstrap options, including custom weihts function and an example
 1. walkthrough for re-running failed estimation, stability of the random initial condition and bootstrap weights
 1. (easy) example with subset parameters
