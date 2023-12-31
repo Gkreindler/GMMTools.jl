@@ -23,7 +23,7 @@ Convenience features:
 1. parallel bootstrap
 1. suitable for running on computer clusters (e.g. using slurm)
 1. simple option to normalize parameters before they are fed to the optimizer
-1. simple option to estimate a subset of parameters and use fixed values for the others (also works with AD)
+1. simple example to estimate a subset of parameters and use fixed values for the others (also works with AD)
 
 # Example
 See a fully worked out example in
@@ -104,8 +104,9 @@ Example. Suppose `theta = [alpha, beta]` and we expect `alpha` to be between 0 a
 1. compute sensitivity measure (Andrews et al 2017)
 1. classical minimum distance (CMD), CUE
 1. more general estimation of the covariance of the moments, cluster, HAC, Newey-West, etc.
-1. other optimization backends
+1. other optimization backends (parallel tempering)
 1. tests
+1. estimate a subset of parameters with option `theta_fixed = [missing, 1.0, 9.5, missing]` to fix `theta_2=1.0` and `theta_3=9.5` and estimate `(theta_1, theta_4)`
 1. (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
 1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
 
