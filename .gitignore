@@ -9,3 +9,7 @@ Manifest.toml
 .vscode
 examples/temp/
 examples\temp\
+examples/temp/vcov.json
+examples/temp/vcov_boot_fits_df.csv
+examples/temp/vcov_boot_moms_hat_df.csv
+examples/temp/vcov_boot_weights.csv
