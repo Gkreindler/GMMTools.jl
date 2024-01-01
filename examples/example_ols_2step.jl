@@ -118,10 +118,13 @@ end
                     overwrite=true,
                     throw_errors=false,
                     theta_factors=[0.25, 4.0], # ! this is new. Ask theta_1 to be divided by 4 before feeding it to the optimizer, and ask theta_2 to be multiplied by 4
-                    trace=0)
+                    trace=1)
 
     # estimate model
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
     vcov_simple(df, ols_moments_fn, myfit, opts=myopts)
+
+    myopts.trace = 1
+    vcov_bboot(df, ols_moments_fn, theta0, myfit, bweights_matrix, opts=myopts)
 
     regtable(myfit) |> display # ! same results as before

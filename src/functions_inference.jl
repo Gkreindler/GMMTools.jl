@@ -28,18 +28,19 @@ end
 
 ### Asymptotic variance-covariance matrix
 
-function jacobian(data, mom_fn::Function, myfit::GMMFit)
+function jacobian(data, mom_fn::Function, theta_hat::Vector{Float64})
     
     moment_loaded = theta -> mean(mom_fn(data, theta), dims=1)
 
     try
         # try automatic differentiation
-        return ForwardDiff.jacobian(moment_loaded, myfit.theta_hat)
+        @info "jacobian: using AD ForwardDiff.jacobian"
+        return ForwardDiff.jacobian(moment_loaded, theta_hat)
     catch e
         throw(e)
         # fall back on finite differences
-        println("jacobian: AD failed, falling back on finite differences")
-        return FiniteDiff.finite_difference_jacobian(moment_loaded, myfit.theta_hat)
+        @info "jacobian: AD failed, falling back on finite differences FiniteDiff.finite_difference_jacobian"
+        return FiniteDiff.finite_difference_jacobian(moment_loaded, theta_hat)
     end
 
 end
@@ -55,15 +56,15 @@ function vcov_simple(
     myfit.errored && error("Cannot compute vcov_simple because estimation errored.") 
 
     # try to read from file
-    myvcov = read_fit(opts.path)
-    if !isnothing(myvcov) && myvcov.method == :simple
+    myvcov = read_vcov(opts.path)
+    if !opts.overwrite && !isnothing(myvcov) && myvcov.method == :simple
         # TODO: use opts.overwrite option to error if vcov already exists but is not :simple
         myfit.vcov = myvcov
         return
     end
 
     # jacobian
-    J = jacobian(data, mom_fn, myfit)
+    J = jacobian(data, mom_fn, myfit.theta_hat)
    
     # weighting matrix
     W = myfit.W
@@ -76,9 +77,9 @@ function vcov_simple(
     Σ = Transpose(m) * m / N
     # display(Σ)
 
-    invJWJ = inv(J * W * J')
+    invJWJ = inv(J' * W * J)
     
-    V = invJWJ * J * W * Σ * W' * J * invJWJ ./ N
+    V = invJWJ * J' * W * Σ * W' * J * invJWJ ./ N
 
     myfit.vcov = GMMvcov(
         method = :simple,
@@ -280,8 +281,8 @@ function vcov_bboot(
     opts::GMMOptions=default_gmm_opts())
 
     # try to read from file
-    myvcov = read_fit(opts.path)
-    if !isnothing(myvcov) && myvcov.method == :bayesian_bootstrap
+    myvcov = read_vcov(opts.path)
+    if !opts.overwrite && !isnothing(myvcov) && myvcov.method == :bayesian_bootstrap
         # TODO: use opts.overwrite option to error if vcov already exists but is not bayesian_bootstrap
         myfit.vcov = myvcov
         return
@@ -298,8 +299,8 @@ function vcov_bboot(
 
     # create path for saving results
     if (opts.path != "") && (opts.path != "")
-        (opts.trace > 0) && println("creating path for saving results")
         bootpath = opts.path * "__boot__/"
+        (opts.trace > 0) && @info "creating boot path for saving results: " * bootpath
         isdir(bootpath) || mkdir(bootpath)
     end
 
@@ -381,8 +382,9 @@ function bboot(
 
     # path for saving results
     new_opts = deepcopy(opts)
-    (new_opts.path != "") && (new_opts.path *= "__boot__/boot_" * string(idx) * "_")
-    new_opts.trace = 0
+    (new_opts.path != "") && (new_opts.subpath = "__boot__/boot_" * string(idx))
+
+    new_opts.trace -= 1 # reduce trace for individual runs
 
     return fit(data, mom_fn, theta0, W=W, weights=boot_weights, run_parallel=false, opts=new_opts)
 end

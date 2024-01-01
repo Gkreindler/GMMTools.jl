@@ -23,7 +23,7 @@ Convenience features:
 1. parallel bootstrap
 1. suitable for running on computer clusters (e.g. using slurm)
 1. simple option to normalize parameters before they are fed to the optimizer
-1. simple example to estimate a subset of parameters and use fixed values for the others (also works with AD)
+1. simple example to estimate a subset of parameters and use fixed values for the others (works with AD)
 
 # Example
 See a fully worked out example in
@@ -112,11 +112,13 @@ Set the `GMMOptions` field `throw_errors=false` to capture these errors and writ
 - when using multiple initial conditions, all iterations that error are recorded in `myfit.fits_df` with `errored=true` and `obj_value=Inf`. If all iterations error, we have `myfit.errored=true` and several other fields are recorded as `missing`
 - for bootstrap results, similar rules apply. Note that inference objects (SEs, vcov, etc.) are computed dropping the bootstrap runs that errored. `@warn` messages should be displayed to remind the user that this is happenening. It is the user's responsibility to ensure this behavior is ok for their use case.
 
-## Misc convenience options
+## Misc convenience options and examples
 
-__Scaling paarmeters__ The `theta_factors` option in `GMMOptions()` requests that the parameters be scaled before feeding them to the optimizer. Parameter theta[i] will be replaced by theta[i] * theta_factors[i] before optimization. Rule of thumb: if `theta[i]` is on the order of `10^M`, pick `theta_factor[i] = 10^(-M)`.
+__Scaling parameters.__ The `theta_factors` option in `GMMOptions()` requests that the parameters be scaled before feeding them to the optimizer. Parameter theta[i] will be replaced by theta[i] * theta_factors[i] before optimization. Rule of thumb: if `theta[i]` is on the order of `10^M`, pick `theta_factor[i] = 10^(-M)`.
 
 Example. Suppose `theta = [alpha, beta]` and we expect `alpha` to be between 0 and 1 while `beta` to be on the order of 0 to 1000. In general (not always) it's a good idea to scale `beta` down to approximately 0 to 1, which will ensure that the optimizer "cares" similarly about `alpha` and `beta`. (This also helps to make sense of magnitude of the default optimizer tolerance for theta, typically called `x_tol`.) We achieve this simply by selecting `theta_factors=[1.0, 0.001]`. All other inputs and outputs should have the original magnitudes: initial conditions `theta0` and final estimates `myfit.theta_hat`.
+
+__Estimating a subset of parameters.__ See [examples/example_ols_fixed.jl](https://github.com/Gkreindler/GMMTools.jl/blob/main/examples/example_ols_parallel.jl)
 
 # Package To-do list
 
@@ -126,16 +128,15 @@ Example. Suppose `theta = [alpha, beta]` and we expect `alpha` to be between 0 a
 1. more general estimation of the covariance of the moments, cluster, HAC, Newey-West, etc.
 1. other optimization backends (parallel tempering)
 1. tests
-1. estimate a subset of parameters with option `theta_fixed = [missing, 1.0, 9.5, missing]` to fix `theta_2=1.0` and `theta_3=9.5` and estimate `(theta_1, theta_4)`
-1. (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
-1. (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
+1. (?) (using user-provided function to generate data from model) Monte Carlo simulation to compute size and power.
+1. (?) (using user-provided function to generate data from model) Monte Carlo simulation of estimation finite sample properties (simulate data for random parameter values ⇒ run GMM ⇒ compare estimated parameters with underlying true parameters)
+1. (?) estimate a subset of parameters with option `theta_fixed = [missing, 1.0, 9.5, missing]` to fix `theta_2=1.0` and `theta_3=9.5` and estimate `(theta_1, theta_4)`
 
 ## Documentation to-do list
 1. docs
 1. Metrics theory recap
 1. Bootstrap options, including custom weihts function and an example
 1. walkthrough for re-running failed estimation, stability of the random initial condition and bootstrap weights
-1. (easy) example with subset parameters
 1. Optimization discussion: finite vs AD, discontinuities in the objective function (e.g. due to iterated value function), (anecdotal) advantages of using the Levenberg-Marquardt algorithm over Optiml.jl
 1. Non-linear estimation example
 1. Example with AD including cache data and implicit function differentiation

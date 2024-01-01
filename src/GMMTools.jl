@@ -36,7 +36,7 @@ using RegressionTables
 
 
 export GMMOptions,
-        random_initial_conditions, theta_add_fixed_values,
+        random_initial_conditions, theta_add_fixed_values, default_theta_names, # utilities
         default_gmm_opts, default_optim_opts,
         fit, 
         vcov_simple, vcov_bboot, boot_weights,

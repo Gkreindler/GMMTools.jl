@@ -32,6 +32,8 @@ function backend_optimizer(
         
         mom_fn_scaled = (data, theta) -> mom_fn(data, theta ./ opts.theta_factors)
 
+        (opts.trace > 1) && @info "theta_factors specified. Scaling theta0 and moment function input."
+
     else     
         @assert isnothing(opts.theta_factors) "theta_factors must be nothing or a Vector of Float64 same size as theta0"
     

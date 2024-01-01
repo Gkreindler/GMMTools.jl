@@ -4,6 +4,7 @@ Base.@kwdef mutable struct GMMOptions
 
     # files
     path::String = ""                       # path to save results
+    subpath::String = "fit"                 # subpath to save results (e.g. "__iter__/fit" or "__boot__/boot_1_fit" )
     write_iter::Bool = false    # write to file each result (each initial run)
     clean_iter::Bool = false    # delete individual run files at the end of the estimation
     overwrite::Bool = true      # overwrite existing results file and individual run files
@@ -226,12 +227,14 @@ function fit_twostep(
     opts = deepcopy(opts)
 
     main_path = opts.path
-    (main_path[end] != '/') && (main_path *= "/")
+    (main_path != "") && (main_path[end] != '/') && (main_path *= "/")
 
     ### Step 1
     (opts.trace > 0) && println(">>> Starting GMM step 1.")
-    opts.path = main_path * "step1/"
-    isdir(opts.path) || mkdir(opts.path)
+    if opts.path != ""
+        opts.path = main_path * "step1/"
+        isdir(opts.path) || mkdir(opts.path)
+    end
 
     fit_step1 = fit_onestep(
         data, 
@@ -244,8 +247,10 @@ function fit_twostep(
         opts=opts)
 
     # path for step 2
-    opts.path = main_path * "step2/"
-    isdir(opts.path) || mkdir(opts.path)
+    if opts.path != ""
+        opts.path = main_path * "step2/"
+        isdir(opts.path) || mkdir(opts.path)
+    end
 
     # if step1 errored
     if fit_step1.errored
@@ -291,11 +296,6 @@ function fit_twostep(
         run_parallel=run_parallel,
         mode=:twostep2,
         opts=opts)
-
-    # fit_step2.fit_step1 = fit_step1
-
-    # revert
-    # opts.path = main_path
 
     return fit_step2
 end
@@ -359,7 +359,7 @@ function fit_onestep(
     stats_at_theta_hat(best_model_fit, data, mom_fn)
 
     # save results to file?
-    (opts.path != "") && write(best_model_fit, opts.path)
+    (opts.path != "") && write(best_model_fit, opts.path, subpath=opts.subpath)
 
     # delete all intermediate files with individual iteration results
     opts.clean_iter && clean_iter(opts)
@@ -385,7 +385,7 @@ function fit_onerun(
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = read_fit(opts, subpath="__iter__/results_" * string(idx))
+        opt_results_from_file = read_fit(opts, subpath="__iter__/fit_" * string(idx))
         
         if !isnothing(opt_results_from_file)
             (opts.trace > 0) && println(" Reading from file.")
@@ -409,7 +409,7 @@ function fit_onerun(
     # write intermediate results to file
     if opts.write_iter 
         (opts.trace > 0) && println(" Done and done writing to file.")
-        write(model_fit, opts.path, subpath="__iter__/results_" * string(idx)) # this does not contain moms_hat (good, saves space)
+        write(model_fit, opts.path, subpath="__iter__/fit_" * string(idx)) # this does not contain moms_hat (good, saves space)
     else
         (opts.trace > 0) && println(" Done. ")
     end

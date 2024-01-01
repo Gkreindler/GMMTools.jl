@@ -51,7 +51,7 @@ function write(myfit::GMMFit, full_path; subpath="fit")
     if full_path == "" 
         return
     end    
-    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    (full_path[end] != '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 
     myfit = deepcopy(myfit)
@@ -91,7 +91,7 @@ function write(myvcov::GMMvcov, full_path; subpath="vcov")
     if full_path == ""
         return
     end
-    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    (full_path[end] != '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 
     myvcov = deepcopy(myvcov)
@@ -113,6 +113,7 @@ function write(myvcov::GMMvcov, full_path; subpath="vcov")
 
     # the rest
     fpath = full_path * ".json"
+    # isfile(fpath) && rm(fpath)
     open(fpath, "w") do file
         Base.write(file, parse_json(myvcov))
     end
@@ -219,7 +220,7 @@ function read_fit(full_path; subpath="fit", show_trace=false)
 
     (full_path == "") && return nothing
 
-    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    (full_path[end] != '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
     
     # files exist?
@@ -258,7 +259,7 @@ function read_vcov(full_path; subpath="vcov", show_trace=false)
     
     (full_path == "") && return nothing
 
-    (full_path[end] == '/') && (full_path *= '/') # ? platform issues?
+    (full_path[end] != '/') && (full_path *= '/') # ? platform issues?
     full_path *= subpath
 
     # files exits?
@@ -268,7 +269,7 @@ function read_vcov(full_path; subpath="vcov", show_trace=false)
     end
 
     # read JSON file
-    myvcov_dict = JSON.parsefile(full_path * ".json")
+    myvcov_dict = JSON.parsefile(full_path * ".json", use_mmap=false)
 
     # fix matrices
     for field in ["Σ", "J", "W", "V"]

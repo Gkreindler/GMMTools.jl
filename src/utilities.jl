@@ -39,14 +39,20 @@ end
 """
 theta_fix is a vector with the fixed values of the parameters, and missing at the other locations
 this function fills in the missing values with values from theta_small
+
+Note: all values of theta_large are of the same type as theta_small[1]. This typically works with AD, where all elements of theta_small are Dual numbers. (But theta_fix will contain Float64s)
 """
 function theta_add_fixed_values(theta_small, theta_fix)
     
     # theta_small elements are sometimes Dual or other types when doing AD
-    theta = Vector{Number}(undef, length(theta_fix))
+    theta_large = Vector{typeof(theta_small[1])}(undef, length(theta_fix))
+    # theta = Vector{Number}(undef, length(theta_fix))
 
-    theta[  ismissing.(theta_fix)] .= theta_small
-    theta[.!ismissing.(theta_fix)] .= theta_fix[.!ismissing.(theta_fix)]
+    theta_fix_idxs = .!ismissing.(theta_fix)
+    theta_large[.!theta_fix_idxs] .= theta_small
+    theta_large[  theta_fix_idxs] .= theta_fix[theta_fix_idxs]
 
-    return theta
+    return theta_large
 end
+
+default_theta_names(n_params) = ["theta_$i" for i=1:n_params]
