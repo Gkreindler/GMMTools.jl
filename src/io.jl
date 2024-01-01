@@ -203,6 +203,8 @@ function dict2fit(myfit_dict)
             W               =parse_weight_matrix(myfit_dict["W"]),
 
             obj_value       =convert.(Float64, myfit_dict["obj_value"]),
+            errored         =convert(Bool, myfit_dict["errored"]),
+            error_message   = myfit_dict["error_message"],
             converged       =myfit_dict["converged"],
             iterations      =nothing2missing(myfit_dict["iterations"], mytype=Int64),
             iteration_limit_reached = nothing2missing(myfit_dict["iteration_limit_reached"], mytype=Bool),
