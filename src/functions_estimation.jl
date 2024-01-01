@@ -333,7 +333,7 @@ function fit_onestep(
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = read_fit(opts)
+        opt_results_from_file = read_fit(opts.path, subpath=opts.subpath)
         
         if !isnothing(opt_results_from_file)
             println(" Results file already exists. Reading from file.")
@@ -385,7 +385,7 @@ function fit_onerun(
     # skip if output file already exists
     if !opts.overwrite && (opts.path != "")
         
-        opt_results_from_file = read_fit(opts, subpath="__iter__/fit_" * string(idx))
+        opt_results_from_file = read_fit(opts.path, subpath="__iter__/fit_" * string(idx))
         
         if !isnothing(opt_results_from_file)
             (opts.trace > 0) && println(" Reading from file.")

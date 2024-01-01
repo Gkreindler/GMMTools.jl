@@ -56,11 +56,13 @@ function vcov_simple(
     myfit.errored && error("Cannot compute vcov_simple because estimation errored.") 
 
     # try to read from file
-    myvcov = read_vcov(opts.path)
-    if !opts.overwrite && !isnothing(myvcov) && myvcov.method == :simple
-        # TODO: use opts.overwrite option to error if vcov already exists but is not :simple
-        myfit.vcov = myvcov
-        return
+    if !opts.overwrite 
+        myvcov = read_vcov(opts.path)
+        if !isnothing(myvcov) && myvcov.method == :simple
+            # TODO: use opts.overwrite option to error if vcov already exists but is not :simple
+            myfit.vcov = myvcov
+            return
+        end
     end
 
     # jacobian
@@ -281,11 +283,13 @@ function vcov_bboot(
     opts::GMMOptions=default_gmm_opts())
 
     # try to read from file
-    myvcov = read_vcov(opts.path)
-    if !opts.overwrite && !isnothing(myvcov) && myvcov.method == :bayesian_bootstrap
-        # TODO: use opts.overwrite option to error if vcov already exists but is not bayesian_bootstrap
-        myfit.vcov = myvcov
-        return
+    # TODO: use opts.overwrite option to error if vcov already exists but is not bayesian_bootstrap
+    if !opts.overwrite
+        myvcov = read_vcov(opts.path)
+        if !isnothing(myvcov) && myvcov.method == :bayesian_bootstrap
+            myfit.vcov = myvcov
+            return
+        end
     end
 
     # copy options so we can modify them (trace and path)
