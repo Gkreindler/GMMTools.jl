@@ -21,14 +21,24 @@ function backend_optimizer(
 
     @assert in(opts.optimizer, [:optim, :lsqfit]) "Optimizer " * string(opts.optimizer) * " not supported. Stopping."
 
+    opts = deepcopy(opts)
+
     # * we could also have this block in the gateway fit() function, because we only need to do this once. But this seems a more logical place, and this cannot take much time at all.
     # pre-processing: factors
     if isa(opts.theta_factors, Vector)
 
         @assert !any(opts.theta_factors .≈ 0.0) "theta_factors cannot be zero"
 
+        # adjust initial conditions
         @assert isa(theta0, Vector)
         theta0 = theta0 .* opts.theta_factors
+
+        # adjust bounds (if specified)
+        if !isnothing(opts.theta_lower)
+            @assert !isnothing(opts.theta_upper) "if theta_lower is specified, theta_upper must be specified as well"
+            opts.theta_lower = opts.theta_lower .* opts.theta_factors
+            opts.theta_upper = opts.theta_upper .* opts.theta_factors
+        end
         
         mom_fn_scaled = (data, theta) -> mom_fn(data, theta ./ opts.theta_factors)
 
