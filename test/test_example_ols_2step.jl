@@ -1,9 +1,4 @@
-using Pkg
-Pkg.activate(".")
-Pkg.resolve()
-Pkg.instantiate()
 
-using Revise
 using LinearAlgebra # for identity matrix "I"
 using CSV
 using DataFrames
@@ -13,16 +8,18 @@ using RegressionTables
 using GMMTools
 using Optim # need for NewtonTrustRegion()
 
-using Random
+# using Random
 
 # load data, originally from: https://www.kaggle.com/datasets/uciml/autompg-dataset/?select=auto-mpg.csv 
-    df = CSV.read("examples/auto-mpg.csv", DataFrame)
+    df = CSV.read("auto-mpg.csv", DataFrame)
     df[!, :constant] .= 1.0
-
 
 # Run plain OLS for comparison
     reg_ols = reg(df, term(:mpg) ~ term(:acceleration))
     regtable(reg_ols)
+
+    # store results here but this is not tracked by git
+    isdir("results") || mkdir("results")
 
 # define moments for OLS regression
 # residuals orthogonal to the constant and to the variable (acceleration)
@@ -39,7 +36,7 @@ end
 ### using Optim.jl
     # estimation options
     myopts = GMMTools.GMMOptions(
-                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
+                    path="results/", 
                     optimizer=:lsqfit,
                     theta_lower=[-Inf, -Inf],
                     theta_upper=[Inf, Inf],
@@ -55,13 +52,13 @@ end
     myfit = GMMTools.fit(df, ols_moments_fn, theta0, mode=:twostep, opts=myopts)
 
     # read fit from file
-    mypath = "C:/git-repos/GMMTools.jl/examples/temp/step2/"
+    mypath = "results/step2/"
     myfit2 = GMMTools.read_fit(mypath)
    
 ### using Optim.jl
     # estimation options
     myopts = GMMTools.GMMOptions(
-                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
+                    path="results/", 
                     optimizer=:optim,
                     optim_algo=LBFGS(), 
                     optim_autodiff=:forward,
@@ -80,7 +77,7 @@ end
     GMMTools.write(myfit.vcov, myopts.path)
 
     # read vcov from file
-    mypath = "C:/git-repos/GMMTools.jl/examples/temp/"
+    mypath = "results/"
     myvcov2 = GMMTools.read_vcov(mypath)
     myfit.vcov = myvcov2
 
@@ -107,12 +104,11 @@ end
 
 ### Factors in optimization
     myopts = GMMTools.GMMOptions(
-                    path="C:/git-repos/GMMTools.jl/examples/temp/", 
+                    path="results/", 
                     optimizer=:lsqfit,
                     theta_lower=[-Inf, -Inf],
                     theta_upper=[Inf, Inf],
                     optim_autodiff=:forward,
-                    # optim_opts=(show_trace=false,), # additional options for LsqFit in a NamedTuple
                     write_iter=false,
                     clean_iter=true,
                     overwrite=true,
@@ -125,3 +121,5 @@ end
     vcov_simple(df, ols_moments_fn, myfit, opts=myopts)
 
     regtable(myfit) |> display # ! same results as before
+
+    true

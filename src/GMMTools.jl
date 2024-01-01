@@ -1,8 +1,6 @@
 module GMMTools
 
-# Write your package code here.
-using Distributed # for parallel
-# using Future: randjump # will use for generating random seeds for parallel bootstrap runs
+using Distributed
 
 using DataFrames
 using LinearAlgebra
@@ -21,17 +19,20 @@ using JSON
 
 using Random
 
+# optimization backends
 using Optim
 using LsqFit
 
+# optimization gradients
 using FiniteDiff
 using ForwardDiff
 
+# ? should drop this?
 using ProgressMeter
 
+# for tables
 using Vcov # needed for regression table
 using RegressionTables
-# import ..RegressionTables: regtable, asciiOutput
 
 
 export GMMOptions,
