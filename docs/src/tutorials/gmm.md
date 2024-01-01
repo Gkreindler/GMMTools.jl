@@ -1,5 +1,7 @@
 # GMM with GMMTools.jl
 
+__NOTE (1/1/2024):__ this needs updating to latest package API.
+
 This tutorial shows how to use GMMTools.jl to estimate models using the generalized method of moments. If you have questions, open an issue or get in touch (gkreindler@g.harvard.edu).
 
 ## Getting started
