@@ -4,7 +4,7 @@
 
 
 # Summary 
-*Preliminary/In progress.*
+*This branch of GMMTools.jl is used in the replication package for Kreindler (2024) Peak-Hour Road Congestion Pricing: Experimental Evidence and Equilibrium Implications.*
 
 A toolbox for generalized method of moments (GMM) with functionality aimed at streamlining estimating models that have long runtime, using parallel computing.
 
