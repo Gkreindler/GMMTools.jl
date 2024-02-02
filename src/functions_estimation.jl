@@ -183,11 +183,11 @@ function fit(
     @assert isa(theta0, Vector) || isa(theta0, Matrix) "theta0 must be a Vector (P) or a Matrix (K x P)"
     @assert isa(W, Matrix) || isa(W, UniformScaling) "W must be a Matrix or UniformScaling (e.g. I)"
     @assert isa(weights, Vector) || isnothing(weights) "weights must be a Vector or nothing"
-    @assert mode == :onestep || mode == :twostep "mode must be :onestep or :twostep"    
+    @assert mode == :onestep || mode == :twostep || mode == :cmd "mode must be :onestep or :twostep or :cmd"
 
     # one-step or two-step GMM
-    if mode == :onestep
-        return fit_onestep(
+    if (mode == :onestep) || (mode == :cmd)
+        myfit = fit_onestep(
                 data, 
                 mom_fn,
                 theta0;
@@ -196,9 +196,11 @@ function fit(
                 run_parallel=run_parallel,
                 mode=:onestep,
                 opts=opts)
+        
+        myfit.mode = mode
     else
-        @assert mode == :twostep "mode must be :onestep or :twostep"
-        return fit_twostep(
+        @assert mode == :twostep "mode must be :onestep or :twostep or :cmd"
+        myfit = fit_twostep(
                 data, 
                 mom_fn,
                 theta0;
@@ -206,9 +208,11 @@ function fit(
                 weights=weights,
                 run_parallel=run_parallel,
                 opts=opts)
+
         myfit.mode = :twostep
-        return myfit
     end
+
+    return myfit
 end
 
 """
