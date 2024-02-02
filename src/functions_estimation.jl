@@ -40,6 +40,7 @@ Base.@kwdef mutable struct GMMFit
     theta_names::Union{Vector{String}, Nothing}
     theta_factors::Union{Vector{Float64}, Nothing} = nothing # nothing or a vector of length P with factors for each parameter. Parameter theta[i] was replaced by theta[i] * theta_factors[i] before optimization
 
+    moms_data = nothing # for CMD, keep the data moments (1 x M row vector)
     moms_hat = nothing # value of moments at theta_hat (N x M matrix)
     n_obs = nothing # number of observations (N)
     n_moms = nothing # number of moments (M)
@@ -163,6 +164,51 @@ function stats_at_theta_hat(myfit::GMMFit, data, mom_fn::Function)
 end
 
 
+###### CMD
+"""
+gateway function to estimate classical minimum model (See Wooldridge, 2010, section 14.6)
+"""
+function fit_cmd(
+    data,               # any object that can be passed to mom_fn as the first argument
+    mom_fn::Function,   # mom_fn(data, mom_data, theta) returns a matrix of moments (1 x M)
+    moms_data,           # moments from the data (1 x M)
+    moms_data_vcov,      # variance-covariance matrix of moments from the data (M x M)
+    theta0;             # initial conditions (vector of size P or K x P matrix for K sets of initial conditions)
+    run_parallel=false, # run in parallel (pmap, embarasingly parallel) or not
+    opts=GMMTools.GMMOptions() # other options
+)
+
+    # checks # TODO: add more
+    @assert isa(mom_fn, Function) "mom_fn must be a function"
+    @assert isa(theta0, Vector) || isa(theta0, Matrix) "theta0 must be a Vector (P) or a Matrix (K x P)"
+    @assert size(moms_data, 1) == 1 "mom_data must be a 1 x M row vector"
+    @assert isa(moms_data_vcov, Matrix) "`mom_data_vcov` must be a Matrix"
+        
+    ### Optimal weight matrix 
+    W = inv(Symmetric(moms_data_vcov))
+    @assert issymmetric(W)
+    
+    ### Load values of data moments in the moment function 
+    mom_fn_loaded = (data, theta) -> mom_fn(data, moms_data, theta)
+
+    # estimate
+    myfit = fit_onestep(
+            data, 
+            mom_fn_loaded,
+            theta0;
+            W=W,    
+            weights=nothing, # * we never use weights with CMD because there is a single "observation"
+            run_parallel=run_parallel,
+            mode=:onestep,
+            opts=opts)
+        
+    myfit.mode = :cmd
+    myfit.moms_data = moms_data
+    
+    return myfit
+end
+
+
 ###### GMM
 """
 gateway function to estimate GMM model
@@ -183,10 +229,10 @@ function fit(
     @assert isa(theta0, Vector) || isa(theta0, Matrix) "theta0 must be a Vector (P) or a Matrix (K x P)"
     @assert isa(W, Matrix) || isa(W, UniformScaling) "W must be a Matrix or UniformScaling (e.g. I)"
     @assert isa(weights, Vector) || isnothing(weights) "weights must be a Vector or nothing"
-    @assert mode == :onestep || mode == :twostep || mode == :cmd "mode must be :onestep or :twostep or :cmd"
+    @assert mode == :onestep || mode == :twostep "mode must be :onestep or :twostep. Use `fit_cmd()` for classical minimum distance."
 
     # one-step or two-step GMM
-    if (mode == :onestep) || (mode == :cmd)
+    if (mode == :onestep)
         myfit = fit_onestep(
                 data, 
                 mom_fn,
@@ -197,7 +243,7 @@ function fit(
                 mode=:onestep,
                 opts=opts)
         
-        myfit.mode = mode
+        myfit.mode = :onestep
     else
         @assert mode == :twostep "mode must be :onestep or :twostep or :cmd"
         myfit = fit_twostep(

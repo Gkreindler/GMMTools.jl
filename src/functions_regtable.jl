@@ -2,6 +2,9 @@
 struct bayesian_bootstrap <: CovarianceEstimator
 end
 
+struct cmd_propagate <: CovarianceEstimator
+end
+
 Base.@kwdef struct GMMRegModel <: RegressionModel
     coef::Vector{Float64}   # Vector of coefficients
     vcov::Matrix{Float64}   # Covariance matrix
@@ -84,6 +87,11 @@ function vcov_method(r::GMMFit)
         
     elseif r.vcov.method == :bayesian_bootstrap
         return bayesian_bootstrap()
+
+    elseif r.vcov.method == :cmd_propagate
+        return cmd_propagate()
+    else
+        @error "covariance method not recognized"
     end
 end
 

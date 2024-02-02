@@ -393,3 +393,133 @@ function bboot(
     return fit(data, mom_fn, theta0, W=W, weights=boot_weights, run_parallel=false, opts=new_opts)
 end
 
+
+### CMD
+
+
+"""
+    Propagate uncertainty in data_moms (π) through CMD to get uncertainty in θ_hat.
+"""
+function vcov_cmd(
+    data, 
+    mom_fn::Function,
+    moms_data_matrix,    # matrix of data_mom values (K x M), each row is a different value of data_moms
+    moms_data_vcov,      # variance-covariance matrix of moments from the data (M x M) # hold this constant # ! is this ok?
+    theta0, 
+    myfit::GMMFit;
+    run_parallel=true,
+    opts::GMMOptions=default_gmm_opts())
+
+    # try to read from file
+    # TODO: use opts.overwrite option to error if vcov already exists but is not bayesian_bootstrap
+    if !opts.overwrite
+        myvcov = read_vcov(opts.path)
+        if !isnothing(myvcov) && myvcov.method == :cmd_propagate
+            myfit.vcov = myvcov
+            return
+        end
+    end
+
+    # copy options so we can modify them (trace and path)
+    opts = deepcopy(opts)
+
+    nboot = size(moms_data_matrix, 1)
+
+    # create path for saving results
+    if (opts.path != "") && (opts.path != "")
+        bootpath = opts.path * "__boot__/"
+        (opts.trace > 0) && @info "creating boot path for saving results: " * bootpath
+        isdir(bootpath) || mkdir(bootpath)
+    end
+
+    ### bootstrap moment function 
+    # need recenter so that it equal zero at theta_hat
+    # see Hall and Horowitz (1996) for details
+    
+    if isnothing(myfit.moms_hat)
+        m = mom_fn(data, myfit.moms_data, myfit.theta_hat)
+    else
+        m = myfit.moms_hat
+    end
+
+    ### Optimal weight matrix 
+    W = inv(Symmetric(moms_data_vcov))
+    @assert issymmetric(W)
+    
+    @assert size(m, 1) == 1 # return a 1 x M row vector
+    mom_fn_boot = (mydata, mymoms_data, mytheta) -> mom_fn(mydata, mymoms_data, mytheta) .- m
+
+    # run bootstrap (serial or parallel)
+    if !run_parallel
+        all_boot_fits = Vector{GMMFit}(undef, nboot)
+        for i=1:nboot
+            all_boot_fits[i] = bboot_cmd(
+                i, 
+                data, 
+                mom_fn_boot, # using the boot mom function (zero at theta_hat)
+                moms_data_matrix[i:i, :], # ! use pertured values for data moments. Using i:i to select 1 x M
+                moms_data_vcov,
+                theta0,
+                opts=opts)
+        end
+    else
+        # all_boot_fits = @showprogress pmap( 
+        all_boot_fits = pmap( 
+            i -> bboot_cmd(
+                    i, 
+                    data, 
+                    mom_fn_boot, # using the boot mom function (zero at theta_hat)
+                    moms_data_matrix[i:i, :], # ! use pertured values for data moments. Using i:i to select 1 x M
+                    moms_data_vcov,
+                    theta0,
+                    opts=opts), 
+            1:nboot)
+    end
+
+    # collect and process all bootstrap results
+    boot_fits = process_boot_fits(all_boot_fits)
+
+    # store results
+    myfit.vcov = GMMvcov(
+        method = :cmd_propagate,
+        boot_fits = boot_fits,
+        V = cov(boot_table(boot_fits))
+    )
+
+    # save results to file?
+    (opts.path != "") && write(myfit.vcov, opts.path)
+
+    # delete all intermediate files with individual iteration results
+    if opts.clean_iter 
+        try
+            (opts.trace > 0) && print("Deleting individual boot files and __boot__ subfolder...")
+            rm(opts.path * "__boot__/", force=true, recursive=true)
+            (opts.trace > 0) && println(" Done.")
+        catch e
+            @warn "Could not delete individual boot files and __boot__ subfolder."
+        end
+    end
+
+    return 
+end
+
+function bboot_cmd(
+    idx::Int64, 
+    data, 
+    mom_fn::Function,
+    moms_data,
+    moms_data_vcov,
+    theta0;
+    opts::GMMOptions)
+
+    (opts.trace > 0) && println("bootstrap run ", idx)
+
+    # path for saving results
+    new_opts = deepcopy(opts)
+    (new_opts.path != "") && (new_opts.subpath = "__boot__/boot_" * string(idx))
+
+    new_opts.trace -= 1 # reduce trace for individual runs
+
+    return fit_cmd(data, mom_fn, moms_data, moms_data_vcov, theta0, run_parallel=false, opts=new_opts)
+end
+
