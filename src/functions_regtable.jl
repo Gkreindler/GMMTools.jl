@@ -100,9 +100,8 @@ function GMMRegModel(r::GMMFit)
     nobs = r.n_obs
 
     if isnothing(r.vcov)
-        @error "Cannot print table. No vcov estimated yet"
-        error("Cannot print table. No vcov estimated yet")
-        # TODO: warning + just print pt estimates
+        @error "No vcov estimated yet. Using zeros for vcov matrix."
+        # error("Cannot print table. No vcov estimated yet")
     end
 
     if isnothing(r.theta_names)

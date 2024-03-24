@@ -73,6 +73,7 @@ end
     display(myfit.theta_hat)
     display(cmd_moments_fn(df, mymoms_data, myfit.theta_hat))
 
+    regtable(myfit)
 
 
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
