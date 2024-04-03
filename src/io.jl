@@ -295,7 +295,10 @@ function read_vcov(full_path; subpath="vcov", show_trace=false)
             J               = myvcov_dict["J"],
             Σ               = myvcov_dict["Σ"])
 
+    show_trace && println(myvcov.method)
+
     if myvcov.method == :bayesian_bootstrap
+        show_trace && println("Reading bootstrap results from file.")
 
         # read CSV files
         weights_df = readdlm(full_path * "_boot_weights.csv",  ',', Float64)
@@ -313,6 +316,31 @@ function read_vcov(full_path; subpath="vcov", show_trace=false)
             boot_weights    = weights_df,
             boot_fits_df    = boot_fits_df,
             boot_moms_hat_df = boot_moms_hat_df)
+    end
+
+    if myvcov.method == :cmd_propagate
+        show_trace && println("Reading bootstrap results from file.")
+
+        # myvcov_dict["boot_fits_dict"]
+        boot_fits_dict = myvcov_dict["boot_fits"]["boot_fits"]
+
+        # read CSV files
+        # weights_df = readdlm(full_path * "_boot_weights.csv",  ',', Float64)
+        # boot_fits_df = CSV.read(full_path * "_boot_fits_df.csv", DataFrame)
+        # boot_moms_hat_df = CSV.read(full_path * "_boot_moms_hat_df.csv", DataFrame)    
+            
+        all_boot_fits = [dict2fit(mybootfit_dict) for mybootfit_dict in boot_fits_dict]
+        errored = [myfit.errored for myfit in all_boot_fits]
+        n_errored = sum(errored)
+
+        myvcov.boot_fits = GMMBootFits(
+            errored = errored,
+            n_errored = n_errored,
+            boot_fits = all_boot_fits,
+            boot_weights    = [1.0 1.0 ], # ! temporary
+            boot_fits_df    = DataFrame(), # ! temporary
+            # boot_moms_hat_df = boot_moms_hat_df
+            )
     end
 
     @info "Read vcov type [" * string(myvcov.method) * "] from file from " * full_path 
