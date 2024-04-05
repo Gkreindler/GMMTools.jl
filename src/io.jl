@@ -52,13 +52,15 @@ function write(myfit::GMMFit, full_path; subpath="fit")
         return
     end    
     (full_path[end] != '/') && (full_path *= '/') # ? platform issues?
+    basic_path = full_path
     full_path *= subpath
 
     myfit = deepcopy(myfit)
 
     # write vcov, then remove
         if !isnothing(myfit.vcov)
-            write(myfit.vcov, opts)
+            write(myfit.vcov, basic_path)
+            println("wrote vcov")
             myfit.vcov = nothing
         end
     
@@ -100,6 +102,20 @@ function write(myvcov::GMMvcov, full_path; subpath="vcov")
     if myvcov.method == :bayesian_bootstrap
 
         writedlm(full_path * "_boot_weights.csv", myvcov.boot_fits.boot_weights, ',')
+        CSV.write(full_path * "_boot_fits_df.csv", myvcov.boot_fits.boot_fits_df)
+        CSV.write(full_path * "_boot_moms_hat_df.csv", myvcov.boot_fits.boot_moms_hat_df)        
+
+        # boot fit objects (vector of GMMFit objects)
+        boot_fits_dict = to_dict(myvcov.boot_fits.boot_fits)
+
+        # overwrite the bootstrap object
+        myvcov.boot_fits_dict = boot_fits_dict
+        myvcov.boot_fits = nothing
+    end
+
+    # deal with tables
+    if myvcov.method == :cmd_propagate
+
         CSV.write(full_path * "_boot_fits_df.csv", myvcov.boot_fits.boot_fits_df)
         CSV.write(full_path * "_boot_moms_hat_df.csv", myvcov.boot_fits.boot_moms_hat_df)        
 
@@ -321,13 +337,12 @@ function read_vcov(full_path; subpath="vcov", show_trace=false)
     if myvcov.method == :cmd_propagate
         show_trace && println("Reading bootstrap results from file.")
 
-        # myvcov_dict["boot_fits_dict"]
-        boot_fits_dict = myvcov_dict["boot_fits"]["boot_fits"]
+        boot_fits_dict = myvcov_dict["boot_fits_dict"]
+        nboot = length(boot_fits_dict)
 
         # read CSV files
-        # weights_df = readdlm(full_path * "_boot_weights.csv",  ',', Float64)
-        # boot_fits_df = CSV.read(full_path * "_boot_fits_df.csv", DataFrame)
-        # boot_moms_hat_df = CSV.read(full_path * "_boot_moms_hat_df.csv", DataFrame)    
+        boot_fits_df = CSV.read(full_path * "_boot_fits_df.csv", DataFrame)
+        boot_moms_hat_df = CSV.read(full_path * "_boot_moms_hat_df.csv", DataFrame)    
             
         all_boot_fits = [dict2fit(mybootfit_dict) for mybootfit_dict in boot_fits_dict]
         errored = [myfit.errored for myfit in all_boot_fits]
@@ -337,9 +352,9 @@ function read_vcov(full_path; subpath="vcov", show_trace=false)
             errored = errored,
             n_errored = n_errored,
             boot_fits = all_boot_fits,
-            boot_weights    = [1.0 1.0 ], # ! temporary
-            boot_fits_df    = DataFrame(), # ! temporary
-            # boot_moms_hat_df = boot_moms_hat_df
+            boot_weights    = ones(1, nboot),
+            boot_fits_df    = boot_fits_df,
+            boot_moms_hat_df = boot_moms_hat_df
             )
     end
 

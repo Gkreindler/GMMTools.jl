@@ -75,7 +75,6 @@ end
 
     regtable(myfit)
 
-
 # compute asymptotic variance-covariance matrix and save in myfit.vcov
     # TODO: add asymptotic variance
 
@@ -86,7 +85,7 @@ end
         n_moms = size(mymoms_data, 2)        
         mymvn = MvNormal(zeros(n_moms), mymoms_data_vcov)
 
-        n_boot = 100
+        n_boot = 10
         mymoms_data_matrix = zeros(n_boot, n_moms)
         for i=1:n_boot
             mymoms_data_matrix[i:i, :] .= mymoms_data .+ rand(mymvn)'
@@ -103,5 +102,19 @@ end
     myfit.n_obs = 100
     regtable(myfit) # print table with new bootstrap SEs -- very similar to asymptotic SEs in this case. Nice!
 
+    # write to file
+    # read fit from file
+    mypath = "C:/git-repos/GMMTools.jl/examples/temp/cmd/"
+    isdir(mypath) || mkdir(mypath)
+    GMMTools.write(myfit, mypath)
+    GMMTools.write(myfit.vcov, mypath)
+
+    ## Read from file
+    myfit2 = GMMTools.read_fit(mypath)
+    myfit2.vcov = GMMTools.read_vcov(mypath, show_trace=true)
+
+    # get bootstrap confidence intervals
+    regtable(myfit2) |> display
+    GMMTools.cis(myfit2, ci_levels=[2.5, 97.5]) |> display
 
     

@@ -173,7 +173,7 @@ function cis(myvcov::GMMvcov; ci_levels=[2.5, 97.5])
     
     if myvcov.method == :simple
         error("CI not implemented yet for simple vcov")
-    elseif myvcov.method == :bayesian_bootstrap
+    elseif (myvcov.method == :bayesian_bootstrap) || (myvcov.method == :cmd_propagate)
         return cis(myvcov.boot_fits, ci_levels=ci_levels)
     else
         error("Unknown vcov method ", myvcov.method)
