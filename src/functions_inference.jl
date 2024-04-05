@@ -37,7 +37,7 @@ function jacobian(data, mom_fn::Function, theta_hat::Vector{Float64})
         @info "jacobian: using AD ForwardDiff.jacobian"
         return ForwardDiff.jacobian(moment_loaded, theta_hat)
     catch e
-        throw(e)
+        # throw(e)
         # fall back on finite differences
         @info "jacobian: AD failed, falling back on finite differences FiniteDiff.finite_difference_jacobian"
         return FiniteDiff.finite_difference_jacobian(moment_loaded, theta_hat)
@@ -60,6 +60,7 @@ function vcov_simple(
         myvcov = read_vcov(opts.path)
         if !isnothing(myvcov) && myvcov.method == :simple
             # TODO: use opts.overwrite option to error if vcov already exists but is not :simple
+            @info "reading vcov from file (simple vcov already exists)"
             myfit.vcov = myvcov
             return
         end
@@ -70,26 +71,46 @@ function vcov_simple(
    
     # weighting matrix
     W = myfit.W
+
     
-    # simple, general: (JWJ')⁻¹ * JWΣW'J * (JWJ')⁻¹
+    if in(myfit.mode, [:onestep, :twostep]) # GMM
+        # simple, general: (JWJ')⁻¹ * JWΣW'J * (JWJ')⁻¹
 
-    # estimate Σ
-    m = mom_fn(data, myfit.theta_hat)
-    N = myfit.n_obs
-    Σ = Transpose(m) * m / N
-    # display(Σ)
+        # estimate Σ
+        m = mom_fn(data, myfit.theta_hat)
+        N = myfit.n_obs
+        Σ = Transpose(m) * m / N
+        # display(Σ)
 
-    invJWJ = inv(J' * W * J)
+        invJWJ = inv(J' * W * J)
+        
+        V = invJWJ * J' * W * Σ * W' * J * invJWJ ./ N
+
+        myfit.vcov = GMMvcov(
+            method = :simple,
+            V = V,
+            J = J,
+            W = W,
+            Σ = Σ,
+            ses = sqrt.(diag(V)))
+
+    elseif myfit.mode == :cmd # classic minimum distance
+        # Woolrdige section 14.6 equation (14.7)
+        # Avar(θ_hat) = (H' (avar(π))⁻¹ H)⁻¹
+        # but note we use the optimal weighting matrix W = (avar(π))⁻¹
+        # so  we can simplify to (H' W H)⁻¹
+
+        V = inv(J' * W * J)
+        
+        myfit.vcov = GMMvcov(
+            method = :cmd_simple,
+            V = V,
+            J = J,
+            W = W,
+            # Σ = Σ,
+            ses = sqrt.(diag(V)))
+    end
     
-    V = invJWJ * J' * W * Σ * W' * J * invJWJ ./ N
-
-    myfit.vcov = GMMvcov(
-        method = :simple,
-        V = V,
-        J = J,
-        W = W,
-        Σ = Σ,
-        ses = sqrt.(diag(V)))
 
     # save results to file?
     (opts.path != "") && write(myfit.vcov, opts.path)

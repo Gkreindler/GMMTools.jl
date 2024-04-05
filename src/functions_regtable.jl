@@ -82,7 +82,7 @@ function vcov(r::GMMFit)
 end
 
 function vcov_method(r::GMMFit)
-    if isnothing(r.vcov) || (r.vcov.method == :simple)
+    if isnothing(r.vcov) || (r.vcov.method == :simple) || (r.vcov.method == :cmd_simple)
         return Vcov.simple()
         
     elseif r.vcov.method == :bayesian_bootstrap
@@ -171,7 +171,7 @@ cis(myfit::GMMFit; ci_levels=[2.5, 97.5]) = cis(myfit.vcov, ci_levels=ci_levels)
 
 function cis(myvcov::GMMvcov; ci_levels=[2.5, 97.5]) 
     
-    if myvcov.method == :simple
+    if (myvcov.method == :simple) || (myvcov.method == :cmd_simple)
         error("CI not implemented yet for simple vcov")
     elseif (myvcov.method == :bayesian_bootstrap) || (myvcov.method == :cmd_propagate)
         return cis(myvcov.boot_fits, ci_levels=ci_levels)
