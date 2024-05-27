@@ -411,6 +411,10 @@ function bboot(
 
     new_opts.trace -= 1 # reduce trace for individual runs
 
+    # explicitly try to free up memory before running the next bootstrap
+    GC.gc()
+    GC.gc()
+
     return fit(data, mom_fn, theta0, W=W, weights=boot_weights, run_parallel=false, opts=new_opts)
 end
 
@@ -540,6 +544,10 @@ function bboot_cmd(
     (new_opts.path != "") && (new_opts.subpath = "__boot__/boot_" * string(idx))
 
     new_opts.trace -= 1 # reduce trace for individual runs
+
+    # explicitly try to free up memory before running the next bootstrap
+    GC.gc()
+    GC.gc()
 
     return fit_cmd(data, mom_fn, moms_data, moms_data_vcov, theta0, run_parallel=false, opts=new_opts)
 end

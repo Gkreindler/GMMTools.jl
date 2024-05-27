@@ -69,7 +69,7 @@ end
                     # optim_autodiff=:forward,
                     write_iter=false,
                     clean_iter=true,
-                    overwrite=true,
+                    overwrite=false, # ! do not overwrite
                     throw_errors=true,
                     theta_names= ["mpg", "acceleration", "(Intercept)"],
                     trace=2)
@@ -106,6 +106,8 @@ end
     myopts.write_iter = false # time consuming to write individual iterations to file
 
     vcov_cmd(df, cmd_moments_fn, mymoms_data_matrix, mymoms_data_vcov, theta0, myfit, opts=myopts)
+
+    fsdfd
 
     myfit.n_obs = 398
     regtable(myfit)
