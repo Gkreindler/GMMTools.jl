@@ -264,7 +264,7 @@ function fit_twostep(
 
     ### optimal weight matrix
     Wstep2_path = opts.path * "Wstep2.csv"
-    if isfile(Wstep2_path)
+    if (opts.path != "") && isfile(Wstep2_path)
         (opts.trace > 0) && print(">>> Starting GMM step 2. Reading optimal weight matrix from file... ")
         Wstep2 = readdlm(Wstep2_path, ',', Float64)
         (opts.trace > 0) && println("DONE")
@@ -280,8 +280,12 @@ function fit_twostep(
         Wstep2 = inv(Wstep2)
 
         # Save Wstep2 to file
-        writedlm(Wstep2_path,  Wstep2, ',')
-        (opts.trace > 0) && println("DONE and saved to file")
+        if (opts.path != "") 
+            writedlm(Wstep2_path,  Wstep2, ',')
+            (opts.trace > 0) && println("DONE and saved to file")
+        else
+            (opts.trace > 0) && println("DONE")
+        end
     end
 
     ### Step 2
