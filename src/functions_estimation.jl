@@ -35,8 +35,8 @@ end
 
 
 Base.@kwdef mutable struct GMMFit
-    theta0::Vector         # initial conditions   (vector of size P or K x P matrix for K sets of initial conditions)
-    theta_hat::Vector      # estimated parameters (vector of size P)
+    theta0::AbstractVector         # initial conditions   (vector of size P or K x P matrix for K sets of initial conditions)
+    theta_hat::AbstractVector      # estimated parameters (vector of size P)
     theta_names::Union{Vector{String}, Nothing}
     theta_factors::Union{Vector{Float64}, Nothing} = nothing # nothing or a vector of length P with factors for each parameter. Parameter theta[i] was replaced by theta[i] * theta_factors[i] before optimization
 
@@ -180,9 +180,9 @@ function fit(
 
     # checks # TODO: add more
     @assert isa(mom_fn, Function) "mom_fn must be a function"
-    @assert isa(theta0, Vector) || isa(theta0, Matrix) "theta0 must be a Vector (P) or a Matrix (K x P)"
-    @assert isa(W, Matrix) || isa(W, UniformScaling) "W must be a Matrix or UniformScaling (e.g. I)"
-    @assert isa(weights, Vector) || isnothing(weights) "weights must be a Vector or nothing"
+    @assert isa(theta0, AbstractVector) || isa(theta0, AbstractMatrix) "theta0 must be a Vector (P) or a Matrix (K x P)"
+    @assert isa(W, AbstractMatrix) || isa(W, UniformScaling) "W must be a Matrix or UniformScaling (e.g. I)"
+    @assert isa(weights, AbstractVector) || isnothing(weights) "weights must be a Vector or nothing"
     @assert mode == :onestep || mode == :twostep "mode must be :onestep or :twostep"    
 
     # one-step or two-step GMM
@@ -321,7 +321,7 @@ function fit_onestep(
 
     ### initial conditions
         # number of initial conditions (and always format as matrix, rows=iterations, columns=paramters)
-        isa(theta0, Vector) && (theta0 = Matrix(transpose(theta0)))
+        isa(theta0, AbstractVector) && (theta0 = Matrix(transpose(theta0)))
         nic = size(theta0, 1)
         
         # number of parameters
