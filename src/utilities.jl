@@ -3,10 +3,9 @@
 """
 Creates a random matrix of initial conditions, taking bounds into account
 """
-function random_initial_conditions(theta0::Vector, nic::Int; theta_lower=nothing, theta_upper=nothing)
-
+function random_initial_conditions(theta0::AbstractVector, nic::Int; theta_lower=nothing, theta_upper=nothing)
     n_params = length(theta0)
-    theta0_mat = zeros(nic, n_params)
+    theta0_mat = ones(nic) * theta0'
     isnothing(theta_lower) && (theta_lower = fill(-Inf, n_params))
     isnothing(theta_upper) && (theta_upper = fill( Inf, n_params))
 
@@ -35,6 +34,8 @@ function random_initial_conditions(theta0::Vector, nic::Int; theta_lower=nothing
 
     return theta0_mat
 end
+
+
 
 """
 theta_fix is a vector with the fixed values of the parameters, and missing at the other locations

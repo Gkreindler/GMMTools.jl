@@ -113,11 +113,11 @@ end
 ### OPTIM.JL BACKEND
 ####################
 
-function gmm_objective(theta::Vector, data, mom_fn::Function, W, weights; trace=0)
+function gmm_objective(theta::AbstractVector, data, mom_fn::Function, W, weights; trace=0)
 
     t1 = @elapsed m = mom_fn(data, theta)
 
-    @assert isa(m, Matrix) "m(data, theta) must return a Matrix (rows = observations, columns = moments)"
+    @assert isa(m, AbstractMatrix) "m(data, theta) must return a Matrix (rows = observations, columns = moments)"
 
     (trace > 1) && println("Evaluation took ", t1)
     
